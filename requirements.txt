@@ -1,0 +1,16 @@
+# Thư viện cho PyTorch AE, PaDiM, PatchCore.
+# TODO (thẻ Trello "Tạo repo GitHub, requirements.txt"): sau lần cài đầu tiên chạy được,
+# chốt phiên bản bằng `pip freeze` và ghi phiên bản cụ thể (==) cho các dòng dưới đây,
+# để cả hai thành viên dùng đúng cùng một bộ thư viện.
+#
+# PyTorch bản CUDA cài theo hướng dẫn tại https://pytorch.org (chọn đúng phiên bản CUDA của máy/Colab).
+torch
+torchvision
+anomalib
+scikit-learn
+numpy
+pillow
+matplotlib
+pyyaml
+pandas
+gradio

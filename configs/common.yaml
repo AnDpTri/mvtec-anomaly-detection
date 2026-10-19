@@ -1,0 +1,21 @@
+# Cấu hình chung cho CẢ 3 phương pháp (AE, PaDiM, PatchCore).
+# Mục tiêu: so sánh công bằng. Đổi giá trị ở đây thì phải chạy lại cả 3 phương pháp.
+
+data:
+  root: datasets/MVTecAD
+  image_size: 256          # resize ảnh và mask về 256×256
+  # Chuẩn hóa theo ImageNet (backbone pretrained của PaDiM/PatchCore được huấn luyện với chuẩn hóa này)
+  normalize_mean: [0.485, 0.456, 0.406]
+  normalize_std: [0.229, 0.224, 0.225]
+  mask_resize: nearest     # mask phải resize bằng nearest rồi nhị phân hóa lại
+
+seed: 42
+
+categories:
+  texture: [carpet, grid, leather, tile, wood]
+  object: [bottle, cable, capsule, hazelnut, metal_nut, pill, screw, toothbrush, transistor, zipper]
+
+# Chạy thử 3 loại này trước khi chạy đủ 15 loại
+pilot_categories: [bottle, carpet, screw]
+
+results_csv: results/results.csv

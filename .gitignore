@@ -1,0 +1,29 @@
+# Môi trường Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Dữ liệu MVTec AD: không đưa lên git (nặng + giấy phép CC BY-NC-SA 4.0).
+# Xem datasets/README.md để tải.
+datasets/*
+!datasets/README.md
+
+# Kết quả: chỉ giữ file CSV số liệu, bỏ ảnh, checkpoint, memory bank
+results/**
+!results/
+!results/**/
+!results/**/*.csv
+!results/.gitkeep
+*.ckpt
+*.pt
+*.pth
+*.npz
+lightning_logs/
+
+# Hệ điều hành / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
