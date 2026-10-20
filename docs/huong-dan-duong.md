@@ -71,8 +71,10 @@ Lưu ý dữ liệu (đã kiểm tra trên bộ thật):
 - Kiểm tra `evaluation` trên trường hợp biết trước: điểm = nhãn → AUROC = 1.0; điểm ngẫu nhiên → khoảng 0.5.
 
 ## 5. Cách làm việc
-- Mỗi việc một nhánh: `duong/dataloader`, `duong/evaluation`, `duong/padim`…
-- Mở Pull Request vào `main`, điền mẫu (mục tiêu, lý do, cách kiểm tra, thẻ Trello); An duyệt.
+- **Nhánh riêng của Dưỡng là `duong/dev`** (của An là `an/dev`). Sau khi clone: `git switch duong/dev`.
+- Mỗi ngày trước khi làm: `git pull origin main` để lấy phần An đã gộp.
+- Xong một phần dùng được thì mở Pull Request **từ `duong/dev` vào `main`**, điền mẫu (mục tiêu, lý do,
+  cách kiểm tra, thẻ Trello); An duyệt. Chi tiết: `CONTRIBUTING.md` mục 3–5.
 - Chạy từ thư mục gốc dạng module: `python -m src.padim.run_anomalib --categories bottle carpet screw`.
 - Không đưa dữ liệu, checkpoint, memory bank lên git (`.gitignore` đã chặn).
 - Sửa `src/common/`, `src/patchcore/`, `configs/` hoặc `docs/giao-dien-chung.md` thì **báo An trước**.
