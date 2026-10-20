@@ -1,6 +1,7 @@
-"""[An] Autoencoder fully connected viết hoàn toàn bằng NumPy.
+"""[An] Autoencoder viết hoàn toàn bằng NumPy (tùy chọn, để hiểu tận gốc).
 
-Mỗi tầng: h = f(W·x + b). Học bằng: loss MSE → lan truyền ngược (chain rule) → Adam.
+Mỗi tầng: h = f(W·x + b). Học bằng: loss → lan truyền ngược (chain rule) → bộ tối ưu.
+Kiến trúc, kích thước ảnh, loss, bộ tối ưu: tự chọn; giá trị mặc định dưới đây chỉ là gợi ý.
 Xem src/autoencoder/numpy_ae/README.md cho mục tiêu và thiết kế.
 """
 import numpy as np
@@ -21,7 +22,7 @@ class NumpyAutoencoder:
         raise NotImplementedError
 
     def backward(self, x, x_hat):
-        """Tính gradient của loss MSE theo mọi W, b bằng chain rule."""
+        """Tính gradient của loss theo mọi W, b bằng chain rule."""
         raise NotImplementedError
 
     def step(self, lr=1e-3, beta1=0.9, beta2=0.999, eps=1e-8):

@@ -1,7 +1,7 @@
-"""[Chung] Phần dùng chung để chạy một mô hình Anomalib trên nhiều loại MVTec AD.
+"""[Chung] Tiện ích TÙY CHỌN: chạy một mô hình Anomalib trên nhiều loại MVTec AD.
 
-Mục tiêu: PaDiM (src/padim) và PatchCore (src/patchcore) chạy cùng một quy trình, chỉ khác mô hình,
-để so sánh công bằng và không viết lặp code.
+Mục tiêu: nếu PaDiM (src/padim) hoặc PatchCore (src/patchcore) chọn triển khai bằng Anomalib thì dùng
+chung quy trình này, khỏi viết lặp code. Không bắt buộc: phương pháp tự cài thì không cần file này.
 
 Quy trình cho mỗi loại:
     datamodule MVTecAD(root, category) → model → Engine().fit → Engine().test

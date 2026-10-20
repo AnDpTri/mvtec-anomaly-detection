@@ -18,13 +18,15 @@ từ ảnh tốt rất khó).
   ngang nhau, bất kể to hay nhỏ.
 
 ## Điểm ảnh từ anomaly map
-Mặc định: làm mượt anomaly map bằng Gaussian (sigma = 4) rồi lấy **max**. Ghi rõ nếu đổi cách khác.
+Mỗi phương pháp được tự tính điểm ảnh theo cách của mình (ví dụ PatchCore có cách hiệu chỉnh riêng).
+Phương pháp nào không có cách riêng thì dùng mặc định `src.evaluation.metrics.image_score`: làm mượt
+Gaussian rồi lấy **max**. Ghi rõ cách đã dùng vào cột `note`.
 
 ## Quy tắc
 - Tính **riêng từng loại**, rồi mới lấy trung bình (trung bình texture, object và chung 15 loại).
   Không gộp ảnh của 15 loại vào một lần tính.
-- Cả 3 phương pháp dùng chung `src/evaluation/`; với Anomalib, lấy anomaly map ra rồi tính lại bằng module
-  này, đối chiếu với số Anomalib tự báo.
+- Cả 3 phương pháp dùng chung `src/evaluation/` để tính AUROC, dù triển khai bằng gì; nếu dùng Anomalib thì
+  lấy anomaly map ra rồi tính lại bằng module này, đối chiếu với số Anomalib tự báo.
 - Trước khi dùng thật: kiểm tra trên trường hợp biết trước kết quả (ví dụ điểm ảnh = nhãn → AUROC = 1.0;
   điểm ngẫu nhiên → khoảng 0.5).
 

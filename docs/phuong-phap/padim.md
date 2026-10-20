@@ -1,6 +1,6 @@
 # PaDiM · Phụ trách: Dưỡng
 
-Module: `src/padim/` · `model.py` (tự cài) · `run_anomalib.py` (Anomalib)
+Module: `src/padim/` · `model.py` (bản tự cài) · `run.py` (chạy đủ 15 loại; dùng Anomalib hoặc bản tự cài)
 Bài gốc: Defard et al., *PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization*, 2020.
 
 ## Mục tiêu
@@ -14,7 +14,8 @@ nên bền hơn với ánh sáng, nhiễu; và **không cần huấn luyện m�
 ## Cách hoạt động
 ```
 Huấn luyện (chỉ ảnh tốt, không cập nhật trọng số mạng):
-  ảnh → ResNet pretrained → đặc trưng layer1–3, ghép lại → chọn ngẫu nhiên d chiều
+  ảnh → CNN pretrained (bài gốc: ResNet18 hoặc WideResNet50) → đặc trưng nhiều tầng (bài gốc: layer1–3)
+      → ghép lại → giảm chiều (bài gốc: chọn ngẫu nhiên d chiều)
   tại MỖI vị trí (i, j): trung bình μᵢⱼ và hiệp phương sai Σᵢⱼ (+ εI để khả nghịch)
 Kiểm tra:
   điểm tại (i, j) = khoảng cách Mahalanobis √((x − μ)ᵀ Σ⁻¹ (x − μ))
@@ -31,6 +32,12 @@ Cho thấy **"con mắt" học sẵn (CNN ImageNet) + thống kê đơn giản**
   lúc là ren, lúc là nền → phân phối bị nhòe. Bottle luôn thẳng hàng nên tốt.
 - Bộ nhớ lớn: một ma trận hiệp phương sai d×d cho mỗi vị trí.
 
-## Đối chiếu
-Bản tự cài và bản Anomalib phải ra số gần nhau trên bottle, carpet, screw; nếu lệch, kiểm tra backbone,
-tầng đặc trưng, số chiều d, seed.
+## Đối chiếu (nếu có cả hai bản)
+Nếu dùng cả bản tự cài và bản Anomalib với cùng cấu hình, hai bản nên ra số gần nhau; nếu lệch, kiểm tra
+backbone, tầng đặc trưng, số chiều, seed.
+
+## Triển khai: tự do
+Thư viện, kiến trúc, backbone, tầng, loss, siêu tham số, tăng cường dữ liệu đều **tự chọn**; chỉ cần giữ
+giao thức đánh giá chung và ghi cấu hình đã dùng vào CSV (xem [giao-dien-chung.md](../giao-dien-chung.md) mục 0).
+Các con số trong phần "Cách hoạt động" là **điểm xuất phát theo bài gốc**, không bắt buộc.
+
