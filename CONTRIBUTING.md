@@ -3,8 +3,10 @@
 **Mục tiêu:** hai người viết code song song mà không đè lên nhau, và mỗi người hiểu phần của người kia.
 
 ## 1. Ai làm phần nào
-Xem [docs/phan-cong.md](docs/phan-cong.md). Mỗi file có một người chịu trách nhiệm chính (ghi ở đầu file
-và trong `.github/CODEOWNERS`). Muốn sửa file của người kia thì báo trước hoặc mở PR để người đó duyệt.
+Xem [docs/phan-cong.md](docs/phan-cong.md). Mỗi module trong `src/` có một người chịu trách nhiệm chính
+(ghi trong README của module và trong `.github/CODEOWNERS`). **Làm trong module của mình.** Muốn sửa module
+của người kia thì báo trước hoặc mở PR để người đó duyệt. Module `[Chung]` (`common/`, `patchcore/`) sửa
+xong phải báo người kia.
 
 ## 2. Ranh giới giữa hai người: giao diện chung
 Hai người chỉ "gặp nhau" ở một số điểm cố định, ghi trong [docs/giao-dien-chung.md](docs/giao-dien-chung.md):

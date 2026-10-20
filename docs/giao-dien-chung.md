@@ -1,11 +1,11 @@
 # Giao diện chung giữa các phần
 
 **Mục tiêu:** thống nhất dữ liệu trao đổi giữa các phần, để mỗi người viết phần mình mà ghép lại vẫn chạy.
-**Lý do:** ba phương pháp phải đánh giá bằng cùng một `evaluate.py` thì so sánh mới công bằng.
+**Lý do:** ba phương pháp phải đánh giá bằng cùng một module `src/evaluation/` thì so sánh mới công bằng.
 **Quy tắc:** đổi bất kỳ mục nào dưới đây phải báo người kia và sửa file này trong cùng Pull Request.
 
 ## 1. Cấu hình
-Mọi phần đọc từ `configs/common.yaml` qua `src.utils.load_config()`. Không ghi cứng kích thước ảnh,
+Mọi phần đọc từ `configs/common.yaml` qua `src.common.config.load_config()`. Không ghi cứng kích thước ảnh,
 đường dẫn, seed trong code.
 
 | Khóa | Giá trị | Ý nghĩa |
@@ -13,7 +13,7 @@ Mọi phần đọc từ `configs/common.yaml` qua `src.utils.load_config()`. Kh
 | `data.root` | `datasets/MVTecAD` | Thư mục dữ liệu |
 | `data.image_size` | `256` | Ảnh và mask resize về 256×256 |
 | `data.normalize_mean/std` | chuẩn ImageNet | Chuẩn hóa ảnh |
-| `seed` | `42` | Gọi `src.utils.set_seed(seed)` đầu mỗi script |
+| `seed` | `42` | Gọi `src.common.seed.set_seed(seed)` đầu mỗi lần chạy |
 | `categories.texture / object` | 5 + 10 loại | Danh sách đủ 15 loại |
 
 ## 2. Dữ liệu: `src/data/mvtec.py` → mọi phương pháp
@@ -29,7 +29,7 @@ Mọi phần đọc từ `configs/common.yaml` qua `src.utils.load_config()`. Kh
 
 `split="train"`: chỉ `train/good`. `split="test"`: toàn bộ `test/`.
 
-## 3. Đầu ra của mỗi phương pháp → `src/evaluate.py`
+## 3. Đầu ra của mỗi phương pháp → `src/evaluation/`
 Mỗi phương pháp, với mỗi loại sản phẩm, trả về cho toàn bộ tập test:
 
 | Tên | Kiểu | Hình dạng | Ý nghĩa |
@@ -43,7 +43,7 @@ Thứ tự ảnh của 4 mảng phải giống nhau. Anomaly map **chưa cần**
 không phụ thuộc thang đo.
 
 ## 4. Kết quả: `results/results.csv`
-Mỗi dòng là một (loại, phương pháp). Ghi bằng `src.evaluate.append_result`.
+Mỗi dòng là một (loại, phương pháp). Ghi bằng `src.evaluation.results.append_result`.
 
 | Cột | Ví dụ | Ghi chú |
 |---|---|---|

@@ -1,6 +1,6 @@
 # PatchCore · Phụ trách: cả hai (An 8 loại, Dưỡng 7 loại)
 
-File: `scripts/run_anomalib.py --model patchcore`
+Module: `src/patchcore/` · `run_anomalib.py` (Anomalib)
 Bài gốc: Roth et al., *Towards Total Recall in Industrial Anomaly Detection*, CVPR 2022.
 
 ## Mục tiêu

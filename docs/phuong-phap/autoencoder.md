@@ -1,7 +1,7 @@
 # Autoencoder (baseline) · Phụ trách: An
 
-File: `src/models/autoencoder.py`, `scripts/train_ae.py` (PyTorch, bảng chính) ·
-`numpy_ae/autoencoder_numpy.py` (thuần NumPy, phụ lục)
+Module: `src/autoencoder/` · `model.py`, `train.py` (PyTorch, bảng chính) ·
+`numpy_ae/model.py` (thuần NumPy, phụ lục)
 
 ## Mục tiêu
 Tạo ra **phiên bản bình thường của chính ảnh đang kiểm tra**, rồi so với ảnh gốc: chỗ khác nhau là lỗi.

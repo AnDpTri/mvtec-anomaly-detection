@@ -19,7 +19,7 @@ Dạy máy nhận ra **cái khác thường** khi nó **chỉ được thấy c�
 Mỗi phương pháp sau khắc phục điểm yếu của phương pháp trước: so pixel → so đặc trưng → bỏ ràng buộc vị trí.
 
 ## Cấu hình chung (để so sánh công bằng)
-Xem `configs/common.yaml`: ảnh 256×256, chuẩn hóa ImageNet, seed 42, cùng `src/evaluate.py`,
+Xem `configs/common.yaml`: ảnh 256×256, chuẩn hóa ImageNet, seed 42, cùng module `src/evaluation/`,
 AUROC tính riêng từng loại rồi mới lấy trung bình. Chạy thử trên bottle, carpet, screw trước khi chạy đủ 15 loại.
 
 ## Cài đặt
@@ -35,29 +35,38 @@ Không có trong repo. Xem [datasets/README.md](datasets/README.md):
 python tools/download_mvtec.py datasets/MVTecAD
 ```
 
-## Cấu trúc
+## Cấu trúc: mỗi module một người phụ trách
 ```
-configs/common.yaml        cấu hình chung
-src/data/mvtec.py          DataLoader MVTec AD                     [Dưỡng]
-src/models/autoencoder.py  conv autoencoder                        [An]
-src/models/padim.py        PaDiM tự cài                            [Dưỡng]
-src/evaluate.py            image/pixel-AUROC, vẽ heatmap, ghi CSV   [Dưỡng]
-scripts/train_ae.py        huấn luyện + đánh giá AE                [An]
-scripts/run_anomalib.py    PaDiM, PatchCore bằng Anomalib          [Dưỡng / Chung]
-numpy_ae/                  autoencoder thuần NumPy (bài học)       [An]
-demo/app.py                demo Gradio                             [An]
-tools/                     tải dữ liệu, ghép ảnh mẫu
-results/                   kết quả (chỉ CSV được đưa lên git)
-docs/                      tài liệu: phân công, giao diện chung, dữ liệu, đánh giá, phương pháp
-.github/                   CODEOWNERS (ai duyệt file nào), mẫu Pull Request
+src/
+├── common/        [Chung]  cấu hình, seed, quy trình chạy Anomalib dùng chung
+├── data/          [Dưỡng]  đọc MVTec AD (DataLoader)
+├── evaluation/    [Dưỡng]  image/pixel-AUROC, vẽ heatmap, ghi CSV
+├── autoencoder/   [An]     conv autoencoder (PyTorch) + numpy_ae/ (bản thuần NumPy)
+├── padim/         [Dưỡng]  PaDiM tự cài + chạy bằng Anomalib
+├── patchcore/     [Chung]  PatchCore bằng Anomalib (An 8 loại, Dưỡng 7 loại)
+└── demo/          [An]     demo Gradio
+configs/common.yaml         cấu hình chung
+tools/                      tải dữ liệu, ghép ảnh mẫu
+results/                    kết quả (chỉ CSV được đưa lên git)
+docs/                       tài liệu: phân công, giao diện chung, dữ liệu, đánh giá, phương pháp
+.github/                    CODEOWNERS (ai duyệt module nào), mẫu Pull Request
+```
+Mỗi module có `README.md` riêng: người phụ trách, mục tiêu, đầu vào/đầu ra, cách chạy.
+
+## Cách chạy (dự kiến, từ thư mục gốc dự án)
+```bash
+python -m src.autoencoder.train            # Autoencoder, đủ 15 loại
+python -m src.padim.run_anomalib           # PaDiM
+python -m src.patchcore.run_anomalib --categories bottle cable ...   # PatchCore theo phần chia
+python -m src.demo.app                     # Demo
 ```
 
 ## Phân công
-- **An (Đặng Hoàng An, AnDpTri):** Autoencoder (PyTorch + NumPy), demo Gradio, README.
-- **Dưỡng (Trần Văn Dưỡng, NeoFortran):** dữ liệu, `evaluate.py`, PaDiM, thí nghiệm phụ.
-- **PatchCore:** làm chung (An 8 loại, Dưỡng 7 loại).
+- **An (Đặng Hoàng An, AnDpTri):** `src/autoencoder/`, `src/demo/`, README.
+- **Dưỡng (Trần Văn Dưỡng, NeoFortran):** `src/data/`, `src/evaluation/`, `src/padim/`, thí nghiệm phụ.
+- **Chung:** `src/common/`, `src/patchcore/` (An 8 loại, Dưỡng 7 loại).
 
-Mọi phương pháp chạy trên **đủ 15 loại**. Chi tiết file nào của ai: [docs/phan-cong.md](docs/phan-cong.md).
+Mọi phương pháp chạy trên **đủ 15 loại**. Chi tiết: [docs/phan-cong.md](docs/phan-cong.md).
 Kế hoạch theo ngày và checklist: board Trello của nhóm. Hạn nộp: 27/11/2026.
 
 ## Tài liệu
