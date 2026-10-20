@@ -9,6 +9,7 @@
 | Khung mã nguồn chia theo module, mỗi module một người | `src/` (xem mục 3) |
 | Tài liệu: phân công, giao diện chung, dữ liệu, đánh giá, 3 phương pháp | `docs/` |
 | Quy trình nhánh / PR, CODEOWNERS, mẫu PR | `CONTRIBUTING.md`, `.github/` |
+| Nhánh làm việc riêng: `duong/dev` (Dưỡng), `an/dev` (An) | GitHub |
 | Script tải MVTec AD (bản sao Hugging Face) | `tools/download_mvtec.py` |
 | Đã tải đủ **15 loại**, kiểm tra **khớp bảng 1 bài báo** (3.629 train, 467 test tốt, 1.258 test lỗi) | Máy An |
 | Đọc bài MVTec AD, tóm tắt thành tài liệu | `docs/du-lieu.md` |
