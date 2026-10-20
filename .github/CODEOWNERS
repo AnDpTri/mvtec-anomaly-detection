@@ -1,0 +1,22 @@
+# Ai chịu trách nhiệm phần code nào.
+# Mục tiêu: khi mở Pull Request sửa một file, GitHub tự gợi ý đúng người cần duyệt.
+# AnDpTri = Đặng Hoàng An, NeoFortran = Trần Văn Dưỡng. Chi tiết: docs/phan-cong.md
+
+# Mặc định: cả hai cùng chịu trách nhiệm
+*                           @AnDpTri @NeoFortran
+
+# Phần của An
+src/models/autoencoder.py   @AnDpTri
+scripts/train_ae.py         @AnDpTri
+numpy_ae/                   @AnDpTri
+demo/                       @AnDpTri
+
+# Phần của Dưỡng
+src/data/                   @NeoFortran
+src/evaluate.py             @NeoFortran
+src/models/padim.py         @NeoFortran
+
+# Làm chung (PaDiM của Dưỡng + PatchCore làm chung)
+scripts/run_anomalib.py     @NeoFortran @AnDpTri
+configs/                    @AnDpTri @NeoFortran
+docs/                       @AnDpTri @NeoFortran

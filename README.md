@@ -48,17 +48,29 @@ numpy_ae/                  autoencoder thuần NumPy (bài học)       [An]
 demo/app.py                demo Gradio                             [An]
 tools/                     tải dữ liệu, ghép ảnh mẫu
 results/                   kết quả (chỉ CSV được đưa lên git)
+docs/                      tài liệu: phân công, giao diện chung, dữ liệu, đánh giá, phương pháp
+.github/                   CODEOWNERS (ai duyệt file nào), mẫu Pull Request
 ```
 
 ## Phân công
-- **An (Đặng Hoàng An):** Autoencoder, demo Gradio, README.
-- **Dưỡng (Trần Văn Dưỡng):** PaDiM, data pipeline, `evaluate.py`, thí nghiệm phụ.
+- **An (Đặng Hoàng An, AnDpTri):** Autoencoder (PyTorch + NumPy), demo Gradio, README.
+- **Dưỡng (Trần Văn Dưỡng, NeoFortran):** dữ liệu, `evaluate.py`, PaDiM, thí nghiệm phụ.
 - **PatchCore:** làm chung (An 8 loại, Dưỡng 7 loại).
 
-Kế hoạch chi tiết và checklist: board Trello của nhóm. Hạn nộp: 27/11/2026.
+Mọi phương pháp chạy trên **đủ 15 loại**. Chi tiết file nào của ai: [docs/phan-cong.md](docs/phan-cong.md).
+Kế hoạch theo ngày và checklist: board Trello của nhóm. Hạn nộp: 27/11/2026.
+
+## Tài liệu
+| | |
+|---|---|
+| [docs/giao-dien-chung.md](docs/giao-dien-chung.md) | Định dạng dữ liệu trao đổi giữa các phần (đọc trước khi viết code) |
+| [docs/du-lieu.md](docs/du-lieu.md) | Thống kê và lưu ý xử lý 15 loại MVTec AD |
+| [docs/danh-gia.md](docs/danh-gia.md) | Image-AUROC, pixel-AUROC |
+| [docs/phuong-phap/](docs/phuong-phap/) | Autoencoder, PaDiM, PatchCore: mục tiêu, cách hoạt động, điểm yếu |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Quy trình nhánh, commit, Pull Request |
 
 ## Quy ước
-- Mọi thay đổi qua Pull Request, người kia duyệt trước khi merge vào `main`.
+- Mỗi việc một nhánh (`an/...`, `duong/...`, `chung/...`), gộp vào `main` qua Pull Request, người kia duyệt.
 - Không đưa dữ liệu, checkpoint, memory bank lên git.
 
 ## Trích dẫn
