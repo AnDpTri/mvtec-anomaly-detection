@@ -1,6 +1,6 @@
 # PaDiM · Phụ trách: Dưỡng
 
-File: `src/models/padim.py` (tự cài) · `scripts/run_anomalib.py --model padim` (Anomalib)
+Module: `src/padim/` · `model.py` (tự cài) · `run_anomalib.py` (Anomalib)
 Bài gốc: Defard et al., *PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization*, 2020.
 
 ## Mục tiêu

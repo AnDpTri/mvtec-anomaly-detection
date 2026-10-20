@@ -1,7 +1,7 @@
 """[An] Autoencoder fully connected viết hoàn toàn bằng NumPy.
 
 Mỗi tầng: h = f(W·x + b). Học bằng: loss MSE → lan truyền ngược (chain rule) → Adam.
-Xem numpy_ae/README.md cho mục tiêu và thiết kế.
+Xem src/autoencoder/numpy_ae/README.md cho mục tiêu và thiết kế.
 """
 import numpy as np
 

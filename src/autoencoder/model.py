@@ -4,13 +4,13 @@ Mục tiêu: học nén rồi vẽ lại ảnh tốt. Khi gặp ảnh lỗi, m�
 không lỗi, nên chỗ khác biệt |ảnh gốc − ảnh vẽ lại| chính là vùng lỗi.
 
 Lý do dùng CNN thay vì fully connected: CNN biết pixel nào nằm cạnh pixel nào và dùng chung
-bộ lọc khắp ảnh, nên vẽ lại sắc nét hơn (so sánh với bản NumPy trong numpy_ae/).
+bộ lọc khắp ảnh, nên vẽ lại sắc nét hơn (so sánh với bản NumPy trong src/autoencoder/numpy_ae/).
 
 Thiết kế (thẻ Trello "Học PyTorch, viết khung autoencoder"):
 - Encoder: các lớp Conv stride 2 thu nhỏ 3×256×256 xuống một "cổ chai" nhỏ.
 - Decoder: các lớp ConvTranspose phóng ngược về 3×256×256.
 
-Tài liệu: docs/phuong-phap/autoencoder.md. Đầu ra đưa vào evaluate.py: docs/giao-dien-chung.md (mục 3).
+Tài liệu: docs/phuong-phap/autoencoder.md. Đầu ra đưa vào src/evaluation: docs/giao-dien-chung.md (mục 3).
 """
 import torch
 from torch import nn
@@ -30,7 +30,7 @@ class ConvAutoencoder(nn.Module):
 def anomaly_map(model, images):
     """Bản đồ bất thường: lỗi tái tạo theo pixel, trung bình theo kênh → B×1×H×W.
 
-    Sau đó evaluate.py làm mượt Gaussian; điểm ảnh = max của bản đồ.
+    Sau đó src.evaluation.metrics làm mượt Gaussian; điểm ảnh = max của bản đồ.
     """
     with torch.no_grad():
         recon = model(images)

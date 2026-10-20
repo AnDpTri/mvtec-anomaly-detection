@@ -5,7 +5,7 @@ Yêu cầu (thẻ Trello "Làm demo Gradio"):
 - Hiển thị điểm bất thường, heatmap chồng lên ảnh, kết luận lỗi / không lỗi.
 - Ngưỡng chọn riêng cho từng loại; ghi rõ cách chọn trong README.
 
-Chạy (dự kiến): python demo/app.py
+Chạy (dự kiến, từ thư mục gốc dự án): python -m src.demo.app
 """
 
 
