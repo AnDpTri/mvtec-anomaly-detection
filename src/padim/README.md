@@ -7,16 +7,17 @@ lệch xa tiêu chuẩn của đúng vị trí đó (khoảng cách Mahalanobis)
 
 | File | Nội dung |
 |---|---|
-| `model.py` | PaDiM tự cài (~100 dòng) để hiểu và đối chiếu |
-| `run_anomalib.py` | PaDiM bằng Anomalib trên đủ 15 loại, ghi CSV (method = `padim`) |
+| `model.py` | PaDiM tự cài (tùy chọn: để hiểu, hoặc làm bản chính) |
+| `run.py` | Chạy đủ 15 loại, ghi CSV (method = `padim`); triển khai bằng Anomalib hoặc bản tự cài (`--impl`) |
 
 ## Cách chạy (dự kiến, từ thư mục gốc dự án)
 ```bash
-python -m src.padim.run_anomalib --categories bottle carpet screw   # chạy thử
-python -m src.padim.run_anomalib                                   # đủ 15 loại
+python -m src.padim.run --categories bottle carpet screw   # chạy thử
+python -m src.padim.run                                   # đủ 15 loại
 ```
-Quy trình chung với PatchCore: `src/common/anomalib_runner.py`.
+Triển khai tự do (thư viện, backbone, tầng, số chiều); chỉ cần giữ giao thức đánh giá và ghi cấu hình
+([docs/giao-dien-chung.md](../../docs/giao-dien-chung.md) mục 0). Nếu dùng Anomalib: `src/common/anomalib_runner.py`.
 
 Lý thuyết và điểm yếu: [docs/phuong-phap/padim.md](../../docs/phuong-phap/padim.md).
-Thẻ Trello: "[Dưỡng] Đọc bài PaDiM, tự cài…", "[Dưỡng] Chạy PaDiM bằng Anomalib trên 3 loại…",
+Thẻ Trello: "[Dưỡng] Đọc bài PaDiM, tự cài…", "[Dưỡng] Chạy thử PaDiM trên 3 loại…",
 "[Dưỡng] Chạy PaDiM đủ 15 loại".

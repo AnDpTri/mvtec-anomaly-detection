@@ -12,11 +12,15 @@ Dạy máy nhận ra **cái khác thường** khi nó **chỉ được thấy c�
 ## Ba phương pháp
 | Phương pháp | Vai trò | Cách đo "độ lạ" |
 |---|---|---|
-| Autoencoder (PyTorch, tự xây) | Baseline | Vẽ lại ảnh tốt; vùng vẽ lại sai là lỗi |
-| PaDiM (Anomalib + bản tự cài) | Chính | Đặc trưng lệch khỏi phân phối Gauss của ảnh tốt tại cùng vị trí (Mahalanobis) |
-| PatchCore (Anomalib) | Chính | Đặc trưng cách mảnh tốt gần nhất trong memory bank bao xa |
+| Autoencoder (tự xây) | Baseline | Vẽ lại ảnh tốt; vùng vẽ lại sai là lỗi |
+| PaDiM | Chính | Đặc trưng lệch khỏi phân phối Gauss của ảnh tốt tại cùng vị trí (Mahalanobis) |
+| PatchCore | Chính | Đặc trưng cách mảnh tốt gần nhất trong memory bank bao xa |
 
 Mỗi phương pháp sau khắc phục điểm yếu của phương pháp trước: so pixel → so đặc trưng → bỏ ràng buộc vị trí.
+
+**Cố định cách đánh giá, tự do cách triển khai:** thư viện (Anomalib hay tự cài), kiến trúc, backbone,
+loss, siêu tham số đều tự chọn, miễn giữ giao thức đánh giá chung và ghi lại cấu hình
+([docs/giao-dien-chung.md](docs/giao-dien-chung.md) mục 0). File đề xuất gợi ý Anomalib cho PaDiM, PatchCore.
 
 ## Cấu hình chung (để so sánh công bằng)
 Xem `configs/common.yaml`: ảnh 256×256, chuẩn hóa ImageNet, seed 42, cùng module `src/evaluation/`,
@@ -41,9 +45,9 @@ src/
 ├── common/        [Chung]  cấu hình, seed, quy trình chạy Anomalib dùng chung
 ├── data/          [Dưỡng]  đọc MVTec AD (DataLoader)
 ├── evaluation/    [Dưỡng]  image/pixel-AUROC, vẽ heatmap, ghi CSV
-├── autoencoder/   [An]     conv autoencoder (PyTorch) + numpy_ae/ (bản thuần NumPy)
-├── padim/         [Dưỡng]  PaDiM tự cài + chạy bằng Anomalib
-├── patchcore/     [Chung]  PatchCore bằng Anomalib (An 8 loại, Dưỡng 7 loại)
+├── autoencoder/   [An]     autoencoder + numpy_ae/ (bản tự viết bằng NumPy, tùy chọn)
+├── padim/         [Dưỡng]  PaDiM (Anomalib hoặc tự cài)
+├── patchcore/     [Chung]  PatchCore (Anomalib hoặc tự cài; An 8 loại, Dưỡng 7 loại)
 └── demo/          [An]     demo Gradio
 configs/common.yaml         cấu hình chung
 tools/                      tải dữ liệu, ghép ảnh mẫu
@@ -56,8 +60,8 @@ Mỗi module có `README.md` riêng: người phụ trách, mục tiêu, đầu 
 ## Cách chạy (dự kiến, từ thư mục gốc dự án)
 ```bash
 python -m src.autoencoder.train            # Autoencoder, đủ 15 loại
-python -m src.padim.run_anomalib           # PaDiM
-python -m src.patchcore.run_anomalib --categories bottle cable ...   # PatchCore theo phần chia
+python -m src.padim.run                    # PaDiM
+python -m src.patchcore.run --categories bottle cable ...   # PatchCore theo phần chia
 python -m src.demo.app                     # Demo
 ```
 

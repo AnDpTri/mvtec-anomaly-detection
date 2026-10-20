@@ -41,8 +41,8 @@ src/
 ├── data/          [Dưỡng]  mvtec.py              ← làm đầu tiên
 ├── evaluation/    [Dưỡng]  metrics.py, visualize.py, results.py
 ├── autoencoder/   [An]
-├── padim/         [Dưỡng]  model.py (tự cài), run_anomalib.py
-├── patchcore/     [Chung]  run_anomalib.py        ← Dưỡng chạy 7 loại
+├── padim/         [Dưỡng]  model.py (tự cài), run.py
+├── patchcore/     [Chung]  run.py                 ← Dưỡng chạy 7 loại
 └── demo/          [An]
 ```
 | Việc | File | Hạn |
@@ -50,9 +50,9 @@ src/
 | **DataLoader** | `src/data/mvtec.py` | **22/10** |
 | **Đánh giá:** AUROC, vẽ heatmap, ghi CSV | `src/evaluation/*` | **26/10** |
 | PaDiM tự cài | `src/padim/model.py` | 29/10 |
-| PaDiM bằng Anomalib (thử 3 loại → đủ 15) | `src/padim/run_anomalib.py` | 4/11 → 8/11 |
-| Quy trình chạy Anomalib dùng chung (làm cùng An) | `src/common/anomalib_runner.py` | trước 1/11 |
-| PatchCore 7 loại: pill, screw, tile, toothbrush, transistor, wood, zipper | `src/patchcore/run_anomalib.py` | 6/11 → 10/11 |
+| Chạy PaDiM (thử 3 loại → đủ 15), bằng Anomalib hoặc bản tự cài | `src/padim/run.py` | 4/11 → 8/11 |
+| Tiện ích chạy Anomalib dùng chung, nếu nhóm chọn Anomalib (làm cùng An) | `src/common/anomalib_runner.py` | trước 1/11 |
+| PatchCore 7 loại: pill, screw, tile, toothbrush, transistor, wood, zipper | `src/patchcore/run.py` | 6/11 → 10/11 |
 | Thí nghiệm phụ (backbone, coreset), đủ 15 loại | `src/padim`, `src/patchcore` | 9/11 → 11/11 |
 
 ## 4. Vì sao `data` và `evaluation` gấp nhất
@@ -76,7 +76,9 @@ Lưu ý dữ liệu (đã kiểm tra trên bộ thật):
 - Mỗi ngày trước khi làm: `git pull origin main` để lấy phần An đã gộp.
 - Xong một phần dùng được thì mở Pull Request **từ `duong/dev` vào `main`**, điền mẫu (mục tiêu, lý do,
   cách kiểm tra, thẻ Trello); An duyệt. Chi tiết: `CONTRIBUTING.md` mục 3–5.
-- Chạy từ thư mục gốc dạng module: `python -m src.padim.run_anomalib --categories bottle carpet screw`.
+- Chạy từ thư mục gốc dạng module: `python -m src.padim.run --categories bottle carpet screw`.
+- **Triển khai tự do:** thư viện (Anomalib hay tự cài), backbone, tầng, siêu tham số tùy chọn; chỉ giữ cố
+  định giao thức đánh giá và ghi cấu hình vào CSV (`docs/giao-dien-chung.md` mục 0).
 - Không đưa dữ liệu, checkpoint, memory bank lên git (`.gitignore` đã chặn).
 - Sửa `src/common/`, `src/patchcore/`, `configs/` hoặc `docs/giao-dien-chung.md` thì **báo An trước**.
 

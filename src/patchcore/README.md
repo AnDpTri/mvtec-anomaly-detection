@@ -7,7 +7,7 @@ nhất quá xa là lỗi.
 
 | File | Nội dung |
 |---|---|
-| `run_anomalib.py` | PatchCore bằng Anomalib, ghi CSV (method = `patchcore`) |
+| `run.py` | Chạy PatchCore, ghi CSV (method = `patchcore`); triển khai bằng Anomalib hoặc tự cài (`--impl`) |
 
 ## Chia loại
 | Người | Loại |
@@ -15,14 +15,16 @@ nhất quá xa là lỗi.
 | An | bottle, cable, capsule, carpet, grid, hazelnut, leather, metal_nut |
 | Dưỡng | pill, screw, tile, toothbrush, transistor, wood, zipper |
 
-Hai người dùng cùng phiên bản Anomalib, backbone, tầng, tỷ lệ coreset, seed.
+Hai người phải **dùng chung một cấu hình với nhau** (cách triển khai, backbone, tầng, tỷ lệ coreset, seed);
+cấu hình nào thì nhóm tự chọn, ghi vào cột `note`.
 
 ## Cách chạy (dự kiến, từ thư mục gốc dự án)
 ```bash
-python -m src.patchcore.run_anomalib --categories bottle cable capsule carpet grid hazelnut leather metal_nut
-python -m src.patchcore.run_anomalib --categories pill screw tile toothbrush transistor wood zipper
+python -m src.patchcore.run --categories bottle cable capsule carpet grid hazelnut leather metal_nut
+python -m src.patchcore.run --categories pill screw tile toothbrush transistor wood zipper
 ```
-Quy trình chung với PaDiM: `src/common/anomalib_runner.py`.
+Triển khai tự do; chỉ cần giữ giao thức đánh giá ([docs/giao-dien-chung.md](../../docs/giao-dien-chung.md) mục 0).
+Nếu dùng Anomalib: `src/common/anomalib_runner.py`.
 
 Lý thuyết và điểm yếu: [docs/phuong-phap/patchcore.md](../../docs/phuong-phap/patchcore.md).
 Thẻ Trello: "[Chung·PatchCore] Đọc bài PatchCore, chạy thử…", "[Chung·PatchCore] Chạy PatchCore đủ 15 loại".

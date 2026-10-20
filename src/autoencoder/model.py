@@ -1,4 +1,4 @@
-"""[An] Convolutional autoencoder bằng PyTorch (baseline chính thức).
+"""[An] Autoencoder (baseline chính thức).
 
 Mục tiêu: học nén rồi vẽ lại ảnh tốt. Khi gặp ảnh lỗi, mạng vẽ lại thành phiên bản
 không lỗi, nên chỗ khác biệt |ảnh gốc − ảnh vẽ lại| chính là vùng lỗi.
@@ -6,9 +6,9 @@ không lỗi, nên chỗ khác biệt |ảnh gốc − ảnh vẽ lại| chính 
 Lý do dùng CNN thay vì fully connected: CNN biết pixel nào nằm cạnh pixel nào và dùng chung
 bộ lọc khắp ảnh, nên vẽ lại sắc nét hơn (so sánh với bản NumPy trong src/autoencoder/numpy_ae/).
 
-Thiết kế (thẻ Trello "Học PyTorch, viết khung autoencoder"):
-- Encoder: các lớp Conv stride 2 thu nhỏ 3×256×256 xuống một "cổ chai" nhỏ.
-- Decoder: các lớp ConvTranspose phóng ngược về 3×256×256.
+Thiết kế: tự do (kiến trúc, cỡ cổ chai, loss, thư viện). Điểm xuất phát gợi ý theo bài gốc MVTec AD:
+encoder gồm các lớp Conv stride 2 thu nhỏ ảnh xuống một "cổ chai", decoder gồm ConvTranspose phóng
+ngược lại; loss L2 hoặc SSIM. Yêu cầu duy nhất: anomaly map đưa vào đánh giá có kích thước 256×256.
 
 Tài liệu: docs/phuong-phap/autoencoder.md. Đầu ra đưa vào src/evaluation: docs/giao-dien-chung.md (mục 3).
 """
@@ -19,8 +19,7 @@ from torch import nn
 class ConvAutoencoder(nn.Module):
     def __init__(self, bottleneck_channels=64):
         super().__init__()
-        # TODO: encoder: Conv2d(stride=2) + BatchNorm + ReLU, lặp vài lần
-        # TODO: decoder: ConvTranspose2d(stride=2) + BatchNorm + ReLU, lớp cuối không ReLU
+        # TODO: encoder + decoder, kiến trúc tự chọn (gợi ý: Conv stride 2 / ConvTranspose)
         raise NotImplementedError
 
     def forward(self, x):

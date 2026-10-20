@@ -17,8 +17,8 @@ src/
 ├── data/          [Dưỡng]  mvtec.py
 ├── evaluation/    [Dưỡng]  metrics.py, visualize.py, results.py
 ├── autoencoder/   [An]     model.py, train.py, numpy_ae/
-├── padim/         [Dưỡng]  model.py (tự cài), run_anomalib.py
-├── patchcore/     [Chung]  run_anomalib.py
+├── padim/         [Dưỡng]  model.py (tự cài), run.py
+├── patchcore/     [Chung]  run.py
 └── demo/          [An]     app.py
 ```
 Mỗi module có `README.md` riêng: người phụ trách, mục tiêu, đầu vào/đầu ra, cách chạy, thẻ Trello.
@@ -29,12 +29,12 @@ Mỗi module có `README.md` riêng: người phụ trách, mục tiêu, đầu 
 | `src/data/mvtec.py` | Dưỡng | DataLoader MVTec AD | 22/10 |
 | `src/evaluation/*` | Dưỡng | AUROC, vẽ heatmap, ghi CSV | 26/10 |
 | `src/padim/model.py` | Dưỡng | PaDiM tự cài | 29/10 |
-| `src/padim/run_anomalib.py` | Dưỡng | PaDiM bằng Anomalib, 15 loại | 4/11 → 8/11 |
-| `src/autoencoder/model.py` | An | Conv autoencoder PyTorch | 22/10 |
+| `src/padim/run.py` | Dưỡng | Chạy PaDiM đủ 15 loại (Anomalib hoặc tự cài) | 4/11 → 8/11 |
+| `src/autoencoder/model.py` | An | Mô hình autoencoder (kiến trúc tự chọn) | 22/10 |
 | `src/autoencoder/numpy_ae/model.py` | An | AE thuần NumPy, 15 loại (bài học) | 26/10 |
 | `src/autoencoder/train.py` | An | Huấn luyện + đánh giá AE, 15 loại | 4/11 → 11/11 |
-| `src/patchcore/run_anomalib.py` | Cả hai | PatchCore bằng Anomalib, 15 loại | 1/11 → 10/11 |
-| `src/common/*` | Cả hai | Cấu hình, seed, quy trình chạy Anomalib | Đổi phải báo nhau |
+| `src/patchcore/run.py` | Cả hai | Chạy PatchCore đủ 15 loại (Anomalib hoặc tự cài) | 1/11 → 10/11 |
+| `src/common/*` | Cả hai | Cấu hình, seed, tiện ích chạy Anomalib (tùy chọn) | Đổi phải báo nhau |
 | `src/demo/app.py` | An | Demo Gradio | 15/11 |
 
 PatchCore chia loại: **An** bottle, cable, capsule, carpet, grid, hazelnut, leather, metal_nut ·

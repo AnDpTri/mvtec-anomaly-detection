@@ -6,9 +6,9 @@ luyện mạng neuron. **Ý nghĩa:** cho thấy giới hạn của so sánh pix
 
 | File | Nội dung |
 |---|---|
-| `model.py` | `ConvAutoencoder` (PyTorch, 3×256×256), `anomaly_map(model, images)` |
+| `model.py` | Mô hình autoencoder (kiến trúc tự chọn; gợi ý: conv AE), `anomaly_map(model, images)` |
 | `train.py` | Huấn luyện + đánh giá trên đủ 15 loại, ghi CSV (method = `ae`) |
-| `numpy_ae/` | Bản fully connected viết tay bằng NumPy, đủ 15 loại (bài học, phụ lục) |
+| `numpy_ae/` | Bản viết tay bằng NumPy, đủ 15 loại (tùy chọn, để học, phụ lục) |
 
 ## Cách chạy (dự kiến, từ thư mục gốc dự án)
 ```bash

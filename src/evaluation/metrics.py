@@ -30,5 +30,9 @@ def gaussian_smooth(anomaly_map, sigma=4):
 
 
 def image_score(anomaly_map, sigma=4):
-    """Điểm của cả ảnh = max của anomaly map đã làm mượt (mặc định chung cho cả 3 phương pháp)."""
+    """Cách tính điểm ảnh mặc định: max của anomaly map đã làm mượt.
+
+    Chỉ là mặc định cho phương pháp nào không có cách riêng; phương pháp có cách tính điểm riêng
+    (ví dụ PatchCore hiệu chỉnh theo mật độ láng giềng) thì tự đưa image_scores vào.
+    """
     return float(np.max(gaussian_smooth(anomaly_map, sigma)))
