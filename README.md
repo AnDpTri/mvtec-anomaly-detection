@@ -79,7 +79,7 @@ Kế hoạch theo ngày và checklist: board Trello của nhóm. Hạn nộp: 27
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Quy trình nhánh, commit, Pull Request |
 
 ## Quy ước
-- Mỗi việc một nhánh (`an/...`, `duong/...`, `chung/...`), gộp vào `main` qua Pull Request, người kia duyệt.
+- Mỗi người một nhánh làm việc riêng: `an/dev` (An), `duong/dev` (Dưỡng); gộp vào `main` qua Pull Request, người kia duyệt.
 - Không đưa dữ liệu, checkpoint, memory bank lên git.
 
 ## Trích dẫn

@@ -4,11 +4,11 @@
 trong thư mục của mình mà không sửa đè lên nhau. Kế hoạch theo ngày và checklist: board Trello của nhóm.
 
 ## Thành viên
-| Người | GitHub | Phụ trách |
-|---|---|---|
-| Đặng Hoàng An | AnDpTri | `src/autoencoder/` (PyTorch + NumPy), `src/demo/`, README |
-| Trần Văn Dưỡng | NeoFortran | `src/data/`, `src/evaluation/`, `src/padim/`, thí nghiệm phụ |
-| Cả hai | | `src/common/`, `src/patchcore/` (An 8 loại, Dưỡng 7 loại), `configs/`, báo cáo |
+| Người | GitHub | Nhánh làm việc | Phụ trách |
+|---|---|---|---|
+| Đặng Hoàng An | AnDpTri | `an/dev` | `src/autoencoder/` (PyTorch + NumPy), `src/demo/`, README |
+| Trần Văn Dưỡng | NeoFortran | `duong/dev` | `src/data/`, `src/evaluation/`, `src/padim/`, thí nghiệm phụ |
+| Cả hai | | qua PR vào `main` | `src/common/`, `src/patchcore/` (An 8 loại, Dưỡng 7 loại), `configs/`, báo cáo |
 
 ## Module
 ```
