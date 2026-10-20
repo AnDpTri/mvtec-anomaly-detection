@@ -8,6 +8,8 @@ Các bước (Defard et al., 2020; thẻ Trello "Đọc bài PaDiM, tự cài b�
 2. Chọn ngẫu nhiên d chiều (ví dụ 100) để giảm chi phí.
 3. Tại mỗi vị trí (i, j): tính trung bình μ và hiệp phương sai Σ + εI từ mọi ảnh tốt.
 4. Ảnh test: khoảng cách Mahalanobis tại từng vị trí → upsample + Gaussian blur → anomaly map.
+
+Tài liệu: docs/phuong-phap/padim.md. Đầu ra đưa vào evaluate.py: docs/giao-dien-chung.md (mục 3).
 """
 
 

@@ -7,6 +7,9 @@ Yêu cầu (xem thẻ Trello "Tải MVTec AD, viết DataLoader"):
 - Ảnh good không có mask → tạo mask toàn 0.
 - Resize mask bằng nearest rồi nhị phân hóa lại; crop ảnh thì crop mask y hệt.
 - Kích thước và chuẩn hóa lấy từ configs/common.yaml.
+
+Định dạng trả về là giao diện chung cho cả nhóm: docs/giao-dien-chung.md (mục 2).
+Đặc điểm 15 loại: docs/du-lieu.md.
 """
 from torch.utils.data import Dataset
 

@@ -11,6 +11,8 @@ Yêu cầu:
   đối chiếu với số Anomalib tự báo.
 - Ghi thời gian suy luận mỗi ảnh và bộ nhớ.
 
+Tài liệu: docs/phuong-phap/padim.md, docs/phuong-phap/patchcore.md. Chia loại PatchCore: docs/phan-cong.md.
+
 Ghi chú API: Anomalib 2.x dùng `anomalib.data.MVTecAD`, `anomalib.models.Padim / Patchcore`,
 `anomalib.engine.Engine`. Bản 1.x dùng `MVTec` thay cho `MVTecAD`. Kiểm tra lại theo phiên bản
 đã chốt trong requirements.txt.

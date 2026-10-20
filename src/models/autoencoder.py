@@ -9,6 +9,8 @@ bộ lọc khắp ảnh, nên vẽ lại sắc nét hơn (so sánh với bản N
 Thiết kế (thẻ Trello "Học PyTorch, viết khung autoencoder"):
 - Encoder: các lớp Conv stride 2 thu nhỏ 3×256×256 xuống một "cổ chai" nhỏ.
 - Decoder: các lớp ConvTranspose phóng ngược về 3×256×256.
+
+Tài liệu: docs/phuong-phap/autoencoder.md. Đầu ra đưa vào evaluate.py: docs/giao-dien-chung.md (mục 3).
 """
 import torch
 from torch import nn

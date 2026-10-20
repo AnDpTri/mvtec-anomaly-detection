@@ -7,6 +7,8 @@ và điểm ảnh; mọi con số trong báo cáo đều tính qua file này.
 - pixel-AUROC: so anomaly map với mask, từng pixel.
 - Tính riêng từng loại rồi mới lấy trung bình (không gộp 15 loại).
 - Kiểm tra trên một trường hợp biết trước kết quả trước khi dùng thật.
+
+Định dạng đầu vào: docs/giao-dien-chung.md (mục 3). Giải thích độ đo: docs/danh-gia.md.
 """
 import numpy as np
 from sklearn.metrics import roc_auc_score
@@ -35,6 +37,7 @@ def save_figure(image, mask, anomaly_map, out_path, vmin=None, vmax=None):
 def append_result(csv_path, row):
     """Ghi một dòng kết quả vào CSV chung.
 
-    Cột: category, type, method, image_auroc, pixel_auroc, train_time, infer_time_per_img, memory
+    Cột (xem docs/giao-dien-chung.md, mục 4): category, type, method, image_auroc, pixel_auroc,
+    train_time_s, infer_time_ms, memory_mb, backbone, note
     """
     raise NotImplementedError
