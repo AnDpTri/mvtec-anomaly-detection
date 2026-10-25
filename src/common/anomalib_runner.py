@@ -91,15 +91,19 @@ def run_category(method, category, cfg, device, backbone, layers=None, batch_siz
     with torch.no_grad():
         for batch in train_dl:
             model(batch["image"].to(device))
-            if method == "patchcore":  # đưa embedding về CPU để không tràn VRAM
-                model.embedding_store[-1] = model.embedding_store[-1].cpu()
+            # đưa embedding về CPU để không tràn VRAM
+            store = model.embedding_store if method == "patchcore" else model.memory_bank
+            store[-1] = store[-1].cpu()
     if method == "patchcore":
         embeddings = torch.vstack(model.embedding_store)
         model.embedding_store.clear()
         model.memory_bank = _coreset(embeddings, coreset_ratio, device).to(device)
         del embeddings
     else:
+        # Gaussian (hiệp phương sai + nghịch đảo) tính trên CPU: torch.linalg.inv theo lô trên GPU
+        # (MAGMA bản CUDA 13 trên Colab T4) lỗi "illegal memory access"; xong thì đưa mean/inv_cov lên GPU
         model.fit()
+        model.to(device)
     _sync(device)
     train_time = time.time() - t0
 
