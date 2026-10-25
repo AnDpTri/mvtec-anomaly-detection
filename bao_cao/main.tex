@@ -1,0 +1,58 @@
+% Biên dịch bằng XeLaTeX + Biber (Overleaf: Menu > Compiler = XeLaTeX).
+\documentclass[12pt,a4paper]{report}
+
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}   % tương đương Times New Roman; đổi thành {Times New Roman} nếu máy có font này
+\usepackage[vietnamese]{babel}
+\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx,booktabs,array,enumitem,setspace}
+\usepackage[labelsep=period]{caption}
+\usepackage{titlesec,tocloft}
+\usepackage[backend=biber,style=ieee,sorting=none,language=american]{biblatex}
+\addbibresource{references.bib}
+\DeclareLanguageMapping{vietnamese}{english}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+
+\onehalfspacing
+\setlength{\parindent}{1cm}
+\setlength{\parskip}{0pt}
+\numberwithin{equation}{chapter}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+\setlist{nosep,leftmargin=1.5cm}
+
+% Tiêu đề chương / mục
+\titleformat{\chapter}[block]{\centering\bfseries\large}{CHƯƠNG \thechapter.}{0.4em}{}
+\titleformat{name=\chapter,numberless}[block]{\centering\bfseries\large}{}{0pt}{}
+\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+\titleformat{\section}{\bfseries\large}{\thesection.}{0.5em}{}
+\titleformat{name=\section,numberless}{\bfseries\large}{}{0pt}{}
+\titleformat{\subsection}{\bfseries\normalsize}{\thesubsection.}{0.5em}{}
+
+% Mục lục
+\renewcommand{\contentsname}{MỤC LỤC}
+\renewcommand{\cftchappresnum}{CHƯƠNG }
+\renewcommand{\cftchapaftersnum}{.}
+\setlength{\cftchapnumwidth}{6.5em}
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchapleader}{\bfseries\cftdotfill{\cftdotsep}}
+\renewcommand{\cftchappagefont}{\bfseries}
+
+\begin{document}
+
+\input{chapters/bia}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\input{chapters/mo_dau}
+\input{chapters/chuong1}
+\input{chapters/chuong2}
+\input{chapters/chuong3}
+
+\printbibliography[heading=bibintoc,title={TÀI LIỆU THAM KHẢO}]
+
+\end{document}
