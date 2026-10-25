@@ -29,14 +29,23 @@ from src.evaluation.results import append_result, done_categories
 from src.evaluation.visualize import save_examples
 
 
+def load_images(ds, workers):
+    """Đọc cả tập một lần (ảnh đã resize) để mỗi epoch không phải giải nén PNG lại."""
+    dl = DataLoader(ds, batch_size=32, shuffle=False, num_workers=workers)
+    return torch.cat([batch["image"] for batch in dl])
+
+
 def train_one(category, args, cfg, device):
     data_root = args.data_root or cfg["data"]["root"]
     size = cfg["data"]["image_size"]
     train_ds = MVTecDataset(data_root, category, "train", size)  # ảnh [0, 1], không chuẩn hóa ImageNet
     test_ds = MVTecDataset(data_root, category, "test", size)
-    train_dl = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True,
-                          num_workers=args.workers, drop_last=len(train_ds) > args.batch_size)
     test_dl = DataLoader(test_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.workers)
+
+    # Tập train (tối đa ~400 ảnh 3×256×256, ~300 MB) nằm sẵn trên GPU, xáo và chia batch tại chỗ
+    images = load_images(train_ds, args.workers).to(device)
+    n, bs = len(images), args.batch_size
+    stop = n - n % bs if n > bs else n  # bỏ batch lẻ cuối như drop_last
 
     model = ConvAutoencoder(latent_dim=args.latent_dim, image_size=size).to(device)
     opt = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-5)
@@ -45,8 +54,9 @@ def train_one(category, args, cfg, device):
     for epoch in range(1, args.epochs + 1):
         model.train()
         total = 0.0
-        for batch in train_dl:
-            x = batch["image"].to(device)
+        perm = torch.randperm(n, device=device)
+        for i in range(0, stop, bs):
+            x = images[perm[i:i + bs]]
             loss = reconstruction_loss(x, model(x), args.loss)
             opt.zero_grad()
             loss.backward()
@@ -55,6 +65,7 @@ def train_one(category, args, cfg, device):
         if epoch == 1 or epoch % 10 == 0 or epoch == args.epochs:
             print(f"  [{category}] epoch {epoch}/{args.epochs}  loss {total / len(train_ds):.5f}", flush=True)
     train_time = time.time() - t0
+    del images
 
     model.eval()
     maps, labels, masks = [], [], []
