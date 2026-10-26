@@ -2,17 +2,23 @@
 \documentclass[12pt,a4paper]{report}
 
 \usepackage{fontspec}
-\setmainfont{TeX Gyre Termes}   % tương đương Times New Roman; đổi thành {Times New Roman} nếu máy có font này
+\IfFontExistsTF{TeX Gyre Termes}{\setmainfont{TeX Gyre Termes}}{\setmainfont{Times New Roman}}
 \usepackage[vietnamese]{babel}
 \usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx,booktabs,array,enumitem,setspace}
 \usepackage[labelsep=period]{caption}
 \usepackage{titlesec,tocloft}
-\usepackage[backend=biber,style=ieee,sorting=none,language=american]{biblatex}
+\usepackage{xurl}
+\ifdefined\PortableBib
+  \usepackage[backend=bibtex,style=ieee,sorting=none,language=american]{biblatex}
+\else
+  \usepackage[backend=biber,style=ieee,sorting=none,language=american]{biblatex}
+\fi
 \addbibresource{references.bib}
 \DeclareLanguageMapping{vietnamese}{english}
-\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+\AtBeginBibliography{\small\raggedright}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue,hypertexnames=false]{hyperref}
 
 \onehalfspacing
 \setlength{\parindent}{1cm}

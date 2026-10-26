@@ -40,3 +40,5 @@ lightning_logs/
 Thumbs.db
 .vscode/
 .idea/
+.local-review/
+*.pt.tmp

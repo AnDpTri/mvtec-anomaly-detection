@@ -1,3 +1,40 @@
 \chapter{THỰC NGHIỆM VÀ ĐÁNH GIÁ}
 
-Bổ sung sau khi có kết quả thực nghiệm. Bản dự thảo này chưa trình bày nội dung Chương 3.
+\section{Nguồn kết quả và cấu hình thực nghiệm}
+
+Kết quả trong chương này lấy từ 45 dòng của tệp \path{results/results.csv}: ba phương pháp, mỗi phương pháp đủ 15 loại MVTec AD. Đây là kết quả thực nghiệm của nhóm ngày 25/10/2026 trên Google Colab với GPU Tesla T4, được giữ nguyên khi bổ sung demo. Các bảng được sinh trực tiếp bằng \path{tools/report_results.py}; mã băm và số dòng nằm trong \path{docs/results_provenance.json}. Không thay số liệu Colab bằng số chạy bổ sung trên máy cá nhân.
+
+Tất cả phương pháp chỉ học từ \texttt{train/good}, resize ảnh và mặt nạ về $256\times256$; mặt nạ dùng nội suy lân cận gần nhất. Nhãn tốt/lỗi và mặt nạ test chỉ phục vụ tính AUROC. Điểm được đo riêng từng loại rồi lấy trung bình đều giữa các loại; số tổng hợp không phải AUROC gộp mọi ảnh hoặc mọi pixel của 15 loại.
+
+Autoencoder là mạng tích chập tự xây, latent 256, huấn luyện 100 epoch với MSE, Adam, learning rate $10^{-3}$, batch 16 và làm mượt bản đồ với $\sigma=4$. Đầu vào AE nằm trong $[0,1]$. PaDiM dùng ResNet-18 học trước trên ImageNet, lấy đặc trưng layer1--3 và số chiều mặc định của Anomalib 2.7.0. PatchCore dùng Wide-ResNet-50-2, layer2--3, coreset 10\% và 9 láng giềng. Hai phương pháp đặc trưng dùng chuẩn hóa ImageNet. Cấu hình resize, seed 42 và bộ đánh giá được dùng chung; phép chuẩn hóa theo yêu cầu từng mô hình được ghi riêng.
+
+\section{Kết quả định lượng}
+
+\input{generated/results_tables}
+\clearpage
+
+Trên trung bình 15 loại, PatchCore đạt image-AUROC xấp xỉ 0,983 và pixel-AUROC 0,980; PaDiM lần lượt đạt 0,890 và 0,960; Autoencoder đạt 0,756 và 0,843. Trong cấu hình đã chạy, mô hình đặc trưng học trước có kết quả trung bình cao hơn mạng tái tạo học từ đầu. Đây là kết luận cho lần chạy và backbone nêu trên, không chứng minh thứ hạng phổ quát của các thuật toán.
+
+PatchCore có kết quả phát hiện tốt ở nhiều loại như bottle, hazelnut, leather và tile, nhưng giảm ở toothbrush và pill. Autoencoder đạt image-AUROC cao nhất trong ba phương pháp ở toothbrush (khoảng 0,958), cho thấy trung bình cao hơn không đồng nghĩa thắng ở mọi loại. AE yếu ở carpet, cable, metal\_nut và screw; pixel-AUROC của tile và capsule gần mức ngẫu nhiên. Có thể kiểm tra giả thuyết tái tạo mờ hoặc tái tạo cả lỗi bằng ảnh dự đoán; chỉ số đơn lẻ chưa đủ để khẳng định nguyên nhân.
+
+PaDiM dùng ràng buộc thống kê theo vị trí; ảnh vật thể thay đổi tư thế có thể gây sai lệch. Kết quả image-AUROC thấp ở hazelnut, screw và toothbrush cho thấy cần xem xét sai số theo loại thay vì chỉ nêu trung bình. Không điều chỉnh cấu hình dựa trên các loại test yếu rồi coi số mới là đánh giá độc lập.
+
+\section{Chi phí và giới hạn phép đo}
+
+Trong CSV Colab, tổng thời gian xây dựng 15 mô hình khoảng 22 phút cho AE, 6 phút cho PaDiM và 30 phút cho PatchCore. Đây là số của một lần chạy, chưa có lặp seed để ước lượng phương sai. Thời gian suy luận AE trung bình khoảng 44,8 ms/ảnh bao gồm đọc dữ liệu từ Drive, còn PaDiM khoảng 5,5 ms và PatchCore khoảng 35,5 ms chỉ đo lượt chạy mô hình. Vì phạm vi đo khác nhau, không dùng ba số này để kết luận AE chậm hơn hoặc nhanh hơn hai mô hình còn lại.
+
+Dung lượng trong CSV cũng cần phân biệt: AE là trọng số mạng, PaDiM chủ yếu là thống kê Gauss, PatchCore chủ yếu là memory bank. Backbone học trước có thể chưa được tính cùng phạm vi nên đây chưa phải phép so sánh tổng bộ nhớ triển khai. Checkpoint tự mô tả bổ sung cho demo lưu cả state dict của mô hình; kích thước tệp thực tế không nhất thiết bằng cột memory trong CSV gốc.
+
+\section{Demo và khả năng chạy lại}
+
+Demo Gradio nhận ảnh, loại sản phẩm và một trong ba phương pháp; trả về điểm bất thường, heatmap chồng ảnh và nhận xét theo ngưỡng từng loại. Điểm là độ bất thường, không phải xác suất sản phẩm lỗi. Heatmap dùng thang cố định được suy ra từ ảnh train tốt, tránh việc chuẩn hóa từng ảnh khiến cả ảnh tốt cũng hiện vùng đỏ mạnh.
+
+Trọng số AE đã được lưu từ lần huấn luyện trước. PaDiM và PatchCore được fit bổ sung để lưu đầy đủ tham số Gauss và memory bank. Lần bổ sung chạy trên RTX 3050 Laptop GPU, batch 4, chỉ dùng train/good để fit; CSV bổ sung nằm riêng ở \path{results/demo_models/results.csv}. Không coi checkpoint bổ sung là chính các trọng số Colab đã mất và không gộp thời gian giữa hai thiết bị.
+
+Ngưỡng demo là phân vị 99,5\% của điểm trên tối đa 64 ảnh train tốt đã tham gia fit. Vì đây là mẫu trong huấn luyện, ngưỡng chỉ mang tính tham khảo và không bảo đảm tỷ lệ báo động giả 0,5\% trên ảnh mới. Nhãn test không được dùng để chọn ngưỡng. Một bước phát triển tiếp theo là tách tập ảnh tốt độc lập để hiệu chỉnh và đo độ ổn định ngưỡng. AUROC trong hai bảng không phụ thuộc quyết định ngưỡng này.
+
+Checkpoint đi kèm cấu hình chuẩn hóa, kích thước ảnh và phương pháp; demo nạp trọng số thay vì huấn luyện lại mỗi lần người dùng gửi ảnh. Có thể tiếp tục tạo từng mô hình sau gián đoạn. Dữ liệu và checkpoint nằm ngoài Git theo quy định kho mã nguồn; mã nguồn, CSV, cấu hình và hướng dẫn chạy được lưu trên nhánh riêng để rà soát.
+
+\section{Kết luận và phần cần mở rộng}
+
+Trong phạm vi một lần chạy trên MVTec AD, PatchCore cho trung bình AUROC cao nhất; PaDiM có thời gian xây dựng thấp hơn trong cùng môi trường Colab; AE cung cấp baseline tái tạo tự xây và vẫn có loại đạt kết quả tốt. Các hạn chế còn lại gồm độ biến thiên giữa seed, phép đo tài nguyên chưa đồng nhất và ngưỡng demo chưa được kiểm chứng ngoài mẫu. Cần bổ sung giao thức đo model-only thống nhất, tập calibration độc lập và phân tích hình ảnh của các ca bỏ sót trước khi đưa ra kết luận triển khai thực tế.

@@ -10,12 +10,14 @@ phải ghi rõ ở đây.
 |---|---|
 | `app.py` | `predict(image, category, method)` và giao diện Gradio |
 
-## Cách chạy (dự kiến, từ thư mục gốc dự án)
+## Cách chạy (từ thư mục gốc dự án)
 ```bash
 python -m src.demo.app
 ```
 
 ## Cách chọn ngưỡng
-TODO: ghi khi làm (ví dụ: ngưỡng tối đa F1 trên tập validation tách từ ảnh tốt + một ít ảnh lỗi).
+Phân vị 99,5% trên tối đa 64 ảnh train/good đã tham gia fit, riêng cho mỗi loại/phương pháp. Đây là ngưỡng tham khảo trong mẫu, không bảo đảm FPR 0,5% trên ảnh mới. Không dùng nhãn test để chọn ngưỡng. Nếu checkpoint chưa có ngưỡng thì chỉ hiển thị điểm và heatmap.
+
+Hướng dẫn tạo/lưu trọng số, chạy offline và phân biệt kết quả Colab với lần bổ sung local: [docs/demo.md](../../docs/demo.md).
 
 Thẻ Trello: "[An] Làm demo Gradio".
