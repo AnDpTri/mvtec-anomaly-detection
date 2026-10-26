@@ -1,0 +1,2 @@
+# Giữ byte CSV Colab để SHA-256 trong manifest kiểm tra được sau checkout.
+results/results.csv text eol=crlf

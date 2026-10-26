@@ -1,0 +1,46 @@
+category,type,method,implementation,image_auroc,pixel_auroc,train_time_s,infer_time_ms,memory_mb,backbone,note
+carpet,texture,padim,anomalib,0.9884,0.9893,22.8,6.16,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+grid,texture,padim,anomalib,0.8287,0.9161,17.7,5.44,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+leather,texture,padim,anomalib,0.9990,0.9869,22.6,5.40,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+tile,texture,padim,anomalib,0.9426,0.9055,20.6,5.51,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+wood,texture,padim,anomalib,0.9658,0.9218,29.8,5.35,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+bottle,object,padim,anomalib,0.9976,0.9776,20.4,5.60,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+cable,object,padim,anomalib,0.8375,0.9529,22.7,5.50,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+capsule,object,padim,anomalib,0.9031,0.9827,22.2,5.38,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+hazelnut,object,padim,anomalib,0.7196,0.9720,37.1,5.34,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+metal_nut,object,padim,anomalib,0.9565,0.9410,15.9,5.51,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+pill,object,padim,anomalib,0.8235,0.9438,20.8,5.50,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+screw,object,padim,anomalib,0.7518,0.9740,24.8,5.45,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+toothbrush,object,padim,anomalib,0.7722,0.9852,18.4,5.25,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+transistor,object,padim,anomalib,0.9425,0.9756,22.8,5.56,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+zipper,object,padim,anomalib,0.9267,0.9701,21.6,5.39,157.8,resnet18,backbone=resnet18; layers=layer1+layer2+layer3; n_features=mặc định; batch=16; size=256; sigma=4; seed=42
+carpet,texture,patchcore,anomalib,0.9876,0.9905,157.7,44.42,168.0,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+grid,texture,patchcore,anomalib,0.9900,0.9811,124.4,37.12,158.4,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+leather,texture,patchcore,anomalib,1.0000,0.9921,120.5,35.43,147.0,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+tile,texture,patchcore,anomalib,1.0000,0.9554,99.4,33.50,138.0,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+wood,texture,patchcore,anomalib,0.9868,0.9301,117.8,36.27,148.2,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+bottle,object,patchcore,anomalib,1.0000,0.9855,82.4,31.08,125.4,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+cable,object,patchcore,anomalib,0.9884,0.9847,95.2,33.39,134.4,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+capsule,object,patchcore,anomalib,0.9936,0.9901,91.8,32.86,131.4,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+hazelnut,object,patchcore,anomalib,1.0000,0.9881,299.2,51.56,234.6,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+metal_nut,object,patchcore,anomalib,0.9971,0.9867,87.3,32.50,132.0,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+pill,object,patchcore,anomalib,0.9419,0.9806,131.4,38.04,160.2,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+screw,object,patchcore,anomalib,0.9637,0.9885,184.4,43.53,192.0,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+toothbrush,object,patchcore,anomalib,0.9167,0.9886,10.1,15.30,36.0,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+transistor,object,patchcore,anomalib,0.9950,0.9726,89.7,32.76,127.8,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+zipper,object,patchcore,anomalib,0.9774,0.9813,111.4,34.99,144.0,wide_resnet50_2,backbone=wide_resnet50_2; layers=layer2+layer3; coreset=0.1; neighbors=9; batch=16; size=256; seed=42
+carpet,texture,ae,pytorch,0.5534,0.8051,98.2,58.58,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+grid,texture,ae,pytorch,0.8571,0.8442,97.0,33.70,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+leather,texture,ae,pytorch,0.8074,0.9160,91.0,52.94,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+tile,texture,ae,pytorch,0.7655,0.5590,85.3,41.87,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+wood,texture,ae,pytorch,0.9377,0.7802,91.3,61.84,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+bottle,object,ae,pytorch,0.9262,0.9350,79.1,38.14,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+cable,object,ae,pytorch,0.5785,0.8765,85.3,55.71,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+capsule,object,ae,pytorch,0.6893,0.5306,79.0,50.02,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+hazelnut,object,ae,pytorch,0.9232,0.9683,145.6,50.26,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+metal_nut,object,ae,pytorch,0.5743,0.8872,79.2,28.77,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+pill,object,ae,pytorch,0.6026,0.8866,97.0,36.41,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+screw,object,ae,pytorch,0.5786,0.9650,121.5,28.28,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+toothbrush,object,ae,pytorch,0.9583,0.9321,18.1,55.87,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+transistor,object,ae,pytorch,0.8067,0.8986,79.4,51.70,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none
+zipper,object,ae,pytorch,0.7755,0.8647,91.3,27.75,45.3,,loss=mse; latent=256; epochs=100; lr=0.001; batch=16; sigma=4; size=256; aug=none

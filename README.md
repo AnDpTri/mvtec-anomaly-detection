@@ -23,7 +23,8 @@ loss, siêu tham số đều tự chọn, miễn giữ giao thức đánh giá c
 ([docs/giao-dien-chung.md](docs/giao-dien-chung.md) mục 0). File đề xuất gợi ý Anomalib cho PaDiM, PatchCore.
 
 ## Cấu hình chung (để so sánh công bằng)
-Xem `configs/common.yaml`: ảnh 256×256, chuẩn hóa ImageNet, seed 42, cùng module `src/evaluation/`,
+Xem `configs/common.yaml`: ảnh 256×256, seed 42, cùng module `src/evaluation/`;
+AE dùng ảnh [0,1], PaDiM/PatchCore chuẩn hóa ImageNet theo backbone học trước.
 AUROC tính riêng từng loại rồi mới lấy trung bình. Chạy thử trên bottle, carpet, screw trước khi chạy đủ 15 loại.
 
 ## Cài đặt
@@ -57,13 +58,15 @@ docs/                       tài liệu: phân công, giao diện chung, dữ li
 ```
 Mỗi module có `README.md` riêng: người phụ trách, mục tiêu, đầu vào/đầu ra, cách chạy.
 
-## Cách chạy (dự kiến, từ thư mục gốc dự án)
+## Cách chạy (từ thư mục gốc dự án)
 ```bash
 python -m src.autoencoder.train            # Autoencoder, đủ 15 loại
 python -m src.padim.run                    # PaDiM
 python -m src.patchcore.run --categories bottle cable ...   # PatchCore theo phần chia
 python -m src.demo.app                     # Demo
 ```
+
+Demo đã có phần suy luận từ checkpoint, điểm và heatmap. Xem [hướng dẫn demo](docs/demo.md) để tạo đủ 45 mô hình, tiếp tục sau gián đoạn và hiểu ngưỡng tham khảo. Kết quả Colab gốc nằm ở [results/results.csv](results/results.csv); [báo cáo kết quả](docs/ket-qua.md) nêu giới hạn so sánh thời gian. Chương 3 của [báo cáo LaTeX](bao_cao/main.tex) lấy bảng trực tiếp từ CSV.
 
 ## Phân công
 - **An (Đặng Hoàng An, AnDpTri):** `src/autoencoder/`, `src/demo/`, README.

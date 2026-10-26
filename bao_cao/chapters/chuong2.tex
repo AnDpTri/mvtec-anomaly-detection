@@ -12,7 +12,7 @@ Hai nhiệm vụ cần giải quyết là phát hiện bất thường ở mức
 
 Chẳng hạn, với ảnh một sản phẩm có vết xước nhỏ, hệ thống cần vừa đánh giá ảnh đó có dấu hiệu lỗi, vừa làm nổi bật vùng vết xước. Một mô hình chỉ trả về nhãn toàn ảnh chưa đủ cho yêu cầu định vị. Ngược lại, một bản đồ có nhiều vùng sáng do nền hoặc ánh sáng thay đổi cũng chưa bảo đảm hệ thống nhận diện đúng lỗi thực tế.
 
-Đối tượng nghiên cứu là bộ dữ liệu MVTec AD với 15 loại đối tượng và bề mặt. Theo giao thức nhóm đã thống nhất, mỗi loại có một mô hình riêng; các phương pháp được so sánh bằng image-AUROC và pixel-AUROC trên cùng tập kiểm thử~\cite{bergmannMVTecADComprehensive2019,nhom13MVTecAnomalyDetection2026}. Chương này trình bày nguyên lý và định hướng lựa chọn phương pháp. Kiến trúc cụ thể, cấu hình chạy và kết quả đo sẽ được bổ sung khi phần triển khai hoàn thành.
+Đối tượng nghiên cứu là bộ dữ liệu MVTec AD với 15 loại đối tượng và bề mặt. Theo giao thức nhóm đã thống nhất, mỗi loại có một mô hình riêng; các phương pháp được so sánh bằng image-AUROC và pixel-AUROC trên cùng tập kiểm thử~\cite{bergmannMVTecADComprehensive2019,nhom13MVTecAnomalyDetection2026}. Chương này trình bày nguyên lý và định hướng lựa chọn phương pháp. Kiến trúc cụ thể, cấu hình chạy và kết quả đo được trình bày ở Chương 3.
 
 \begin{figure}[htbp]
   \centering
@@ -141,7 +141,7 @@ Trong đề tài, nhóm cần ghi rõ cách tính điểm ảnh khi sử dụng 
 
 Việc bỏ ràng buộc khớp đúng vị trí tạo cơ hội nhận diện các vùng bình thường khi vật thể thay đổi tư thế, nhưng không bảo đảm bất biến với mọi phép xoay hoặc dịch chuyển. Kết quả vẫn phụ thuộc vào đặc trưng học trước và mức độ bao phủ của bộ nhớ. Những lỗi về quan hệ giữa các bộ phận cũng cần được phân tích, vì từng vùng nhỏ có thể vẫn giống mẫu bình thường dù bố cục tổng thể đã sai.
 
-Trong kế hoạch phân công, hai thành viên cùng thực hiện PatchCore trên các nhóm loại sản phẩm khác nhau. Vì vậy, backbone, tầng trích xuất, tỷ lệ coreset, seed và cách tính điểm phải thống nhất trước khi tổng hợp kết quả. Cấu hình gợi ý hiện có trong kho mã nguồn chưa phải cấu hình thực nghiệm đã chốt~\cite{nhom13MVTecAnomalyDetection2026}.
+Trong kế hoạch phân công, hai thành viên cùng thực hiện PatchCore trên các nhóm loại sản phẩm khác nhau. Vì vậy, backbone, tầng trích xuất, tỷ lệ coreset, seed và cách tính điểm phải thống nhất trước khi tổng hợp kết quả. Cấu hình thực nghiệm đã chạy được ghi ở Chương 3 và trong CSV kết quả~\cite{nhom13MVTecAnomalyDetection2026}.
 
 \section{Lý do lựa chọn các phương pháp cho đề tài}
 
@@ -180,4 +180,4 @@ Image-AUROC được tính từ điểm toàn ảnh và nhãn tốt hoặc lỗi
 
 Ngoài chất lượng phát hiện, nhóm dự kiến ghi thời gian xây dựng mô hình, thời gian suy luận trên mỗi ảnh và dung lượng lưu mô hình. Thiết bị, cách đo, số mẫu và việc tính hay loại trừ thời gian đọc dữ liệu phải được mô tả để việc so sánh có ý nghĩa. Với PaDiM, thời gian xây dựng gồm trích xuất đặc trưng và tính thống kê; với PatchCore, thời gian này gồm cả quá trình tạo và rút gọn bộ nhớ.
 
-Các thông tin cần bổ sung sau triển khai gồm kiến trúc Autoencoder, backbone và tầng đặc trưng, số chiều của PaDiM, tỷ lệ coreset của PatchCore, quy tắc làm mượt, cách tính điểm ảnh và cấu hình phần cứng. Kết quả thực nghiệm, hình dự đoán thực tế và nhận xét dựa trên số liệu sẽ được trình bày ở chương tiếp theo. Nội dung hiện tại là cơ sở phương pháp và kế hoạch đánh giá, chưa phải báo cáo hoàn thành huấn luyện.
+Các thông tin cần bổ sung sau triển khai gồm kiến trúc Autoencoder, backbone và tầng đặc trưng, số chiều của PaDiM, tỷ lệ coreset của PatchCore, quy tắc làm mượt, cách tính điểm ảnh và cấu hình phần cứng. Kết quả thực nghiệm, hình dự đoán thực tế và nhận xét dựa trên số liệu sẽ được trình bày ở chương tiếp theo. Chương này trình bày cơ sở phương pháp; Chương 3 ghi cấu hình đã chạy, kết quả và các giới hạn của phép đo.

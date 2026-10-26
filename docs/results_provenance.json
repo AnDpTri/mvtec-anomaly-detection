@@ -1,0 +1,43 @@
+{
+  "source": "results/results.csv",
+  "sha256": "c562366ba70cbc83263739fa1f6c3ff9e3ed2d0e599a8102859c648a2a5bc580",
+  "rows": 45,
+  "source_run": "2026-10-25 Colab Tesla T4; preserved imported CSV",
+  "aggregates": {
+    "image_auroc": {
+      "Texture": {
+        "ae": 0.78422,
+        "padim": 0.9449,
+        "patchcore": 0.99288
+      },
+      "Object": {
+        "ae": 0.74132,
+        "padim": 0.8631,
+        "patchcore": 0.97738
+      },
+      "Tất cả": {
+        "ae": 0.75562,
+        "padim": 0.8903666666666666,
+        "patchcore": 0.9825466666666667
+      }
+    },
+    "pixel_auroc": {
+      "Texture": {
+        "ae": 0.7809,
+        "padim": 0.94392,
+        "patchcore": 0.96984
+      },
+      "Object": {
+        "ae": 0.87446,
+        "padim": 0.96749,
+        "patchcore": 0.98467
+      },
+      "Tất cả": {
+        "ae": 0.8432733333333333,
+        "padim": 0.9596333333333333,
+        "patchcore": 0.9797266666666666
+      }
+    }
+  },
+  "timing_limitation": "AE includes data loading; PaDiM/PatchCore model-only; not directly comparable"
+}
