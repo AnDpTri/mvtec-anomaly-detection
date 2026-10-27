@@ -1,183 +1,522 @@
-\chapter{MÔ HÌNH HỌC SÂU TRONG PHÁT HIỆN BẤT THƯỜNG}
+\chapter{PHƯƠNG PHÁP PHÁT HIỆN BẤT THƯỜNG}
 
-\section{Giới thiệu bài toán}
+Chương này trình bày bài toán cụ thể của đề tài, bộ dữ liệu, giao thức chung, lý do chọn ba phương pháp và cách triển
+khai từng phương pháp. Mọi cấu hình nêu ở đây là cấu hình đã chạy để ra kết quả ở Chương 3.
 
-Trong kiểm tra chất lượng sản phẩm công nghiệp, các lỗi như vết xước, nứt, biến dạng hoặc thiếu chi tiết có thể xuất hiện với hình dạng và kích thước khác nhau. Việc kiểm tra thủ công phụ thuộc vào kinh nghiệm và khả năng quan sát của người thực hiện. Một hệ thống phân tích ảnh có thể hỗ trợ phát hiện dấu hiệu bất thường và chỉ ra vị trí cần kiểm tra, từ đó giúp quá trình đánh giá chất lượng có thêm căn cứ trực quan.
+\section{Phát biểu bài toán}
 
-Khó khăn của bài toán nằm ở sự chênh lệch giữa dữ liệu bình thường và dữ liệu lỗi. Ảnh sản phẩm đạt yêu cầu thường dễ thu thập hơn, trong khi một số dạng lỗi ít xuất hiện hoặc chưa từng được ghi nhận. Nếu xây dựng bộ phân loại có giám sát cho từng loại lỗi, tập huấn luyện phải có đủ ví dụ đại diện của các lỗi đó. Điều kiện này khó đáp ứng khi lỗi mới tiếp tục phát sinh trong quá trình sản xuất.
-
-Đề tài của nhóm 13 nghiên cứu hướng học đặc điểm của sản phẩm bình thường rồi đánh giá mức độ khác biệt của ảnh mới. Tập huấn luyện chỉ sử dụng ảnh tốt; ảnh lỗi và mặt nạ vùng lỗi được dùng ở bước đánh giá. Cách tổ chức này thường được gọi là thiết lập học một lớp, và trong phạm vi đề tài được triển khai theo hướng phát hiện bất thường không giám sát.
-
-Hai nhiệm vụ cần giải quyết là phát hiện bất thường ở mức ảnh và định vị bất thường ở mức điểm ảnh. Nhiệm vụ thứ nhất tạo một điểm số cho toàn bộ ảnh để biểu thị mức độ nghi ngờ có lỗi. Nhiệm vụ thứ hai tạo bản đồ điểm bất thường, trong đó mỗi vị trí có giá trị phản ánh độ khác biệt so với đặc điểm bình thường. Điểm số càng cao thì mức độ bất thường càng lớn; điểm số này không mặc nhiên là xác suất có lỗi.
-
-Chẳng hạn, với ảnh một sản phẩm có vết xước nhỏ, hệ thống cần vừa đánh giá ảnh đó có dấu hiệu lỗi, vừa làm nổi bật vùng vết xước. Một mô hình chỉ trả về nhãn toàn ảnh chưa đủ cho yêu cầu định vị. Ngược lại, một bản đồ có nhiều vùng sáng do nền hoặc ánh sáng thay đổi cũng chưa bảo đảm hệ thống nhận diện đúng lỗi thực tế.
-
-Đối tượng nghiên cứu là bộ dữ liệu MVTec AD với 15 loại đối tượng và bề mặt. Theo giao thức nhóm đã thống nhất, mỗi loại có một mô hình riêng; các phương pháp được so sánh bằng image-AUROC và pixel-AUROC trên cùng tập kiểm thử~\cite{bergmannMVTecADComprehensive2019,nhom13MVTecAnomalyDetection2026}. Chương này trình bày nguyên lý và định hướng lựa chọn phương pháp. Kiến trúc cụ thể, cấu hình chạy và kết quả đo sẽ được bổ sung khi phần triển khai hoàn thành.
+Với mỗi loại sản phẩm, mô hình chỉ được học từ ảnh tốt của loại đó, sau đó phải cho mỗi ảnh kiểm thử hai đầu ra:
+điểm bất thường của ảnh $s(x)$ để trả lời ``sản phẩm có lỗi không'', và bản đồ bất thường $A_x(u,v)$ để trả lời
+``lỗi nằm ở đâu'' (Hình~\ref{fig:overview}; định nghĩa ở Mục~\ref{sec:anomaly}). Mỗi loại có một mô hình riêng, vì
+``bình thường'' của một chai thủy tinh khác hẳn ``bình thường'' của một tấm thảm. Đề tài đánh giá bằng AUROC, chỉ số
+không phụ thuộc ngưỡng, nên không chọn ngưỡng quyết định tốt/lỗi.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.9\linewidth]{images/img08.png}
-  \caption{Quy trình tổng quát của bài toán phát hiện và định vị bất thường (Sơ đồ nguyên lý, không phải kết quả thực nghiệm)}
+  \includegraphics[width=0.95\linewidth]{images/duong_bai_toan.png}
+  \caption{Thiết lập bài toán: học từ ảnh tốt, mỗi ảnh kiểm thử cho điểm ảnh và bản đồ bất thường}
   \label{fig:overview}
 \end{figure}
 
-\section{Tổng quan các hướng tiếp cận}
+\section{Tổng quan giải pháp}
+\label{sec:tong-quan}
 
-\subsection{Phương pháp dựa trên tái tạo ảnh}
+Giải pháp của đề tài là một chuỗi xử lý chung cho cả ba phương pháp; chỉ bước xây dựng mô hình và suy luận là khác
+nhau. Với mỗi loại sản phẩm:
+\begin{enumerate}
+  \item \textbf{Đầu vào:} ảnh \texttt{train/good} để xây dựng mô hình, ảnh test và mặt nạ để đánh giá
+        (Mục~\ref{sec:du-lieu}).
+  \item \textbf{Tiền xử lý:} đổi ảnh về $256\times256$, chuẩn hóa theo yêu cầu của từng phương pháp, đổi mặt nạ cùng
+        kích thước (Mục~\ref{sec:preprocess}).
+  \item \textbf{Xây dựng mô hình từ ảnh tốt:} huấn luyện Autoencoder; hoặc trích đặc trưng ResNet-18 và ước lượng
+        phân phối Gauss theo vị trí (PaDiM); hoặc trích đặc trưng Wide-ResNet-50-2 và chọn coreset (PatchCore)
+        (Mục~\ref{sec:ae} đến~\ref{sec:patchcore}).
+  \item \textbf{Suy luận:} với mỗi ảnh test, tính sai số tái tạo, khoảng cách Mahalanobis hoặc khoảng cách tới patch
+        gần nhất tại từng vị trí.
+  \item \textbf{Bản đồ và điểm bất thường:} đưa các giá trị cục bộ về bản đồ $256\times256$, làm mượt, rồi suy ra
+        điểm của ảnh.
+  \item \textbf{Đánh giá:} tính image-AUROC từ điểm ảnh, pixel-AUROC từ bản đồ, ghi kèm thời gian và dung lượng
+        (Mục~\ref{sec:tieu-chi}).
+\end{enumerate}
 
-Các phương pháp tái tạo học một phép biến đổi để phục hồi đầu vào từ một biểu diễn trung gian. Khi chỉ được học trên ảnh tốt, mô hình được kỳ vọng tái tạo tốt các cấu trúc bình thường. Sự khác biệt giữa ảnh đầu vào và ảnh tái tạo là cơ sở xây dựng điểm bất thường. Autoencoder là mô hình tiêu biểu cho hướng tiếp cận này~\cite{goodfellowDeepLearning2016}.
-
-Ưu điểm của hướng tái tạo là có thể quan sát trực tiếp ảnh đầu vào, ảnh phục hồi và bản đồ sai số. Tuy nhiên, giả thiết ảnh lỗi luôn có sai số tái tạo lớn không phải lúc nào cũng đúng. Mạng có thể tái tạo được cả vùng lỗi hoặc làm mờ các chi tiết bình thường, dẫn đến bỏ sót hoặc cảnh báo nhầm. Vì vậy, chất lượng tái tạo và khả năng phát hiện lỗi phải được đánh giá riêng.
-
-\subsection{Phương pháp dựa trên đặc trưng học trước}
-
-Một mạng nơ-ron tích chập đã được huấn luyện trước có thể được dùng làm bộ trích xuất đặc trưng. Thay vì chỉ so sánh màu sắc tại từng điểm ảnh, hệ thống làm việc với các vector mô tả kết cấu, đường nét và cấu trúc cục bộ. Đầu ra của các tầng trung gian vẫn giữ thông tin không gian, phù hợp với yêu cầu xác định vị trí bất thường.
-
-Trong hướng này, trọng số của bộ trích xuất có thể được giữ cố định. Giai đoạn xây dựng mô hình trên ảnh tốt tập trung vào tính toán thống kê hoặc lưu giữ đặc trưng tham chiếu. Như vậy, việc sử dụng mạng học sâu không đồng nghĩa với việc phải huấn luyện lại toàn bộ mạng trên dữ liệu của đề tài. PaDiM và PatchCore là hai phương pháp nhóm dự kiến nghiên cứu theo hướng này~\cite{defardPaDiMPatchDistribution2021,rothTotalRecallIndustrial2022,nhom13MVTecAnomalyDetection2026}.
-
-PaDiM mô hình hóa sự biến thiên của đặc trưng tại từng vị trí bằng các tham số thống kê. PatchCore lưu một tập đặc trưng bình thường đại diện rồi đối chiếu đặc trưng ảnh mới với tập đó. Hai cách biểu diễn này tạo ra những yêu cầu khác nhau về bộ nhớ, phép tính suy luận và mức độ phụ thuộc vào vị trí của vật thể.
-
-\subsection{Phạm vi các phương pháp được lựa chọn}
-
-Nhóm lựa chọn Autoencoder làm mô hình cơ sở để khảo sát hướng tái tạo; PaDiM và PatchCore là hai phương pháp chính để khảo sát hướng sử dụng đặc trưng học trước. Sự lựa chọn này cho phép đối chiếu ba cách biểu diễn trạng thái bình thường: trọng số của mạng tái tạo, phân phối thống kê và tập vector tham chiếu.
-
-Việc so sánh không chỉ nhằm tìm phương pháp có AUROC cao hơn. Nhóm còn cần xem xét dạng lỗi bị bỏ sót, vùng cảnh báo nhầm và chi phí tài nguyên. Một phương pháp có chất lượng tốt trên bề mặt ít biến động chưa chắc giữ được ưu thế trên sản phẩm có tư thế thay đổi. Các nhận định về ưu thế thực tế chỉ được kết luận sau khi có kết quả trên dữ liệu của nhóm.
-
-\section{Các mô hình và phương pháp sử dụng}
-
-\subsection{Mô hình Autoencoder}
-
-Autoencoder gồm bộ mã hóa và bộ giải mã. Bộ mã hóa chuyển ảnh đầu vào thành biểu diễn tiềm ẩn; bộ giải mã sử dụng biểu diễn đó để tái tạo ảnh. Với ảnh $x$, ký hiệu $f$ là bộ mã hóa, $g$ là bộ giải mã và $z$ là biểu diễn trung gian, quá trình truyền tiến có dạng~\cite{goodfellowDeepLearning2016}:
-\begin{equation}
-  z = f(x), \qquad \hat{x} = g(z) = g\bigl(f(x)\bigr)
-  \label{eq:ae-forward}
-\end{equation}
-
-Đối với ảnh công nghiệp, một Autoencoder tích chập là hướng triển khai phù hợp để khai thác quan hệ lân cận giữa các điểm ảnh. Các lớp mã hóa giảm kích thước không gian và xây dựng đặc trưng; các lớp giải mã khôi phục kích thước đầu ra. Biểu diễn ở phần cổ chai giới hạn lượng thông tin truyền qua, buộc mô hình chọn lọc các cấu trúc cần thiết để phục hồi ảnh.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.9\linewidth]{images/img09.png}
-  \caption{Nguyên lý tái tạo và tính bản đồ sai số của Autoencoder (Sơ đồ nguyên lý, không phải kết quả thực nghiệm)}
-  \label{fig:ae}
-\end{figure}
-
-Một hàm mất mát khởi đầu có thể sử dụng là sai số bình phương trung bình. Với ảnh có chiều cao $H$, chiều rộng $W$ và $C$ kênh, mất mát tái tạo được viết như sau:
-\begin{equation}
-  L(x,\hat{x}) = \frac{1}{HWC}\sum_{u=1}^{H}\sum_{v=1}^{W}\sum_{c=1}^{C}
-  \bigl[x(u,v,c) - \hat{x}(u,v,c)\bigr]^{2}
-  \label{eq:ae-loss}
-\end{equation}
-
-Các tổng được lấy trên toàn bộ vị trí và kênh ảnh. Trong huấn luyện, giá trị mất mát được trung bình trên các mẫu trong lô dữ liệu; thuật toán tối ưu cập nhật trọng số để giảm sai số. Đầu vào và ảnh tái tạo phải có cùng kích thước và cùng thang giá trị thì phép so sánh mới có ý nghĩa.
-
-Ở bước kiểm tra, sai số tại mỗi vị trí có thể được lấy trung bình theo các kênh màu để tạo bản đồ $A(u,v)$. Sau bước làm mượt nếu có, một cách tổng hợp đơn giản là lấy giá trị lớn nhất của bản đồ làm điểm bất thường của ảnh. Cách tổng hợp này nhạy với lỗi cục bộ, nhưng cũng có thể bị ảnh hưởng bởi một vài vị trí nhiễu có sai số cao.
-\begin{equation}
-  A(u,v) = \frac{1}{C}\sum_{c=1}^{C}\bigl[x(u,v,c) - \hat{x}(u,v,c)\bigr]^{2}
-  \label{eq:ae-map}
-\end{equation}
-
-Kích thước cổ chai là một yếu tố cần khảo sát. Cổ chai quá nhỏ có thể làm mất các kết cấu bình thường; mạng có năng lực quá lớn lại có khả năng phục hồi cả chi tiết lỗi. Ngoài ra, sai số ở mức điểm ảnh dễ thay đổi theo điều kiện chiếu sáng và chất lượng ảnh. Đây là các giả thuyết cần đối chiếu bằng ảnh tái tạo và bản đồ bất thường, không phải kết quả đã được xác nhận trong đề tài.
-
-Trong kế hoạch hiện tại, nhóm dự kiến tự xây dựng Autoencoder làm mốc so sánh. Số lớp, số kênh, kích thước biểu diễn tiềm ẩn, hàm mất mát, số epoch và tốc độ học chưa được xem là cấu hình cuối cùng. Các giá trị gợi ý trong kho mã nguồn chỉ là điểm xuất phát cho việc triển khai~\cite{nhom13MVTecAnomalyDetection2026}.
-
-\subsection{Phương pháp PaDiM}
-
-PaDiM, viết tắt của Patch Distribution Modeling, sử dụng đặc trưng từ CNN học trước để mô tả các vùng cục bộ của ảnh. Các đặc trưng ở nhiều tầng được đưa về lưới không gian tương ứng rồi ghép lại. Việc kết hợp các tầng cho phép biểu diễn chứa thông tin ở nhiều mức độ chi tiết~\cite{defardPaDiMPatchDistribution2021}.
-
-Theo định hướng trong tài liệu dự án, bộ trích xuất được giữ cố định. Tại mỗi vị trí của lưới đặc trưng, nhóm thu các vector từ ảnh tốt, lựa chọn một tập chiều đặc trưng và ước lượng trung bình cùng ma trận hiệp phương sai. Các chỉ số chiều được chọn phải thống nhất giữa bước xây dựng mô hình và bước kiểm tra~\cite{nhom13MVTecAnomalyDetection2026}.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.9\linewidth]{images/img10.png}
-  \caption{Luồng xử lý của PaDiM với thống kê riêng theo vị trí (Sơ đồ nguyên lý, không phải kết quả thực nghiệm)}
-  \label{fig:padim}
-\end{figure}
-
-Gọi $z_k(p)$ là vector đặc trưng của ảnh huấn luyện thứ $k$ tại vị trí $p$; $N$ là số ảnh tốt. Các công thức thống kê mẫu được sử dụng để mô tả tập vector tại vị trí đó:
-\begin{align}
-  \mu_p &= \frac{1}{N}\sum_{k=1}^{N} z_k(p) \label{eq:padim-mean}\\
-  \Sigma_p &= \frac{1}{N-1}\sum_{k=1}^{N}\bigl[z_k(p)-\mu_p\bigr]\bigl[z_k(p)-\mu_p\bigr]^{\top} + \varepsilon I \label{eq:padim-cov}
-\end{align}
-
-Trong đó $I$ là ma trận đơn vị và $\varepsilon$ là một số dương nhỏ. Thành phần $\varepsilon I$ hỗ trợ ổn định phép tính khi ma trận hiệp phương sai gần suy biến, đặc biệt khi số chiều đặc trưng lớn so với số mẫu. Giá trị $\varepsilon$ là một tham số triển khai cần được ghi lại để tái lập kết quả.
-
-Với vector $z(p)$ của ảnh kiểm tra, khoảng cách Mahalanobis tới thống kê bình thường được dùng làm điểm bất thường tại vị trí $p$:
-\begin{equation}
-  d_p = \sqrt{\bigl[z(p)-\mu_p\bigr]^{\top}\,\Sigma_p^{-1}\,\bigl[z(p)-\mu_p\bigr]}
-  \label{eq:padim-mahalanobis}
-\end{equation}
-
-Khác với khoảng cách Euclid thuần túy, biểu thức này có xét đến độ biến thiên và tương quan giữa các chiều. Một sai lệch trên chiều đặc trưng vốn ổn định có thể đáng chú ý hơn một sai lệch cùng độ lớn trên chiều thường xuyên biến động. Các điểm $d_p$ được sắp về lưới không gian và nội suy để tạo bản đồ bất thường ở kích thước đánh giá.
-
-Điểm cần lưu ý trong kế hoạch triển khai là PaDiM lưu thống kê riêng cho từng vị trí. Khi vật thể dịch chuyển hoặc xoay, cùng một vị trí có thể nhận các cấu trúc khác nhau giữa những ảnh tốt. Nhóm cần kiểm tra ảnh hưởng này trên các loại sản phẩm thích hợp. Bộ nhớ lưu ma trận cũng tăng nhanh khi tăng số chiều; vì vậy lựa chọn số chiều phải cân nhắc cùng độ phân giải của lưới đặc trưng~\cite{nhom13MVTecAnomalyDetection2026}.
-
-ResNet18, các tầng trích xuất và số chiều đặc trưng trong tài liệu dự án hiện mới mang tính gợi ý. Báo cáo sẽ ghi đúng backbone, tầng, phép giảm chiều và tham số ổn định hóa sau khi nhóm lựa chọn và chạy thực nghiệm.
-
-\subsection{Phương pháp PatchCore}
-
-PatchCore biểu diễn trạng thái bình thường bằng một bộ nhớ chứa các vector đặc trưng cục bộ đại diện. Phương pháp sử dụng CNN học trước, tổng hợp đặc trưng vùng lân cận và chọn một tập con đại diện để giảm lượng dữ liệu cần lưu. Khi kiểm tra, đặc trưng mới được so với các vector gần nhất trong bộ nhớ~\cite{rothTotalRecallIndustrial2022}.
-
-Theo phương án nghiên cứu của nhóm, giai đoạn xây dựng bộ nhớ bắt đầu từ ảnh tốt của từng loại sản phẩm. Sau khi trích xuất đặc trưng, các vector cục bộ được tập hợp vào một tập chung. Khác với việc lập một phân phối riêng cho từng tọa độ, phép tra cứu sử dụng các mẫu tham chiếu trong bộ nhớ mà không buộc vector phải đến từ đúng vị trí ảnh ban đầu~\cite{nhom13MVTecAnomalyDetection2026}.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.9\linewidth]{images/img11.png}
-  \caption{Nguyên lý xây dựng bộ nhớ và tra cứu của PatchCore (Sơ đồ nguyên lý, không phải kết quả thực nghiệm)}
-  \label{fig:patchcore}
-\end{figure}
-
-Lưu toàn bộ vector có thể tạo ra nhiều mẫu gần giống nhau. Bước chọn tập con đại diện, gọi là coreset, nhằm giảm sự dư thừa trong khi vẫn giữ độ bao phủ của không gian đặc trưng. Tỷ lệ giữ lại là một yếu tố cần khảo sát: tập quá nhỏ có thể bỏ mất biến thiên bình thường, còn tập lớn tăng chi phí lưu trữ và tìm kiếm.
-
-Gọi $M$ là tập vector đã được chọn và $q$ là vector của một vùng trong ảnh kiểm tra. Điểm bất thường cục bộ cơ bản có thể được diễn giải bằng khoảng cách tới mẫu gần nhất:
-\begin{equation}
-  a(q) = \min_{m \in M}\,\lVert q - m\rVert_{2}
-  \label{eq:patchcore-score}
-\end{equation}
-
-Nếu $q$ ở xa các vector bình thường được lưu, vùng đó nhận điểm cao. Sau khi tính cho các vị trí, các điểm được đưa về lưới ảnh để tạo bản đồ bất thường. Công thức trên mô tả điểm cục bộ; cách tạo điểm cho toàn ảnh còn tùy phiên bản triển khai. Bài báo PatchCore có bước điều chỉnh trọng số khi tính điểm ảnh, nên không nên mặc nhiên coi mọi bản dùng giá trị cực đại đơn giản là tái hiện đầy đủ phương pháp gốc~\cite{rothTotalRecallIndustrial2022}.
-
-Trong đề tài, nhóm cần ghi rõ cách tính điểm ảnh khi sử dụng thư viện hoặc tự cài đặt. Giao thức chung cho phép mỗi phương pháp tạo điểm ảnh của mình; khi không có cách riêng, hàm đánh giá chung sử dụng giá trị lớn nhất của bản đồ đã làm mượt. Mọi thay đổi về cách tổng hợp phải được lưu cùng cấu hình chạy~\cite{nhom13MVTecAnomalyDetection2026}.
-
-Việc bỏ ràng buộc khớp đúng vị trí tạo cơ hội nhận diện các vùng bình thường khi vật thể thay đổi tư thế, nhưng không bảo đảm bất biến với mọi phép xoay hoặc dịch chuyển. Kết quả vẫn phụ thuộc vào đặc trưng học trước và mức độ bao phủ của bộ nhớ. Những lỗi về quan hệ giữa các bộ phận cũng cần được phân tích, vì từng vùng nhỏ có thể vẫn giống mẫu bình thường dù bố cục tổng thể đã sai.
-
-Trong kế hoạch phân công, hai thành viên cùng thực hiện PatchCore trên các nhóm loại sản phẩm khác nhau. Vì vậy, backbone, tầng trích xuất, tỷ lệ coreset, seed và cách tính điểm phải thống nhất trước khi tổng hợp kết quả. Cấu hình gợi ý hiện có trong kho mã nguồn chưa phải cấu hình thực nghiệm đã chốt~\cite{nhom13MVTecAnomalyDetection2026}.
-
-\section{Lý do lựa chọn các phương pháp cho đề tài}
-
-Ba phương pháp được lựa chọn cùng đáp ứng điều kiện xây dựng mô hình từ ảnh tốt và có khả năng tạo bản đồ bất thường. Autoencoder giúp nhóm thực hành thiết kế mạng, lan truyền ngược và tối ưu tham số. PaDiM bổ sung cách tiếp cận thống kê trên đặc trưng học sâu, còn PatchCore cho phép khảo sát cách lưu giữ và tìm kiếm các mẫu đặc trưng đại diện.
-
-Về nội dung học phần, bộ phương pháp này liên kết kiến thức mạng nơ-ron, biểu diễn đặc trưng, đại số tuyến tính và đánh giá mô hình với một bài toán thống nhất. Về thực nghiệm, chúng tạo điều kiện phân tích sự đánh đổi giữa chất lượng phát hiện, bộ nhớ và thời gian suy luận. Bảng~\ref{tab:compare} tổng hợp khác biệt về nguyên lý; bảng không biểu thị thứ hạng hiệu năng của các mô hình do nhóm triển khai.
+Mỗi lựa chọn cấu hình trong chuỗi trên đều có lý do (Bảng~\ref{tab:lua-chon}). Nguyên tắc chung là giữ giá trị
+mặc định của bài báo gốc và thư viện khi không có lý do để đổi, và không chỉnh bất kỳ giá trị nào theo kết quả trên
+tập test.
 
 \begin{table}[htbp]
   \centering
-  \caption{So sánh nguyên lý của ba phương pháp}
-  \label{tab:compare}
+  \caption{Các lựa chọn cấu hình và lý do}
+  \label{tab:lua-chon}
   \small
-  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.7cm} >{\raggedright\arraybackslash}p{3.7cm}@{}}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}p{7.6cm}@{}}
     \toprule
-    Tiêu chí & Autoencoder & PaDiM & PatchCore \\
+    Lựa chọn & Giá trị & Lý do \\
     \midrule
-    Biểu diễn bình thường & Trọng số mạng tái tạo & Trung bình, hiệp phương sai theo vị trí & Tập vector đặc trưng đại diện \\
-    Bước xây dựng & Tối ưu trọng số mạng & Trích xuất và tính thống kê & Trích xuất và chọn coreset \\
-    Điểm cục bộ & Sai số tái tạo & Khoảng cách Mahalanobis & Khoảng cách tới mẫu gần nhất \\
-    Điểm cần khảo sát & Tái tạo mờ hoặc tái tạo cả lỗi & Phụ thuộc vị trí và số chiều & Kích thước bộ nhớ và chi phí tìm kiếm \\
+    Kích thước ảnh & $256\times256$, không cắt & Đủ chi tiết để thấy lỗi nhỏ mà chi phí tính toán vừa phải; là kích
+      thước bài báo PaDiM và PatchCore đổi ảnh về trước khi cắt. Không cắt vùng giữa để giữ lỗi sát mép và để bản đồ
+      khớp toàn bộ mặt nạ. Chia hết cho $2^5$ nên Autoencoder thu gọn đúng về $8\times8$. \\
+    Số mô hình & Một mô hình cho mỗi loại & ``Bình thường'' của mỗi loại sản phẩm khác nhau; đây cũng là giao thức
+      chuẩn của MVTec AD. \\
+    Autoencoder & Tự xây dựng, học từ đầu & Đại diện cho hướng học từ ảnh mà không dùng đặc trưng học trước, làm
+      mốc để thấy giá trị của đặc trưng học trước. \\
+    Backbone PaDiM & ResNet-18, \texttt{layer1}--\texttt{layer3}, $d=100$ & Với Wide-ResNet-50-2 và $d=550$, mô hình
+      PaDiM cần khoảng 4,6 GB cho mỗi loại; ResNet-18 chỉ cần khoảng 158 MB. Ba tầng kết hợp chi tiết cục bộ với
+      ngữ cảnh. \\
+    Backbone PatchCore & Wide-ResNet-50-2, \texttt{layer2}--\texttt{layer3} & Cấu hình mặc định của bài báo và
+      Anomalib. Dung lượng PatchCore chỉ phụ thuộc kích thước coreset nên backbone lớn vẫn vừa GPU 16 GB. Tầng giữa
+      cân bằng chi tiết và ngữ nghĩa; \texttt{layer4} quá thô để định vị. \\
+    Coreset & 10\% số vector & Mặc định của bài báo; giữ được gần như toàn bộ độ chính xác trong khi giảm 10 lần bộ
+      nhớ và thời gian tìm láng giềng. \\
+    Điểm ảnh của AE, PaDiM & Giá trị lớn nhất của bản đồ & Một sản phẩm chỉ cần một vết lỗi nhỏ là đã lỗi, nên điểm
+      của ảnh phải nhạy với vùng sai lệch mạnh nhất chứ không phải trung bình cả ảnh. \\
+    Điểm ảnh của PatchCore & Hiệu chỉnh trọng số với $b=9$ & Cách tính của bài báo gốc: giảm điểm khi patch khác
+      thường thực ra gần nhiều mẫu bình thường hiếm gặp, nhờ đó giảm báo động giả. \\
+    Làm mượt bản đồ & Bộ lọc Gauss $\sigma=4$ & Giảm nhiễu từng điểm ảnh để giá trị lớn nhất không bị một điểm lẻ
+      quyết định; là giá trị mặc định của Anomalib, dùng chung cho cả ba phương pháp. \\
+    Tăng cường dữ liệu & Không dùng & Xoay, lật có thể biến ảnh tốt thành ảnh giống lỗi (metal\_nut lật mặt là một
+      kiểu lỗi). \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Không có căn cứ để khẳng định trước một phương pháp luôn tốt hơn hai phương pháp còn lại trên mọi loại sản phẩm. Nhóm dự kiến xem xét cả kết quả trung bình và kết quả riêng từng loại, đồng thời đối chiếu ảnh gốc, mặt nạ chuẩn và bản đồ dự đoán. Cách phân tích này giúp phân biệt lỗi bỏ sót, cảnh báo nhầm trên nền và trường hợp xác định đúng ảnh có lỗi nhưng khoanh vùng chưa chính xác.
+\section{Bộ dữ liệu MVTec AD}
+\label{sec:du-lieu}
 
-\section{Định hướng triển khai và đánh giá}
+MVTec AD~\cite{bergmannMVTecADComprehensive2019} do công ty MVTec Software công bố năm 2019, là bộ dữ liệu chuẩn
+cho phát hiện bất thường không giám sát trên ảnh công nghiệp, phát hành theo giấy phép CC BY-NC-SA 4.0 (chỉ dùng
+cho mục đích phi thương mại). Đường tải chính thức không truy cập được khi thực hiện đề tài, nên nhóm dùng bản sao
+trên Hugging Face và đã đối chiếu tổng số ảnh, số kiểu lỗi với bài báo gốc.
 
-Theo giao thức trong kho mã nguồn, mỗi phương pháp được xây dựng riêng cho từng loại của MVTec AD, chỉ sử dụng thư mục \texttt{train/good} trong giai đoạn học trạng thái bình thường. Tập test được giữ cho đánh giá cuối cùng; nhóm không điều chỉnh siêu tham số dựa trên kết quả của tập này. Nếu cần xác thực trong quá trình phát triển, cách tách dữ liệu phải được mô tả và bảo đảm độc lập với tập kiểm thử~\cite{nhom13MVTecAnomalyDetection2026}.
+Bộ dữ liệu gồm 5354 ảnh độ phân giải từ $700\times700$ đến $1024\times1024$, thuộc 15 loại: 5 loại bề mặt
+(texture) và 10 loại vật thể (object); grid, screw, zipper là ảnh xám. Mỗi loại có ba thư mục:
+\texttt{train/good} chỉ chứa ảnh tốt, \texttt{test/<kiểu lỗi>} chứa ảnh tốt và ảnh lỗi để kiểm thử,
+\texttt{ground\_truth/<kiểu lỗi>} chứa mặt nạ nhị phân đánh dấu vùng lỗi của từng ảnh lỗi (Bảng~\ref{tab:mvtec}).
 
-Bản đồ bất thường đưa vào bộ đánh giá có kích thước $256 \times 256$ và phải khớp tọa độ với mặt nạ chuẩn. Khi đổi kích thước mặt nạ nhị phân, nhóm sử dụng nội suy lân cận gần nhất để giữ nhãn 0/1. Độ phân giải bên trong mô hình có thể khác, nhưng bước chuyển đổi về kích thước đánh giá phải được thực hiện nhất quán. Thứ tự ảnh, nhãn, mặt nạ và bản đồ dự đoán cũng phải trùng nhau.
+\begin{table}[htbp]
+  \centering
+  \caption{Số ảnh và các kiểu lỗi của MVTec AD theo loại}
+  \label{tab:mvtec}
+  \small
+  \begin{tabular}{@{}llrrr>{\raggedright\arraybackslash}p{6.9cm}@{}}
+    \toprule
+    Nhóm & Loại & Train & Test tốt & Test lỗi & Kiểu lỗi \\
+    \midrule
+    Texture & carpet     & 280 & 28 &  89 & color, cut, hole, metal\_contamination, thread \\
+            & grid       & 264 & 21 &  57 & bent, broken, glue, metal\_contamination, thread \\
+            & leather    & 245 & 32 &  92 & color, cut, fold, glue, poke \\
+            & tile       & 230 & 33 &  84 & crack, glue\_strip, gray\_stroke, oil, rough \\
+            & wood       & 247 & 19 &  60 & color, combined, hole, liquid, scratch \\
+    \midrule
+    Object  & bottle     & 209 & 20 &  63 & broken\_large, broken\_small, contamination \\
+            & cable      & 224 & 58 &  92 & bent\_wire, cable\_swap, combined, cut\_inner\_insulation, cut\_outer\_insulation,
+                                           missing\_cable, missing\_wire, poke\_insulation \\
+            & capsule    & 219 & 23 & 109 & crack, faulty\_imprint, poke, scratch, squeeze \\
+            & hazelnut   & 391 & 40 &  70 & crack, cut, hole, print \\
+            & metal\_nut & 220 & 22 &  93 & bent, color, flip, scratch \\
+            & pill       & 267 & 26 & 141 & color, combined, contamination, crack, faulty\_imprint, pill\_type, scratch \\
+            & screw      & 320 & 41 & 119 & manipulated\_front, scratch\_head, scratch\_neck, thread\_side, thread\_top \\
+            & toothbrush &  60 & 12 &  30 & defective \\
+            & transistor & 213 & 60 &  40 & bent\_lead, cut\_lead, damaged\_case, misplaced \\
+            & zipper     & 240 & 32 & 119 & broken\_teeth, combined, fabric\_border, fabric\_interior, rough,
+                                           split\_teeth, squeezed\_teeth \\
+    \midrule
+    \multicolumn{2}{@{}l}{Tổng} & 3629 & 467 & 1258 & 73 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-Image-AUROC được tính từ điểm toàn ảnh và nhãn tốt hoặc lỗi; pixel-AUROC được tính từ điểm tại các pixel và mặt nạ vùng lỗi. AUROC đánh giá khả năng xếp hạng khi thay đổi ngưỡng, không yêu cầu chọn trước một ngưỡng phân loại duy nhất~\cite{scikit-learnRocAucScore}. Các chỉ số được tính riêng từng loại rồi lấy trung bình theo loại; không gộp điểm của các loại có thang đo khác nhau để thay cho phép tính này.
+Bốn đặc điểm của bộ dữ liệu được dùng để phân tích kết quả ở Chương 3:
+\begin{itemize}
+  \item Với texture, mẫu bình thường lặp lại khắp ảnh và lỗi có thể nằm ở bất kỳ đâu.
+  \item Phần lớn vật thể được chụp ở tư thế gần cố định (bottle, cable, transistor), nhưng screw, hazelnut và
+        metal\_nut xoay ngẫu nhiên giữa các ảnh, kể cả ảnh tốt.
+  \item Một số kiểu lỗi mang tính logic (Mục~\ref{sec:anomaly}): transistor/misplaced (thiếu linh kiện),
+        cable/cable\_swap (đổi chỗ dây), metal\_nut/flip (lật mặt).
+  \item Toothbrush chỉ có 60 ảnh huấn luyện, ít nhất trong bộ dữ liệu.
+\end{itemize}
 
-Để trình diễn ảnh tốt hoặc lỗi bằng nhãn nhị phân, hệ thống vẫn cần một ngưỡng quyết định. Ngưỡng hiển thị này phải được xác định theo quy trình riêng và ghi rõ căn cứ lựa chọn; không được dùng nhãn của tập test để điều chỉnh rồi báo cáo như đánh giá độc lập. Tương tự, chuẩn hóa màu cho từng ảnh có thể giúp quan sát bản đồ, nhưng không nên làm thay đổi các điểm số dùng tính AUROC.
+\section{Tiền xử lý và giao thức chung}
+\label{sec:preprocess}
 
-Ngoài chất lượng phát hiện, nhóm dự kiến ghi thời gian xây dựng mô hình, thời gian suy luận trên mỗi ảnh và dung lượng lưu mô hình. Thiết bị, cách đo, số mẫu và việc tính hay loại trừ thời gian đọc dữ liệu phải được mô tả để việc so sánh có ý nghĩa. Với PaDiM, thời gian xây dựng gồm trích xuất đặc trưng và tính thống kê; với PatchCore, thời gian này gồm cả quá trình tạo và rút gọn bộ nhớ.
+Để so sánh công bằng, ba phương pháp dùng chung cách xử lý dữ liệu và cách đánh giá; chỉ phần mô hình bên trong là
+khác nhau.
+\begin{enumerate}
+  \item \textbf{Kích thước ảnh.} Ảnh được đổi về $256\times256$ bằng nội suy song tuyến, không cắt ảnh. Bài báo
+        PaDiM và PatchCore cắt vùng giữa $224\times224$; nhóm không cắt để không mất lỗi nằm sát mép ảnh và để bản
+        đồ bất thường khớp toàn bộ mặt nạ.
+  \item \textbf{Ảnh xám.} Ảnh của grid, screw, zipper được nhân thành 3 kênh để dùng chung mạng với ảnh màu.
+  \item \textbf{Chuẩn hóa giá trị điểm ảnh.} PaDiM và PatchCore chuẩn hóa theo trung bình (0,485; 0,456; 0,406) và độ
+        lệch chuẩn (0,229; 0,224; 0,225) của ImageNet, đúng phân phối mà backbone đã học.
+        Autoencoder giữ giá trị trong $[0,1]$ để so sánh trực tiếp với đầu ra sigmoid.
+  \item \textbf{Mặt nạ.} Mặt nạ được đổi kích thước bằng nội suy lân cận gần nhất rồi nhị phân hóa lại (ngưỡng
+        0,5); ảnh test tốt được gán mặt nạ toàn 0.
+  \item \textbf{Không tăng cường dữ liệu.} Cả ba phương pháp đều không xoay hay lật ảnh. Với một số loại, phép biến
+        đổi này tạo ra ảnh trông giống lỗi (metal\_nut lật mặt là một kiểu lỗi) và đưa mẫu ``bình thường'' không có
+        thật vào mô hình.
+  \item \textbf{Chia dữ liệu.} Giữ nguyên cách chia train/test của bộ dữ liệu. Mô hình chỉ học từ
+        \texttt{train/good}; ảnh test chỉ dùng để đánh giá lần cuối. Siêu tham số giữ theo giá trị mặc định của bài
+        báo gốc và thư viện, không chỉnh theo kết quả trên tập test.
+  \item \textbf{Đánh giá.} Image-AUROC và pixel-AUROC được tính bằng cùng một module (hàm \texttt{roc\_auc\_score}
+        của scikit-learn~\cite{scikit-learnRocAucScore}) riêng cho từng loại, rồi lấy trung bình theo loại. Seed
+        ngẫu nhiên cố định là 42.
+\end{enumerate}
 
-Các thông tin cần bổ sung sau triển khai gồm kiến trúc Autoencoder, backbone và tầng đặc trưng, số chiều của PaDiM, tỷ lệ coreset của PatchCore, quy tắc làm mượt, cách tính điểm ảnh và cấu hình phần cứng. Kết quả thực nghiệm, hình dự đoán thực tế và nhận xét dựa trên số liệu sẽ được trình bày ở chương tiếp theo. Nội dung hiện tại là cơ sở phương pháp và kế hoạch đánh giá, chưa phải báo cáo hoàn thành huấn luyện.
+\section{Lựa chọn phương pháp}
+\label{sec:chon-pp}
+
+Ba phương pháp được chọn vì ba lý do. Thứ nhất, chúng thuộc ba hướng khác nhau trong Bảng~\ref{tab:approaches}:
+tái tạo, mô hình hóa phân phối và bộ nhớ đặc trưng, nên so sánh chúng cho thấy ảnh hưởng của không gian so sánh
+(điểm ảnh hay đặc trưng) và cách mô tả ``bình thường''. Thứ hai, chúng tạo thành một chuỗi mà mỗi phương pháp khắc
+phục hạn chế chính của phương pháp trước (Hình~\ref{fig:so-sanh}): PaDiM chuyển từ so sánh điểm ảnh sang so sánh đặc
+trưng học trước; PatchCore bỏ ràng buộc theo vị trí và giả định phân phối Gauss của PaDiM. Thứ ba, cả ba đều làm
+được trong phạm vi môn học: Autoencoder đủ đơn giản để tự xây dựng, PaDiM và PatchCore có sẵn trong thư viện
+Anomalib~\cite{akcayAnomalibDeepLearning2022}, và cả ba đều có kết quả công bố trên MVTec AD để đối chiếu.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{images/duong_so_sanh.png}
+  \caption{Ba phương pháp theo không gian biểu diễn, cách mô tả ``bình thường'' và cách tính điểm}
+  \label{fig:so-sanh}
+\end{figure}
+
+Từ cơ chế của ba phương pháp, nhóm đặt ra ba giả thuyết và kiểm chứng ở Chương 3:
+\begin{itemize}
+  \item[(G1)] PaDiM và PatchCore vượt Autoencoder ở hầu hết các loại, vì đặc trưng học trước phân biệt lỗi tốt hơn
+        sai số từng điểm ảnh.
+  \item[(G2)] Khoảng cách giữa PatchCore và PaDiM lớn nhất ở các loại vật thể xoay (screw, hazelnut, metal\_nut), vì
+        PaDiM gắn thống kê với vị trí còn PatchCore thì không.
+  \item[(G3)] Autoencoder làm tốt hơn ở các loại có nền đơn giản và lỗi lớn, kém ở các loại có lỗi nhỏ hoặc nhiều
+        chi tiết khó tái tạo.
+\end{itemize}
+
+\section{Autoencoder}
+\label{sec:ae}
+
+\subsection{Nguyên lý}
+
+Autoencoder gồm bộ mã hóa $f$ nén ảnh $x$ thành vector tiềm ẩn $z$ và bộ giải mã $g$ dựng lại ảnh từ
+$z$~\cite{goodfellowDeepLearning2016}:
+\begin{equation}
+  z = f(x), \qquad \hat{x} = g(z) = g\bigl(f(x)\bigr) .
+  \label{eq:ae-forward}
+\end{equation}
+Vector $z$ nhỏ hơn nhiều so với ảnh, nên mạng không chép được nguyên ảnh mà phải học những cấu trúc chung của ảnh
+tốt. Khi gặp ảnh lỗi, mạng dựng lại theo kiểu ảnh tốt; vùng lỗi bị dựng sai nên có sai số tái tạo lớn
+(Hình~\ref{fig:ae}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\linewidth]{images/duong_ae.png}
+  \caption{Autoencoder và cách tính bản đồ bất thường (đề tài dùng sai số bình phương, không dùng SSIM)}
+  \label{fig:ae}
+\end{figure}
+
+\subsection{Kiến trúc}
+
+Nhóm tự xây dựng một Autoencoder tích chập bằng PyTorch (Bảng~\ref{tab:ae-arch}). Bộ mã hóa gồm 5 lớp tích chập
+bước 2 thu ảnh từ $256\times256$ về $8\times8$, rồi một lớp kết nối đầy đủ nén $256\times8\times8 = 16384$ giá trị
+thành vector 256 chiều. Bộ giải mã đối xứng với bộ mã hóa. Mô hình có khoảng 11,9 triệu tham số (45 MB); hai lớp
+kết nối đầy đủ ở cổ chai chiếm khoảng 70\%.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Kiến trúc Autoencoder (mỗi lớp tích chập dùng bộ lọc $4\times4$, kèm chuẩn hóa theo lô và LeakyReLU, trừ lớp ra)}
+  \label{tab:ae-arch}
+  \small
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Phần & Lớp & Kích thước đầu ra \\
+    \midrule
+    Mã hóa  & 5 lớp tích chập bước 2, số kênh 32, 64, 128, 256, 256 & $256\times8\times8$ \\
+            & Kết nối đầy đủ $16384 \to 256$ & 256 \\
+    Giải mã & Kết nối đầy đủ $256 \to 16384$ & $256\times8\times8$ \\
+            & 4 lớp tích chập chuyển vị bước 2, số kênh 256, 128, 64, 32 & $32\times128\times128$ \\
+            & Tích chập chuyển vị bước 2 về 3 kênh, sigmoid & $3\times256\times256$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Hai lựa chọn thiết kế quyết định khả năng phát hiện lỗi:
+\begin{itemize}
+  \item \textbf{Không có kết nối tắt giữa bộ mã hóa và bộ giải mã} như kiến trúc U-Net. Kết nối tắt cho phép chép
+        thẳng chi tiết từ đầu vào sang đầu ra, khi đó cả vùng lỗi cũng được dựng lại đúng và tín hiệu bất thường
+        mất đi.
+  \item \textbf{Cổ chai là một vector}, không phải bản đồ không gian. Cổ chai quá rộng thì mạng dựng lại được cả
+        lỗi; quá hẹp thì ảnh tốt cũng bị dựng mờ và gây báo động giả. Vector 256 chiều là điểm cân bằng nhóm chọn
+        và giữ cố định cho cả 15 loại.
+\end{itemize}
+
+\subsection{Huấn luyện}
+
+Hàm mất mát là sai số bình phương trung bình trên mọi điểm ảnh và kênh màu:
+\begin{equation}
+  L(x,\hat{x}) = \frac{1}{HWC}\sum_{u=1}^{H}\sum_{v=1}^{W}\sum_{c=1}^{C}
+  \bigl[x(u,v,c) - \hat{x}(u,v,c)\bigr]^{2} .
+  \label{eq:ae-loss}
+\end{equation}
+Mỗi loại được huấn luyện 100 epoch bằng Adam, tốc độ học $10^{-3}$, weight decay $10^{-5}$, lô 16 ảnh. Hàm mất mát
+dựa trên SSIM~\cite{bergmannImprovingUnsupervisedDefect2019}, so sánh cấu trúc cục bộ thay vì từng điểm ảnh, là một
+lựa chọn khác được báo cáo tốt hơn ở một số loại; đề tài chưa thử và ghi nhận ở phần Hạn chế.
+
+\subsection{Bản đồ và điểm bất thường}
+
+Bản đồ bất thường là sai số bình phương tại từng điểm ảnh, lấy trung bình theo kênh:
+\begin{equation}
+  A(u,v) = \frac{1}{C}\sum_{c=1}^{C}\bigl[x(u,v,c) - \hat{x}(u,v,c)\bigr]^{2} .
+  \label{eq:ae-map}
+\end{equation}
+Bản đồ được làm mượt bằng bộ lọc Gauss với $\sigma = 4$ để giảm nhiễu từng điểm ảnh, rồi lấy giá trị lớn nhất làm
+điểm của ảnh.
+
+\subsection{Ưu điểm và hạn chế}
+
+Autoencoder đơn giản, dễ giải thích (xem trực tiếp được ảnh dựng lại), mô hình nhỏ và không phụ thuộc mạng học
+trước. Hạn chế nằm ở chính không gian so sánh: ảnh dựng lại thường mờ ở cạnh và kết cấu chi tiết, nên sai số xuất
+hiện cả ở vùng bình thường; mạng đủ mạnh có thể dựng lại được cả lỗi; và sai khác từng điểm ảnh nhạy với ánh sáng
+hay dịch chuyển nhỏ nhưng kém nhạy với lỗi mang tính ngữ nghĩa. Ngoài ra, mạng phải huấn luyện từ đầu và kết quả
+phụ thuộc nhiều vào siêu tham số.
+
+\section{PaDiM}
+\label{sec:padim}
+
+\subsection{Nguyên lý}
+
+PaDiM~\cite{defardPaDiMPatchDistribution2021} chia ảnh thành lưới các vùng nhỏ (patch). Mỗi patch được mô tả bằng
+vector đặc trưng lấy từ mạng tích chập học trước. Phương pháp giả định rằng, trên ảnh tốt, các vector tại cùng một
+vị trí tuân theo một phân phối Gauss nhiều chiều; patch nào lệch xa phân phối của vị trí đó là bất thường
+(Hình~\ref{fig:padim}). PaDiM không lan truyền ngược: phần ``huấn luyện'' chỉ là một lượt duyệt ảnh tốt để ước
+lượng thống kê.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{images/duong_padim.png}
+  \caption{Quy trình PaDiM (với ảnh $256\times256$ của đề tài, lưới là $64\times64$ và $d = 100$)}
+  \label{fig:padim}
+\end{figure}
+
+\subsection{Trích xuất đặc trưng}
+
+Đặc trưng lấy từ ba tầng \texttt{layer1}, \texttt{layer2}, \texttt{layer3} của ResNet-18 (Mục 1.3). Tầng nông giữ
+chi tiết cục bộ, tầng sâu hơn mang ngữ cảnh rộng; kết hợp cả ba để bắt được cả lỗi nhỏ lẫn lỗi lớn. Bản đồ của
+\texttt{layer2} và \texttt{layer3} được phóng về kích thước của \texttt{layer1} rồi ghép theo kênh, cho lưới
+$64\times64$ vị trí, mỗi vị trí một vector $64+128+256 = 448$ chiều.
+
+Kích thước ma trận hiệp phương sai tăng theo bình phương số chiều, nên PaDiM giữ lại $d = 100$ chiều chọn ngẫu nhiên
+(cố định theo seed, dùng chung cho huấn luyện và kiểm thử). Bài báo gốc cho thấy chọn ngẫu nhiên cho kết quả tương
+đương phân tích thành phần chính nhưng nhanh hơn nhiều~\cite{defardPaDiMPatchDistribution2021}.
+
+\subsection{Ước lượng phân phối và tính điểm}
+
+Gọi $z_k(p)$ là vector đặc trưng của ảnh tốt thứ $k$ tại vị trí $p$ và $N$ là số ảnh tốt:
+\begin{align}
+  \mu_p &= \frac{1}{N}\sum_{k=1}^{N} z_k(p), \label{eq:padim-mean}\\
+  \Sigma_p &= \frac{1}{N-1}\sum_{k=1}^{N}\bigl[z_k(p)-\mu_p\bigr]\bigl[z_k(p)-\mu_p\bigr]^{\top} + \varepsilon I .
+  \label{eq:padim-cov}
+\end{align}
+Thành phần $\varepsilon I$ với $\varepsilon = 0{,}01$ bảo đảm $\Sigma_p$ khả nghịch; điều này cần thiết vì mỗi loại
+chỉ có 60 đến 391 ảnh tốt, có loại ít hơn số chiều $d$. Với ảnh kiểm thử, điểm tại $p$ là khoảng cách Mahalanobis
+từ $z(p)$ tới phân phối bình thường:
+\begin{equation}
+  d_p = \sqrt{\bigl[z(p)-\mu_p\bigr]^{\top}\,\Sigma_p^{-1}\,\bigl[z(p)-\mu_p\bigr]} .
+  \label{eq:padim-mahalanobis}
+\end{equation}
+Khác khoảng cách Euclid, khoảng cách này tính đến độ biến thiên và tương quan giữa các chiều: lệch trên một chiều
+vốn ổn định bị phạt nặng hơn lệch cùng độ lớn trên một chiều vốn dao động nhiều. Bản đồ $64\times64$ các giá trị
+$d_p$ được phóng về $256\times256$ và làm mượt Gauss $\sigma = 4$; điểm ảnh là giá trị lớn nhất của bản đồ.
+
+\subsection{Triển khai và bộ nhớ}
+
+Nhóm dùng lớp PaDiM của Anomalib 2.7.0~\cite{akcayAnomalibDeepLearning2022}, giữ nguyên trọng số ResNet-18 học
+trước. Mô hình của mỗi loại gồm 4096 vector trung bình và 4096 ma trận nghịch đảo $100\times100$, khoảng 158 MB ở
+dạng số thực 32 bit. Đây cũng là lý do dùng ResNet-18 thay vì Wide-ResNet-50-2 như bài báo gốc: với
+Wide-ResNet-50-2 và $d = 550$, cùng lưới $64\times64$ cần $4096 \times 550^2$ phần tử, khoảng 4,6 GB cho mỗi loại.
+
+\subsection{Ưu điểm và hạn chế}
+
+PaDiM không cần huấn luyện mạng, chỉ một lượt duyệt dữ liệu nên xây dựng mô hình nhanh, và tận dụng được đặc trưng
+học trước nên khoanh vùng lỗi tốt. Hạn chế chính là giả định ảnh đã căn chỉnh: khi vật thể xoay hay dịch chuyển,
+phân phối tại một vị trí trộn nhiều bộ phận khác nhau và kém phân biệt hơn. Ngoài ra, bộ nhớ tăng theo bình phương
+số chiều, và một phân phối Gauss duy nhất không mô tả đủ khi tại cùng vị trí có nhiều kiểu bình thường khác nhau.
+
+\section{PatchCore}
+\label{sec:patchcore}
+
+\subsection{Nguyên lý}
+
+PatchCore~\cite{rothTotalRecallIndustrial2022} coi ``bình thường'' là những gì đã xuất hiện trong ảnh tốt: một patch
+kiểm thử là bình thường nếu nó giống ít nhất một patch của ảnh tốt, ở bất kỳ vị trí nào trong bất kỳ ảnh nào
+(Hình~\ref{fig:patchcore}). So với PaDiM, phương pháp có hai khác biệt: không phụ thuộc vị trí, và không giả định
+dạng phân phối mà dùng trực tiếp các vector mẫu.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{images/duong_patchcore.png}
+  \caption{Quy trình PatchCore (đề tài giữ coreset 10\%)}
+  \label{fig:patchcore}
+\end{figure}
+
+\subsection{Đặc trưng patch có ngữ cảnh lân cận}
+
+Đặc trưng lấy từ \texttt{layer2} (512 kênh, lưới $32\times32$) và \texttt{layer3} (1024 kênh, $16\times16$) của
+Wide-ResNet-50-2. \texttt{layer1} quá gần mức điểm ảnh, \texttt{layer4} quá thiên về phân loại ImageNet. Tại mỗi vị
+trí, đặc trưng được lấy trung bình trên lân cận $3\times3$ để mỗi vector mang thông tin vùng xung quanh và bền hơn
+với dịch chuyển nhỏ. Bản đồ của \texttt{layer3} được phóng về $32\times32$ rồi ghép với \texttt{layer2}, nên mỗi
+ảnh cho 1024 vector 1536 chiều.
+
+\subsection{Bộ nhớ và chọn coreset}
+
+Gom vector của mọi patch trong mọi ảnh tốt được bộ nhớ đầy đủ $\mathcal{M}$: một loại vài trăm ảnh có vài trăm
+nghìn vector, tìm láng giềng gần nhất trên đó rất chậm. PatchCore giữ lại một tập con $\mathcal{M}_C$ sao cho mọi
+vector trong $\mathcal{M}$ đều có một đại diện gần nó trong $\mathcal{M}_C$:
+\begin{equation}
+  \mathcal{M}_C^{*} = \arg\min_{\mathcal{M}_C \subset \mathcal{M}} \; \max_{m \in \mathcal{M}} \; \min_{n \in \mathcal{M}_C} \lVert m - n\rVert_2 .
+  \label{eq:coreset}
+\end{equation}
+Tìm nghiệm đúng của bài toán này quá tốn kém, nên PatchCore giải gần đúng bằng thuật toán tham lam
+k-center~\cite{senerActiveLearningConvolutional2018}:
+\begin{enumerate}
+  \item Chiếu ngẫu nhiên mọi vector trong $\mathcal{M}$ xuống ít chiều hơn, để tính khoảng cách nhanh hơn mà vẫn giữ
+        gần đúng khoảng cách giữa chúng.
+  \item Khởi tạo $\mathcal{M}_C$ bằng một vector chọn ngẫu nhiên.
+  \item Với mỗi vector trong $\mathcal{M}$, cập nhật khoảng cách tới vector gần nhất của $\mathcal{M}_C$.
+  \item Thêm vào $\mathcal{M}_C$ vector có khoảng cách đó lớn nhất, tức vector đang được đại diện kém nhất.
+  \item Lặp bước 3 và 4 đến khi $\mathcal{M}_C$ đủ kích thước mong muốn.
+\end{enumerate}
+Khác lấy mẫu ngẫu nhiên, cách chọn này giữ được cả những kiểu patch bình thường hiếm gặp, nhờ đó giảm báo động giả.
+Bài báo gốc cho thấy giữ 1\% đến 10\% số vector vẫn cho kết quả gần như bộ nhớ đầy
+đủ~\cite{rothTotalRecallIndustrial2022}.
+
+Đề tài giữ 10\% số vector. Ví dụ hazelnut có 391 ảnh tốt, tức khoảng 400 nghìn vector; coreset còn khoảng 40 nghìn
+vector, chiếm khoảng 235 MB. Vì mỗi bước chọn phụ thuộc bước trước, thời gian chọn coreset tăng nhanh theo số ảnh.
+
+\subsection{Tính điểm}
+
+Điểm của một patch $q$ trong ảnh kiểm thử là khoảng cách tới patch bình thường gần nhất trong coreset:
+\begin{equation}
+  a(q) = \min_{m \in \mathcal{M}_C}\,\lVert q - m\rVert_{2} .
+  \label{eq:patchcore-score}
+\end{equation}
+Bản đồ $32\times32$ các giá trị $a(q)$ được phóng về $256\times256$ và làm mượt Gauss $\sigma = 4$. Điểm của ảnh
+không chỉ là patch có $a(q)$ lớn nhất. Gọi $q^{*}$ là patch đó, $m^{*}$ là láng giềng gần nhất của nó và
+$\mathcal{N}_b(m^{*})$ là $b$ láng giềng gần nhất của $m^{*}$ trong coreset; điểm được nhân thêm một trọng số:
+\begin{equation}
+  s = \left(1 - \frac{\exp\lVert q^{*} - m^{*}\rVert_2}{\sum_{m \in \mathcal{N}_b(m^{*})} \exp\lVert q^{*} - m\rVert_2}\right) a(q^{*}) .
+  \label{eq:patchcore-reweight}
+\end{equation}
+Trọng số này giảm điểm khi $m^{*}$ nằm trong vùng dày đặc của bộ nhớ, tức $q^{*}$ gần nhiều mẫu bình thường chứ
+không chỉ một mẫu. Đề tài dùng $b = 9$, đúng như cài đặt của Anomalib 2.7.0.
+
+\subsection{Ưu điểm và hạn chế}
+
+PatchCore không phụ thuộc vị trí nên chịu được vật thể xoay hay lệch, không cần huấn luyện mạng và không giả định
+dạng phân phối. Đổi lại, mỗi patch kiểm thử phải tìm láng giềng gần nhất trong coreset nên suy luận chậm hơn PaDiM,
+và bước chọn coreset tốn thời gian khi nhiều ảnh. Việc bỏ thông tin vị trí cũng có mặt trái: từng patch của một vật
+thể thiếu linh kiện hay lắp sai chỗ vẫn có thể giống một patch bình thường nào đó, nên PatchCore dễ bỏ sót lỗi
+logic. Cũng như PaDiM, chất lượng phụ thuộc vào đặc trưng học từ ImageNet.
+
+\section{Tiêu chí so sánh và quy trình thực nghiệm}
+\label{sec:tieu-chi}
+
+Độ chính xác chưa đủ để chọn phương pháp cho ứng dụng thực tế, nên ba phương pháp được so sánh trên bốn nhóm tiêu chí
+(Bảng~\ref{tab:criteria}).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiêu chí so sánh và cách đo}
+  \label{tab:criteria}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{7.3cm} >{\raggedright\arraybackslash}p{4.6cm}@{}}
+    \toprule
+    Tiêu chí & Đại lượng đo & Trả lời câu hỏi \\
+    \midrule
+    Độ chính xác & Image-AUROC, pixel-AUROC theo từng loại và trung bình & Phát hiện và khoanh vùng lỗi tốt đến đâu \\
+    Thời gian & Thời gian xây dựng mô hình mỗi loại; thời gian suy luận mỗi ảnh & Có theo kịp tốc độ dây chuyền không \\
+    Dung lượng & Kích thước mô hình lưu lại: trọng số (AE), trung bình và ma trận nghịch đảo (PaDiM), coreset (PatchCore) & Cần bao nhiêu bộ nhớ khi triển khai \\
+    Định tính & Bản đồ bất thường trên ảnh từng kiểu lỗi, cùng thang màu cho mỗi loại & Vì sao phương pháp đúng hoặc sai \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Bảng~\ref{tab:hyper} tóm tắt cấu hình của ba phương pháp; Mục~\ref{sec:cai-dat} trình bày cách cài đặt và chạy.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Cấu hình đã chạy của ba phương pháp}
+  \label{tab:hyper}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{12cm}@{}}
+    \toprule
+    Phương pháp & Cấu hình \\
+    \midrule
+    Autoencoder & Ảnh $256\times256$ trong $[0,1]$; cổ chai vector 256 chiều; MSE; Adam, tốc độ học $10^{-3}$, weight decay
+                  $10^{-5}$, lô 16, 100 epoch; làm mượt $\sigma = 4$; điểm ảnh là giá trị lớn nhất \\
+    PaDiM       & ResNet-18 học trước; \texttt{layer1}--\texttt{layer3}, giữ ngẫu nhiên $d = 100$ chiều; $\varepsilon = 0{,}01$;
+                  làm mượt $\sigma = 4$; điểm ảnh là giá trị lớn nhất \\
+    PatchCore   & Wide-ResNet-50-2 học trước; \texttt{layer2}--\texttt{layer3}, lân cận $3\times3$; coreset 10\%; $b = 9$;
+                  làm mượt $\sigma = 4$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Cài đặt và chạy thực nghiệm}
+\label{sec:cai-dat}
+
+\subsection{Tổ chức mã nguồn}
+
+Mã nguồn viết bằng Python, tổ chức theo nguyên tắc ``cố định cách đánh giá, tự do cách triển khai''. Hai phần dùng
+chung cho cả ba phương pháp là module đọc dữ liệu (tiền xử lý như Mục~\ref{sec:preprocess}) và module đánh giá
+(tính AUROC, vẽ hình, ghi kết quả). Mỗi phương pháp là một module riêng, chỉ cần nhận ảnh từ module dữ liệu và trả về
+bản đồ cùng điểm bất thường đúng kích thước $256\times256$. Nhờ vậy, đổi cách cài đặt một phương pháp không làm thay
+đổi cách đánh giá, và kết quả của ba phương pháp so sánh được với nhau. Autoencoder do nhóm tự viết bằng PyTorch;
+PaDiM và PatchCore dùng trực tiếp lớp mô hình của Anomalib 2.7.0, nhưng nhận ảnh từ module dữ liệu của nhóm thay vì
+bộ nạp dữ liệu của thư viện, để bảo đảm cùng tiền xử lý với Autoencoder. Cấu trúc thư mục chi tiết nằm ở Phụ lục.
+
+\subsection{Quy trình chạy một loại sản phẩm}
+
+Với mỗi phương pháp và mỗi loại, chương trình thực hiện:
+\begin{enumerate}
+  \item Đặt lại seed ngẫu nhiên bằng 42, để kết quả của mỗi loại không phụ thuộc thứ tự chạy.
+  \item Đọc ảnh \texttt{train/good} và toàn bộ tập test của loại đó qua module dữ liệu.
+  \item Xây dựng mô hình từ ảnh tốt: huấn luyện mạng (Autoencoder), ước lượng phân phối (PaDiM) hoặc trích đặc trưng
+        và chọn coreset (PatchCore).
+  \item Suy luận trên toàn bộ tập test để lấy bản đồ bất thường $256\times256$ và điểm của từng ảnh.
+  \item Tính image-AUROC và pixel-AUROC bằng module đánh giá chung.
+  \item Ghi một dòng vào tệp kết quả chung (loại, phương pháp, hai chỉ số AUROC, thời gian xây dựng, thời gian suy
+        luận, dung lượng mô hình, cấu hình) và lưu ảnh minh họa cho từng kiểu lỗi. Với Autoencoder, trọng số mạng của
+        từng loại cũng được lưu lại.
+\end{enumerate}
+
+\subsection{Cách chạy trên Colab}
+
+Thực nghiệm đầy đủ chạy trên Google Colab; cấu hình phần cứng, phiên bản thư viện và các thiết lập khác được tổng
+hợp ở Mục~\ref{sec:thiet-lap}. Dữ liệu và kết quả đặt trên Google Drive, nên khi phiên Colab bị ngắt thì không mất
+gì. Mỗi loại chạy xong được ghi ngay vào tệp kết quả; khi chạy lại,
+chương trình bỏ qua các loại đã có kết quả với cùng cấu hình và chạy tiếp từ loại còn thiếu. Trước khi chạy đủ 15
+loại, mỗi phương pháp được chạy thử trên loại bottle ở máy cá nhân (GPU RTX 3050, 4 GB) để kiểm tra toàn bộ quy
+trình.
+
+\subsection{Các vấn đề kỹ thuật đã xử lý}
+
+\begin{itemize}
+  \item \textbf{PaDiM lỗi trên GPU Colab.} Phép nghịch đảo đồng thời 4096 ma trận hiệp phương sai trên GPU Tesla T4 gây
+        lỗi truy cập bộ nhớ trong thư viện CUDA đi kèm PyTorch trên Colab. Nhóm tính trung bình, hiệp phương sai và
+        nghịch đảo trên CPU rồi mới chuyển kết quả lên GPU để suy luận. Kết quả không đổi: loại bottle cho cùng
+        image-AUROC 0,9976 và pixel-AUROC 0,9776 trước và sau khi sửa.
+  \item \textbf{PatchCore trên GPU 4 GB.} Khi chạy thử ở máy cá nhân, bộ nhớ đặc trưng đầy đủ không vừa GPU. Nhóm giữ
+        toàn bộ đặc trưng trên RAM và chỉ đưa bản chiếu ngẫu nhiên lên GPU khi chọn coreset; thuật toán không đổi.
+  \item \textbf{Autoencoder đọc lại ảnh mỗi epoch.} Cách nạp dữ liệu thông thường giải nén lại từng ảnh PNG
+        độ phân giải cao từ Google Drive ở mỗi epoch, tức 100 lần cho mỗi ảnh. Nhóm đọc và thu nhỏ ảnh huấn luyện
+        một lần, giữ sẵn trên GPU (tối đa khoảng 300 MB với 391 ảnh), rồi xáo và chia lô ngay trên GPU. Cấu hình huấn
+        luyện giữ nguyên; 100 epoch trên bottle còn khoảng 85 giây trên RTX 3050.
+\end{itemize}
+
+\subsection{Đo thời gian và vẽ hình minh họa}
+
+Với Autoencoder, thời gian xây dựng chỉ tính vòng huấn luyện, sau khi đã đọc và chuyển toàn bộ ảnh huấn luyện lên thiết bị. Với PaDiM và PatchCore, thời gian này tính từ lúc duyệt ảnh huấn luyện đến khi hoàn tất trích đặc trưng, ước lượng phân phối hoặc chọn coreset. Thời gian suy luận là tổng thời gian chạy mô hình trên tập test chia
+cho số ảnh test. Trước và sau mỗi lần đo, chương trình chờ GPU làm xong mọi phép tính để số đo không bị sai do GPU
+chạy bất đồng bộ. Với PaDiM và PatchCore, thời gian suy luận chỉ gồm lượt chạy mô hình; với Autoencoder, số đo còn
+gồm cả thời gian đọc ảnh test. Khác biệt này được lưu ý khi so sánh ở Chương 3.
+
+Hình minh họa gồm ảnh gốc, mặt nạ lỗi và bản đồ bất thường của ảnh đầu tiên trong mỗi kiểu lỗi. Thang màu của bản đồ
+cố định cho mỗi phương pháp và mỗi loại, lấy từ phân vị 1\% và 99,5\% của mọi bản đồ test, nên các ảnh cùng loại so
+sánh được với nhau mà không bị chuẩn hóa riêng từng ảnh.

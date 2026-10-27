@@ -1,260 +1,403 @@
 \chapter{CƠ SỞ LÝ THUYẾT}
 
-\section{Tìm hiểu về Trí tuệ nhân tạo, Học máy, Học sâu}
+Chương này đặt đề tài vào bức tranh chung của trí tuệ nhân tạo và học máy, rồi trình bày các nền tảng mà ba phương
+pháp dựa vào: dữ liệu và tiền xử lý, huấn luyện mạng nơ-ron (Autoencoder), mạng tích chập (cả ba phương pháp), đặc
+trưng học trước (PaDiM, PatchCore), thị giác máy tính, bài toán phát hiện bất thường, cách đánh giá và các thư viện
+được dùng.
 
-\subsection{Trí tuệ nhân tạo (Artificial Intelligence - AI)}
+\section{Trí tuệ nhân tạo, học máy và học sâu}
 
-Trí tuệ nhân tạo (AI) là một lĩnh vực khoa học tập trung vào việc xây dựng và cải tiến các hệ thống tính toán tự động có thể đảm nhiệm những công việc vốn đòi hỏi trí tuệ của con người. Công nghệ này mô phỏng các quá trình tư duy, học hỏi và giải quyết vấn đề, với mục tiêu xây dựng những hệ thống có khả năng nhận thức, suy nghĩ và hành động một cách tự động.
+\subsection{Trí tuệ nhân tạo}
 
-AI bao gồm nhiều kỹ thuật và phương pháp đa dạng như Học máy (Machine Learning), Xử lý ngôn ngữ tự nhiên (Natural Language Processing) và Thị giác máy tính (Computer Vision). Các tiến bộ kỹ thuật gần đây đóng vai trò then chốt trong việc hiện thực hóa các hệ thống AI hiệu quả và đáng tin cậy cho phép máy tính tiếp thu kiến thức từ dữ liệu, nhận diện các mẫu đặc trưng, thích ứng với hoàn cảnh mới và đưa ra các quyết định một cách thông minh. AI có thể được phân loại thành ba cấp độ:
+Trí tuệ nhân tạo (Artificial Intelligence, AI) là lĩnh vực xây dựng các hệ thống máy tính thực hiện được những việc
+vốn cần trí tuệ con người, như nhận biết, suy luận, học từ kinh nghiệm và ra quyết định. AI thường được chia làm ba
+cấp độ. AI hẹp (narrow AI) giải quyết một nhiệm vụ cụ thể, như nhận dạng khuôn mặt hay gợi ý sản phẩm. AI tổng quát
+(general AI) học và làm được mọi nhiệm vụ trí tuệ như con người. AI siêu việt (super AI) vượt con người ở mọi lĩnh
+vực. Hai cấp độ sau hiện vẫn ở mức lý thuyết; mọi hệ thống đang dùng trong thực tế, kể cả hệ thống kiểm tra lỗi sản
+phẩm của đề tài, đều là AI hẹp.
+
+\subsection{Học máy}
+
+Học máy (Machine Learning, ML) là một nhánh của AI, trong đó hệ thống tự rút ra quy luật từ dữ liệu thay vì được lập
+trình sẵn từng quy tắc. Mô hình được xây dựng trên dữ liệu huấn luyện, rồi được dùng để dự đoán hoặc ra quyết định
+cho dữ liệu mới mà nó chưa thấy. Vì vậy, điều quan trọng của một mô hình học máy không phải là thuộc lòng dữ liệu
+huấn luyện mà là tổng quát hóa được sang dữ liệu mới~\cite{zhangGeneralization}.
+
+Theo cách dùng dữ liệu, học máy chia làm ba nhóm (Hình~\ref{fig:ml-types}):
 \begin{itemize}
-  \item AI yếu (Narrow AI): AI được phát triển để thực hiện một tác vụ đơn giản, cụ thể, ví dụ như chatbot, hệ thống đề xuất phim, hoặc trợ lý ảo.
-  \item AI mạnh (General AI): Có khả năng học và thực hiện bất kỳ nhiệm vụ trí tuệ nào của con người.
-  \item AI siêu việt (Super AI): Là giai đoạn lý thuyết trong tương lai, nơi AI có thể vượt xa trí thông minh của con người trong mọi lĩnh vực.
-\end{itemize}
-
-Trong thời đại số hóa hiện nay, trí tuệ nhân tạo (AI) ngày càng trở thành yếu tố cốt lõi thúc đẩy sự đổi mới và phát triển trong các ngành như chăm sóc sức khỏe, tài chính, vận tải và ngành công nghiệp giải trí, mang lại những đổi mới đáng kể trong cách chúng ta học tập và làm việc.
-
-\subsection{Học máy (Machine Learning - ML)}
-
-Học máy (Machine Learning) là một phân ngành của Trí tuệ nhân tạo (AI) chuyên nghiên cứu các thuật toán giúp hệ thống học từ dữ liệu và đưa ra quyết định mà không cần mã hóa quy tắc một cách rõ ràng.
-
-Nguyên lý hoạt động của ML dựa trên việc rút ra mô hình từ dữ liệu huấn luyện (training data) để đưa ra dự đoán hoặc quyết định cho dữ liệu mới (dữ liệu kiểm tra).
-
-Học máy bao gồm ba nhóm chính dựa trên cách mô tả tiếp cận dữ liệu:
-\begin{itemize}
-  \item Học có giám sát (Supervised Learning): Phương pháp này sử dụng tập dữ liệu đã được gán nhãn sẵn để huấn luyện mô hình. Ví dụ việc phân loại thư rác.
-  \item Học không giám sát (Unsupervised Learning): Với phương pháp này, hệ thống làm việc với dữ liệu không có nhãn, nhiệm vụ của mô hình là tìm ra những đặc điểm hoặc mối quan hệ tiềm ẩn bên trong. Ví dụ: phân loại người dùng mạng xã hội theo hành vi tương tác.
-  \item Học tăng cường (Reinforcement Learning): Dựa trên quá trình tương tác giữa hệ thống và môi trường, trong đó hệ thống nhận được phần thưởng khi thực hiện hành vi đúng. Một minh họa rõ nét là robot học cách di chuyển nhờ việc liên tục thử các ra quyết định và điều chỉnh dựa trên phản hồi môi trường mang lại.
+  \item \textbf{Học có giám sát:} dữ liệu đã gán nhãn, mô hình học cách dự đoán nhãn, ví dụ phân loại ảnh sản phẩm
+        thành ``tốt'' hoặc ``lỗi'' khi có sẵn nhiều ảnh lỗi đã gán nhãn.
+  \item \textbf{Học không giám sát:} dữ liệu không có nhãn, mô hình tìm cấu trúc ẩn trong dữ liệu, như nhóm các mẫu
+        giống nhau, giảm số chiều hoặc nhận ra mẫu nào khác thường.
+  \item \textbf{Học tăng cường:} hệ thống học qua tương tác với môi trường và nhận thưởng hoặc phạt cho từng hành
+        động; nhóm này không liên quan đến đề tài.
 \end{itemize}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\linewidth]{images/img02.jpeg}
-  \caption{Các thuật toán Học máy}
-  \label{fig:ml-algorithms}
+  \caption{Phân loại thuật toán học máy theo việc dữ liệu có nhãn hay không}
+  \label{fig:ml-types}
 \end{figure}
 
-\subsection{Học sâu (Deep Learning - DL)}
+Phát hiện bất thường trong đề tài thuộc học không giám sát theo nghĩa hẹp: mô hình chỉ được thấy ảnh tốt, không
+thấy ảnh lỗi hay nhãn vùng lỗi nào khi học. Một số tài liệu gọi thiết lập này là học một lớp, vì dữ liệu huấn luyện
+chỉ thuộc một lớp là ``bình thường''. Mục~\ref{sec:anomaly} trình bày chi tiết bài toán này.
 
-Học sâu (Deep Learning) là một lĩnh vực trực thuộc học máy, sử dụng các mạng nơ-ron nhiều tầng để xây dựng mô hình toán học dựa trên dữ liệu đầu vào. Deep Learning thường được nhắc đến song song với Trí tuệ nhân tạo (AI) và Dữ liệu lớn (Big Data). Công nghệ này đã được áp dụng và hiện vẫn tiếp tục được ứng dụng rộng rãi trong thực tế, được thúc đẩy mạnh mẽ bởi sự tiến hóa của phần cứng, nhờ vào sức mạnh xử lý của GPU, lượng dữ liệu tăng nhanh, cùng với sự hỗ trợ từ các thư viện như TensorFlow và PyTorch, việc phát triển mô hình đã được đơn giản hóa, giúp cho người dùng dễ dàng thao tác sử dụng hơn.
+\subsection{Học sâu}
 
-Học sâu khai thác khả năng học biểu diễn đặc trưng trực tiếp từ dữ liệu. Một quan sát cụ thể, ví dụ hình ảnh, có khả năng được bằng nhiều hình thức khác nhau – từ các vector chứa giá trị điểm ảnh đến các biểu diễn trừu tượng như tập hợp cạnh, vùng hoặc hình khối. Ví dụ minh họa bao gồm nhận diện khuôn mặt hoặc phân tích biểu cảm khuôn mặt. Một điểm mạnh đáng chú ý của học sâu là khả năng loại bỏ các đặc trưng thủ công và thay vào đó là các đặc trưng trích xuất tự động thông qua quá trình học, đặc biệt hiệu quả trong các bài toán học không giám sát (unsupervised learning) và bán giám sát (semi-supervised learning) nhờ vào cấu trúc phân cấp.
-
-Các kiến trúc học sâu tiêu biểu như mạng nơ-ron sâu (Deep Neural Networks - DNN), mạng tích chập (Convolutional Neural Networks - CNN), mạng niềm tin sâu (Deep Belief Networks - DBN) và mạng hồi tiếp (Recurrent Neural Networks - RNN) đã được triển khai rộng rãi trong nhiều lĩnh vực, bao gồm nhận dạng hình ảnh, phân tích giọng nói, xử lý văn bản tự nhiên, âm thanh và sinh học tính toán. Những mô hình này đã chứng minh hiệu quả vượt trội khi giải quyết các tác vụ phức tạp trong thực tiễn.
-
-Thêm vào đó, học sâu hiện nay cũng trở thành một thuật ngữ phổ biến, đôi khi được xem như "thương hiệu" đại diện cho các mạng nơ-ron sâu hiện đại (modern deep neural network).
+Học sâu (Deep Learning, DL) là một nhánh của học máy, dùng mạng nơ-ron nhiều lớp để học cách biểu diễn dữ liệu.
+Điểm khác biệt chính so với học máy truyền thống là đặc trưng không do con người thiết kế mà được mạng tự học từ dữ
+liệu, theo thứ bậc: với ảnh, các lớp đầu học cạnh và kết cấu, các lớp sau ghép chúng thành bộ phận và vật
+thể~\cite{goodfellowDeepLearning2016}. Học sâu phát triển mạnh nhờ ba yếu tố: lượng dữ liệu lớn, sức tính của GPU,
+và các thư viện như PyTorch giúp xây dựng và huấn luyện mạng dễ dàng hơn (Hình~\ref{fig:deep-learning}).
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\linewidth]{images/img03.jpeg}
-  \caption{Học sâu}
+  \includegraphics[width=0.7\linewidth]{images/img03.jpeg}
+  \caption{Học sâu: mạng nơ-ron nhiều lớp tự học đặc trưng từ dữ liệu}
   \label{fig:deep-learning}
 \end{figure}
 
-\subsection{Mối quan hệ giữa trí Tuệ nhân tạo, Học máy, Học sâu}
+Một số kiến trúc học sâu tiêu biểu và mức liên quan đến đề tài:
+\begin{itemize}
+  \item \textbf{Mạng nơ-ron tích chập (CNN):} xử lý ảnh, giữ được cấu trúc không gian; là nền của cả ba phương pháp
+        trong đề tài (Mục~\ref{sec:cnn}).
+  \item \textbf{Autoencoder:} mạng nén rồi dựng lại dữ liệu, dùng để giảm chiều hoặc phát hiện bất thường; là một
+        trong ba phương pháp của đề tài.
+  \item \textbf{Mạng hồi quy (RNN, LSTM):} xử lý dữ liệu chuỗi như văn bản, tiếng nói; không dùng trong đề tài.
+  \item \textbf{Transformer:} dùng cơ chế chú ý để mô hình hóa quan hệ giữa các phần của dữ liệu, phổ biến trong xử
+        lý ngôn ngữ và ngày càng dùng nhiều cho ảnh; không dùng trong đề tài.
+\end{itemize}
 
-Trí tuệ nhân tạo (Artificial Intelligence – AI), Học máy (Machine Learning – ML) và Học sâu (Deep Learning – DL) là ba khái niệm có mối quan hệ mật thiết với nhau, đồng thời phản ánh tiến trình phát triển tự nhiên của lĩnh vực nghiên cứu về khả năng tiếp nhận kiến thức và tư duy của máy móc.
+\subsection{Quan hệ giữa ba khái niệm}
 
-Trí tuệ nhân tạo là lĩnh vực tổng quát, bao gồm tất cả các phương pháp và kỹ thuật nhằm mục đích tạo ra các hệ thống có khả năng thực hiện các hành vi thông minh tương tự con người. Trong phạm vi này, học máy xuất hiện như một hướng tiếp cận nổi bật, tập trung vào việc xây dựng các kỹ thuật cho phép máy tính có thể học được thông qua dữ liệu mà không cần phải lập trình tường minh cho từng tác vụ cụ thể. Học máy không chỉ giúp tự động hóa quá trình ra quyết định mà còn mở ra khả năng xử lý các vấn đề phức tạp trong môi trường có dữ liệu thay đổi liên tục.
-
-Tiếp nối sự phát triển của học máy, học sâu được xem là một phân nhánh sâu hơn, sử dụng mô hình hệ thống mạng nơ-ron đa tầng (deep neural networks) để mô hình hóa các quan hệ phi tuyến phức tạp giữa dữ liệu đầu vào và đầu ra. Học sâu cho phép khai thác dữ liệu ở quy mô lớn và có khả năng trích xuất đặc trưng tự động, thay vì dựa vào đặc trưng thủ công như trong các phương pháp học máy truyền thống.
-
-Giữa ba lĩnh vực này có mối quan gắn bó chặt chẽ với nhau, được tổ chức theo mô hình lồng ghép – trong đó mỗi lĩnh vực là nền tảng cho lĩnh vực tiếp theo, trong đó học sâu là một phần của học máy, và học máy là một phần của trí tuệ nhân tạo. Cụ thể: Deep Learning $\subset$ Machine Learning $\subset$ Artificial Intelligence. Đây không những là mối quan hệ phân lớp mà còn là sự kế thừa và nâng cao về mặt kỹ thuật và ứng dụng.
+Ba khái niệm lồng nhau: học sâu là một phần của học máy, học máy là một phần của trí tuệ nhân tạo
+(Hình~\ref{fig:ai-ml-dl}). Cả ba phương pháp của đề tài đều thuộc học sâu: Autoencoder là một mạng nơ-ron tự huấn
+luyện, còn PaDiM và PatchCore dựa trên đặc trưng của một mạng nơ-ron sâu đã huấn luyện sẵn.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\linewidth]{images/img04.jpeg}
-  \caption{Mối quan hệ giữa trí tuệ nhân tạo, học máy, học sâu}
+  \includegraphics[width=0.5\linewidth]{images/img04.jpeg}
+  \caption{Quan hệ giữa trí tuệ nhân tạo, học máy và học sâu}
   \label{fig:ai-ml-dl}
 \end{figure}
 
-\section{Các thành phần cơ bản trong hệ thống học máy và học sâu}
+\section{Dữ liệu và tiền xử lý}
 
-\subsection{Dữ liệu trong học máy và học sâu}
+Dữ liệu quyết định chất lượng của mô hình học máy. Dữ liệu thường được chia làm ba loại: có cấu trúc (bảng với các
+cột rõ ràng, như cơ sở dữ liệu), phi cấu trúc (ảnh, âm thanh, văn bản) và bán cấu trúc (JSON, XML, nhật ký hệ
+thống). Ảnh sản phẩm của đề tài là dữ liệu phi cấu trúc: mỗi ảnh là một ma trận giá trị điểm ảnh, ý nghĩa nằm ở cách
+các điểm ảnh sắp xếp chứ không ở từng giá trị riêng lẻ. Đây là loại dữ liệu mà học sâu xử lý tốt hơn hẳn các phương
+pháp dùng đặc trưng thủ công.
 
-Dữ liệu là yếu tố cốt lõi trong suốt quá trình đào tạo mô hình học máy và học sâu. Chất lượng và số lượng dữ liệu ảnh hưởng trực tiếp đến độ tin cậy và khả năng mở rộng của mô hình.
-
-Phân loại dữ liệu:
+Trước khi đưa vào mô hình, dữ liệu cần được tiền xử lý. Các bước thường gặp và cách đề tài áp dụng:
 \begin{itemize}
-  \item Dữ liệu có cấu trúc (Structured data): Dữ liệu dạng bảng, có trường và giá trị rõ ràng, như cơ sở dữ liệu SQL.
-  \item Dữ liệu phi cấu trúc (Unstructured data): Hình ảnh, video, âm thanh, văn bản...
-  \item Dữ liệu bán cấu trúc (Semi-structured data): JSON, XML hoặc log hệ thống.
+  \item \textbf{Làm sạch:} loại mẫu hỏng, thiếu hoặc sai. MVTec AD là bộ dữ liệu đã được làm sạch nên đề tài chỉ kiểm
+        tra đủ số ảnh.
+  \item \textbf{Chuẩn hóa:} đưa dữ liệu về cùng thang đo, như đổi ảnh về cùng kích thước và đưa giá trị điểm ảnh về
+        cùng phân phối. Với mạng học trước, dữ liệu phải được chuẩn hóa giống lúc mạng đó được huấn luyện.
+  \item \textbf{Chia tập:} tách tập huấn luyện để xây dựng mô hình và tập kiểm thử để đánh giá. Tập kiểm thử không
+        được dùng khi xây dựng hay chọn mô hình, nếu không kết quả đánh giá sẽ lạc quan hơn thực tế.
+  \item \textbf{Tăng cường dữ liệu:} tạo thêm mẫu bằng cách xoay, lật, đổi độ sáng. Kỹ thuật này hữu ích khi phép biến
+        đổi không làm thay đổi bản chất mẫu; với bài toán tìm lỗi, nó có thể biến ảnh tốt thành ảnh trông giống lỗi,
+        nên đề tài không dùng (Mục~\ref{sec:preprocess}).
 \end{itemize}
 
-Tiền xử lý dữ liệu (Data Preprocessing): Là bước quan trọng để loại bỏ nhiễu, chuẩn hóa đầu vào, và tăng độ chính xác cho mô hình. Bao gồm:
-\begin{itemize}
-  \item Làm sạch dữ liệu (loại bỏ nhiễu trong tập dữ liệu thông qua việc xử lý thiếu hụt thông tin và phát hiện ngoại lệ),
-  \item Chuẩn hóa (Normalization, Standardization),
-  \item Mã hóa dữ liệu (One-hot, Label encoding),
-  \item Chia tập dữ liệu (train/test/validation),
-  \item Tăng cường dữ liệu (Data Augmentation – với hình ảnh hoặc âm thanh).
-\end{itemize}
+\section{Mạng nơ-ron và quá trình huấn luyện}
 
-\subsection{Kiến trúc mạng nơ-ron nhân tạo}
+\subsection{Cấu trúc mạng nơ-ron}
 
-Mạng nơ-ron nhân tạo (ANN) là thành phần chính trong học sâu. Cấu trúc cơ bản của một mạng gồm ba lớp~\cite{zhangMultilayerPerceptrons}:
-\begin{itemize}
-  \item Lớp đầu vào (Input layer): Nhận dữ liệu thô từ bên ngoài.
-  \item Lớp ẩn (Hidden layer): Thực hiện các phép toán, phát hiện đặc trưng.
-  \item Lớp đầu ra (Output layer): Trả kết quả dự đoán cuối cùng.
-\end{itemize}
-
-Các nơ-ron trong từng lớp được kết nối với các nơ-ron ở lớp kế tiếp thông qua trọng số. Việc sử dụng nhiều lớp ẩn trong các mạng học sâu giúp mô hình học được những đặc trưng dữ liệu ở mức độ trừu tượng cao hơn.
+Một nơ-ron nhân tạo nhận vector đầu vào $x$, tính tổ hợp tuyến tính với trọng số $w$ và độ lệch $b$, rồi đưa
+qua hàm kích hoạt phi tuyến $\varphi$:
+\begin{equation}
+  y = \varphi\bigl(w^{\top}x + b\bigr)
+  \label{eq:neuron}
+\end{equation}
+Nhiều nơ-ron xếp thành lớp, nhiều lớp nối tiếp thành mạng; đầu ra của lớp trước là đầu vào của lớp sau
+(Hình~\ref{fig:ann})~\cite{zhangMultilayerPerceptrons}. Hàm kích hoạt phi tuyến là điều kiện để mạng nhiều lớp
+biểu diễn được quan hệ phi tuyến; nếu bỏ đi, cả mạng chỉ tương đương một phép biến đổi tuyến tính. Autoencoder
+của đề tài dùng LeakyReLU, $\varphi(t) = \max(t, 0{,}2\,t)$, ở các lớp ẩn và hàm sigmoid ở lớp ra để giá trị
+điểm ảnh tái tạo nằm trong $[0,1]$.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\linewidth]{images/img05.jpeg}
-  \caption{Cấu trúc mạng nơ-ron nhân tạo}
+  \includegraphics[width=0.65\linewidth]{images/img05.jpeg}
+  \caption{Cấu trúc mạng nơ-ron nhiều lớp}
   \label{fig:ann}
 \end{figure}
 
-Một số kiến trúc đặc biệt:
-\begin{itemize}
-  \item CNN (Mạng tích chập): Xử lý ảnh và nhận diện không gian.
-  \item RNN và LSTM: Phù hợp với dữ liệu chuỗi (speech, text).
-  \item Transformer: Mô hình học ngữ cảnh sâu và xử lý song song trong NLP.
-  \item Autoencoder: Dùng để giảm chiều dữ liệu, trích xuất đặc trưng.
-\end{itemize}
+Mạng gồm lớp vào nhận dữ liệu thô, các lớp ẩn biến đổi dữ liệu thành đặc trưng ngày càng trừu tượng, và lớp ra cho
+kết quả cuối cùng. Mạng có nhiều lớp ẩn được gọi là mạng sâu; càng nhiều lớp, mạng càng biểu diễn được quan hệ phức
+tạp, nhưng cũng càng khó huấn luyện và càng cần nhiều dữ liệu.
 
-\subsection{Quá trình huấn luyện mô hình}
+\subsection{Quá trình huấn luyện}
 
-Huấn luyện mô hình là quá trình tối ưu trọng số sao cho độ lệch giữa kết quả mô hình dự đoán và giá trị thực tế là nhỏ nhất~\cite{pytorchOptimizingModelParameters}. Gồm các bước:
+Huấn luyện là tìm tham số $\theta$ (toàn bộ trọng số và độ lệch) làm nhỏ hàm mất mát $L(\theta)$ trên dữ liệu
+huấn luyện~\cite{pytorchOptimizingModelParameters}. Một vòng huấn luyện gồm các bước:
 \begin{enumerate}
-  \item Khởi tạo trọng số (Weight Initialization)
-  \item Lan truyền tiến (Forward Propagation)
-  \item Tính toán sai số (Loss Function): Các hàm như MSE, Cross-Entropy.
-  \item Lan truyền ngược (Backpropagation): Cập nhật trọng số theo hướng giảm sai số.
-  \item Tối ưu hóa (Optimization): Dùng các thuật toán như SGD, Adam, RMSProp.
-  \item Chống overfitting~\cite{zhangGeneralization}: Dropout, Regularization (L1/L2), Early Stopping, v.v.
+  \item \textbf{Khởi tạo trọng số} ngẫu nhiên theo phân phối phù hợp, để các nơ-ron không học giống hệt nhau.
+  \item \textbf{Lan truyền tiến:} đưa một lô dữ liệu qua mạng để được đầu ra dự đoán.
+  \item \textbf{Tính mất mát:} đo sai lệch giữa dự đoán và mục tiêu, ví dụ sai số bình phương trung bình (MSE) cho bài
+        toán dựng lại ảnh hoặc entropy chéo cho bài toán phân loại.
+  \item \textbf{Lan truyền ngược:} tính gradient $\nabla_\theta L$ theo quy tắc đạo hàm hàm hợp, đi từ lớp ra về lớp
+        vào~\cite{goodfellowDeepLearning2016}.
+  \item \textbf{Cập nhật tham số} ngược hướng gradient bằng một thuật toán tối ưu, rồi lặp lại với lô tiếp theo.
 \end{enumerate}
+Mỗi lần cập nhật dùng một lô nhỏ (mini-batch) thay vì toàn bộ dữ liệu; một lượt đi qua hết dữ liệu gọi là một
+epoch. Thuật toán tối ưu đơn giản nhất là SGD, cập nhật mọi tham số với cùng một bước. Đề tài dùng
+Adam~\cite{kingmaAdamMethodStochastic2015}, trong đó mỗi tham số có bước cập nhật riêng, điều chỉnh theo trung bình
+động của gradient và của bình phương gradient, nên thường hội tụ nhanh và ít phải chỉnh tốc độ học.
 
-\subsection{Đánh giá mô hình}
+\subsection{Quá khớp và cách hạn chế}
 
-Quy trình đánh giá mô hình giúp xác định độ chính xác và tính tổng quát hóa~\cite{zhangGeneralization}. Một số chỉ số phổ biến:
+Quá khớp (overfitting) là khi mô hình học thuộc cả nhiễu và chi tiết riêng của dữ liệu huấn luyện: mất mát trên
+tập huấn luyện rất thấp nhưng kết quả trên dữ liệu mới kém~\cite{zhangGeneralization}. Nguy cơ này cao khi mô hình
+có nhiều tham số mà dữ liệu ít, đúng tình huống của đề tài: mỗi loại sản phẩm chỉ có 60 đến 391 ảnh tốt. Các cách
+hạn chế thường dùng:
 \begin{itemize}
-  \item Độ chính xác (Accuracy)
-  \item Precision / Recall / F1-Score
-  \item AUC-ROC (cho mô hình phân loại)
-  \item MAE, RMSE (cho bài toán hồi quy)
+  \item \textbf{Chính quy hóa L2 (weight decay):} cộng vào mất mát một khoản tỷ lệ với bình phương độ lớn trọng số, để
+        trọng số không quá lớn. Autoencoder của đề tài dùng weight decay $10^{-5}$.
+  \item \textbf{Dropout:} tắt ngẫu nhiên một phần nơ-ron khi huấn luyện để mạng không phụ thuộc vào vài nơ-ron.
+  \item \textbf{Dừng sớm (early stopping):} ngừng huấn luyện khi kết quả trên tập kiểm định thôi cải thiện.
+  \item \textbf{Giảm số tham số cần học:} dùng mạng nhỏ hơn hoặc dùng lại đặc trưng học trước. PaDiM và PatchCore
+        không học tham số mạng nào trên MVTec AD, nên gần như không có nguy cơ quá khớp theo nghĩa này.
 \end{itemize}
-Công cụ hỗ trợ đánh giá: confusion matrix, learning curve, validation curve,\ldots
+Với Autoencoder, quá khớp còn có một dạng riêng: mạng quá mạnh học được cách dựng lại mọi thứ, kể cả lỗi, nên mất
+khả năng phát hiện. Cổ chai hẹp (Mục 2.5) là cách đề tài hạn chế điều này.
 
-\subsection{Các công cụ và thư viện hỗ trợ}
+\section{Mạng nơ-ron tích chập}
+\label{sec:cnn}
 
-Triển khai các giải pháp dựa trên học máy và học sâu hiện nay được hỗ trợ bởi rất nhiều thư viện mã nguồn mở mạnh mẽ~\cite{tensorflowTensorFlow,pytorchOptimizingModelParameters,scikit-learnMachineLearning,numpyNumPy,matplotlibVisualizationPython}:
+Với ảnh, lớp kết nối đầy đủ có hai nhược điểm: số tham số rất lớn (ảnh $256\times256\times3$ có gần 200 nghìn
+giá trị đầu vào) và mất thông tin điểm ảnh nào nằm cạnh điểm ảnh nào. Lớp tích chập khắc phục cả hai bằng một
+bộ lọc nhỏ $K$ trượt trên ảnh~\cite{lecunGradientbasedLearningApplied1998}:
+\begin{equation}
+  h(u,v) = \sum_{i}\sum_{j}\sum_{c} K(i,j,c)\, x(u+i,\, v+j,\, c) + b
+  \label{eq:conv}
+\end{equation}
+Cùng một bộ lọc được dùng ở mọi vị trí (chia sẻ trọng số), nên số tham số chỉ phụ thuộc kích thước bộ lọc và số
+kênh, không phụ thuộc kích thước ảnh. Đầu ra vẫn là một bản đồ có tọa độ không gian, nên mỗi vị trí của bản đồ
+đặc trưng ứng với một vùng (patch) của ảnh gốc. Tính chất này là cơ sở để cả ba phương pháp trong đề tài tạo
+được bản đồ bất thường theo vị trí.
 
-\begin{table}[htbp]
+Bước trượt (stride) lớn hơn 1 làm bản đồ đặc trưng nhỏ dần; tích chập chuyển vị (transposed convolution) làm
+điều ngược lại, phóng to bản đồ. Autoencoder dùng cặp phép toán này để nén rồi dựng lại ảnh. Chuẩn hóa theo lô
+(batch normalization) đưa đầu ra mỗi lớp về trung bình 0, phương sai 1 trên từng lô, giúp huấn luyện ổn định
+hơn~\cite{ioffeBatchNormalizationAccelerating2015}.
+
+Khi xếp chồng nhiều lớp, mỗi vị trí ở lớp sâu nhìn được một vùng ảnh rộng hơn (trường tiếp nhận lớn hơn). Các
+lớp nông phản hồi với cạnh, màu và kết cấu đơn giản; các lớp sâu biểu diễn cấu trúc phức tạp hơn nhưng có độ
+phân giải không gian thấp hơn~\cite{yosinskiHowTransferableAre2014}. PaDiM và PatchCore chọn các tầng trung gian
+vì cần cả hai: đủ chi tiết để thấy lỗi nhỏ và đủ ngữ cảnh để phân biệt lỗi với biến thiên bình thường.
+
+ResNet~\cite{heDeepResidualLearning2016} cho phép huấn luyện mạng rất sâu bằng kết nối tắt: mỗi khối học phần
+chênh lệch $F(x)$ rồi cộng lại với đầu vào,
+\begin{equation}
+  y = F(x) + x .
+  \label{eq:residual}
+\end{equation}
+Các khối được nhóm thành bốn tầng \texttt{layer1}--\texttt{layer4}; mỗi tầng sau giảm một nửa kích thước không
+gian và tăng số kênh (Hình~\ref{fig:resnet}). Với ảnh vào $256\times256$ của đề tài, \texttt{layer1},
+\texttt{layer2}, \texttt{layer3} cho bản đồ $64\times64$, $32\times32$, $16\times16$. Wide
+ResNet~\cite{zagoruykoWideResidualNetworks2016} giữ cấu trúc đó nhưng tăng gấp đôi số kênh bên trong mỗi khối. Đề
+tài dùng ResNet-18 (khoảng 11,7 triệu tham số) cho PaDiM và Wide-ResNet-50-2 (khoảng 68,9 triệu tham số) cho
+PatchCore. Cả hai phương pháp đều bỏ \texttt{layer4}: tầng này có độ phân giải quá thấp để định vị lỗi và mang đặc
+trưng thiên về nhiệm vụ phân loại ImageNet.
+
+\begin{figure}[htbp]
   \centering
-  \caption{Các công cụ, thư viện hỗ trợ}
-  \label{tab:tools}
-  \begin{tabular}{@{}l l l@{}}
-    \toprule
-    Công cụ/Thư viện & Mục đích & Ngôn ngữ \\
-    \midrule
-    TensorFlow & Học sâu, hỗ trợ GPU, mô hình hóa linh hoạt & Python, C++ \\
-    Keras & API cấp cao của TensorFlow, dễ dùng & Python \\
-    PyTorch & Mạnh mẽ và linh hoạt, phổ biến trong nghiên cứu & Python \\
-    OpenCV & Xử lý ảnh, phát hiện đối tượng & Python, C++ \\
-    Pandas, NumPy & Xử lý dữ liệu & Python \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+  \includegraphics[width=\linewidth]{images/resnet_cac_tang.png}
+  \caption{Các tầng của Wide-ResNet-50-2 và tầng đặc trưng mà PaDiM, PatchCore sử dụng (kích thước minh họa với
+    ảnh $224\times224$; với ảnh $256\times256$ của đề tài là $64$, $32$, $16$ và $8$)}
+  \label{fig:resnet}
+\end{figure}
 
-\section{Ứng dụng của trí tuệ nhân tạo, học máy và học sâu}
+\section{Đặc trưng học trước}
 
-Cùng với sự phát triển nhanh chóng của phần cứng và dữ liệu lớn (Big Data), AI, học máy và học sâu đã và đang được ứng dụng mạnh mẽ trong nhiều ngành nghề, góp phần nâng cao năng suất, tối ưu hóa vận hành, và đóng góp vào việc tạo dựng giá trị thiết thực cho doanh nghiệp cũng như xã hội.
+ImageNet là bộ dữ liệu khoảng 1,2 triệu ảnh thuộc 1000 lớp đối tượng~\cite{dengImageNetLargescaleHierarchical2009}.
+Một mạng tích chập huấn luyện để phân loại ImageNet học được các bộ lọc cho cạnh, kết cấu và hình dạng; các bộ
+lọc ở tầng nông và tầng giữa dùng lại được cho dữ liệu khác với hiệu quả tốt~\cite{yosinskiHowTransferableAre2014}.
 
-\subsection{Thị giác máy tính (Computer Vision)}
+PaDiM và PatchCore dùng mạng như vậy làm bộ trích xuất đặc trưng cố định: không cập nhật trọng số nào trên
+MVTec AD. Phần ``học'' trên ảnh tốt chỉ là ghi nhận đặc trưng của chúng, dưới dạng thống kê (PaDiM) hoặc tập
+vector tham chiếu (PatchCore). Nhờ đó hai phương pháp không cần lan truyền ngược và không cần nhiều ảnh tốt.
+Đổi lại, chất lượng phụ thuộc vào việc đặc trưng ImageNet có phân biệt được lỗi công nghiệp hay không.
 
-Thị giác máy tính là một trong những lĩnh vực cốt lõi của trí tuệ nhân tạo, cho phép máy móc có khả năng nhận diện và hiểu biết về môi trường xung quanh qua các hình ảnh hoặc đoạn video. Công nghệ này sử dụng ứng dụng các phương pháp học máy, trong đó học sâu đóng vai trò then chốt, vốn nổi bật trong việc xử lý các hình ảnh có cấu trúc phức tạp và đa dạng về đặc trưng.
+\section{Thị giác máy tính và ứng dụng}
 
-Một trong những ứng dụng rộng rãi là hệ thống nhận dạng khuôn mặt, sử dụng mạng nơ-ron tích chập (CNN) để phân tích các đặc trưng khuôn mặt, áp dụng rộng rãi trong mở khóa thiết bị di động, hệ thống giám sát an ninh, hay quản lý điểm danh thông minh.
-
-Trong lĩnh vực y tế, học sâu được dùng để phân loại hình ảnh y học như ảnh CT, MRI, X-quang nhằm phát hiện bệnh lý như ung thư, xuất huyết hoặc tổn thương mô mềm. Các hệ thống này không chỉ hỗ trợ bác sĩ mà còn nâng cao độ chính xác chẩn đoán nhờ khả năng học từ hàng triệu mẫu ảnh.
-
-Công nghệ phát hiện và theo dõi đối tượng cũng là một bước tiến lớn, ứng dụng trong xe tự hành và các hệ thống giám sát giao thông thông minh. Thuật toán như YOLO, SSD hay Mask R-CNN có khả năng nhận diện nhiều đối tượng trong thời gian thực, hỗ trợ các hệ thống đưa ra quyết định điều hướng và phản ứng kịp thời.
-
-Thị giác máy tính cũng góp phần trong việc số hóa tài liệu thông qua công nghệ nhận diện ký tự quang học (OCR), giúp máy đọc được văn bản từ ảnh chụp, hóa đơn hoặc tài liệu scan, hỗ trợ hiệu quả trong lưu trữ và tìm kiếm thông tin.
-
-Ngoài ra, trong lĩnh vực sáng tạo và giải trí, thị giác máy tính được tích hợp công nghệ AR vào việc xử lý và áp dụng hiệu ứng khuôn mặt trực tiếp, hiệu ứng video, hoặc thậm chí trong các công cụ tạo nghệ thuật số nhờ khả năng hiểu cấu trúc và thành phần hình ảnh.
+Thị giác máy tính là lĩnh vực của AI giúp máy tính hiểu nội dung ảnh và video. Ba nhiệm vụ cơ bản xếp theo mức chi
+tiết tăng dần: phân loại ảnh (ảnh thuộc lớp nào), phát hiện đối tượng (đối tượng nằm ở hộp nào trong ảnh,
+Hình~\ref{fig:cv-detection}) và phân đoạn (từng điểm ảnh thuộc đối tượng nào). Bài toán của đề tài ghép hai mức:
+phát hiện ảnh lỗi tương ứng phân loại ảnh, còn định vị vùng lỗi tương ứng phân đoạn ở mức điểm ảnh. Từ khi mạng tích
+chập ra đời, cả ba nhiệm vụ đều do học sâu đảm nhận là chính.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\linewidth]{images/img06.jpg}
-  \caption{Ứng dụng của Thị giác máy tính trong nhận diện vật thể}
+  \caption{Phát hiện đối tượng, một nhiệm vụ của thị giác máy tính}
   \label{fig:cv-detection}
 \end{figure}
 
-\subsection{Xử lý ngôn ngữ tự nhiên (Natural Language Processing - NLP)}
+Hai nhóm ứng dụng gần với đề tài nhất:
+\begin{itemize}
+  \item \textbf{Kiểm tra chất lượng trong sản xuất:} camera chụp từng sản phẩm trên dây chuyền, mô hình quyết định đạt
+        hay không đạt và chỉ ra vị trí lỗi để truy nguyên nhân. Khác với nhiều ứng dụng khác, ở đây ảnh lỗi hiếm và
+        kiểu lỗi khó lường trước, nên hướng chỉ học từ ảnh tốt được dùng rộng rãi.
+  \item \textbf{Phân tích ảnh y học:} học sâu được dùng để phát hiện tổn thương trên ảnh X-quang, CT, MRI. Ảnh bệnh
+        lý hiếm hơn ảnh bình thường và việc khoanh vùng tổn thương cần chuyên gia, nên lĩnh vực này cũng gặp đúng khó
+        khăn về dữ liệu như kiểm tra chất lượng công nghiệp.
+\end{itemize}
 
-Xử lý ngôn ngữ tự nhiên là một lĩnh vực nghiên cứu nhằm trang bị cho máy tính khả năng hiểu, phân tích và sinh ngôn ngữ tự nhiên theo cách mà con người sử dụng trong giao tiếp. Đây là một trong những hướng phát triển sôi động nhất của AI hiện đại, với sự bùng nổ mạnh mẽ của các mô hình học sâu như BERT, GPT, T5 và các mô hình ngôn ngữ lớn (LLMs).
+\section{Bài toán phát hiện bất thường không giám sát}
+\label{sec:anomaly}
 
-Một trong những ví dụ điển hình nhất của NLP là chatbot và trợ lý ảo – như Siri, Alexa, Google Assistant – cho phép máy có thể hiểu các yêu cầu bằng giọng nói hoặc văn bản và phản hồi một cách tự nhiên. Học sâu đóng vai trò quan trọng trong việc tạo ra phản hồi mạch lạc, đúng ngữ cảnh và có khả năng cá nhân hóa cao.
+\subsection{Kiểm tra lỗi sản phẩm công nghiệp và các khó khăn}
 
-Dịch máy tự động cũng đã có bước tiến vượt bậc. Các mô hình học sâu tiên tiến như Transformer đã mở ra nhiều hướng tiếp cận hiệu quả, hệ thống như Google Translate hay DeepL không chỉ dịch chính xác hơn mà còn giữ được ngữ điệu và phong cách văn bản gốc.
+Trên dây chuyền sản xuất, mỗi sản phẩm cần được kiểm tra để loại bỏ những chiếc bị xước, nứt, nhiễm bẩn, biến dạng
+hay thiếu chi tiết. Kiểm tra bằng mắt người chậm hơn tốc độ dây chuyền, phụ thuộc kinh nghiệm và độ tập trung của
+người kiểm tra, và dễ bỏ sót lỗi nhỏ. Tự động hóa khâu này bằng thị giác máy tính gặp bốn khó khăn đặc thù:
+\begin{itemize}
+  \item \textbf{Ảnh lỗi hiếm.} Dây chuyền ổn định có tỷ lệ lỗi thấp, nên thu đủ ảnh lỗi để huấn luyện tốn nhiều thời
+        gian. Ngược lại, ảnh sản phẩm tốt có sẵn với số lượng lớn.
+  \item \textbf{Lỗi đa dạng và khó lường trước.} Không thể liệt kê trước mọi kiểu lỗi; một kiểu lỗi mới có thể xuất
+        hiện bất cứ lúc nào khi nguyên liệu hay máy móc thay đổi.
+  \item \textbf{Gán nhãn tốn kém.} Khoanh vùng lỗi chính xác đến từng điểm ảnh cần người có chuyên môn và nhiều công
+        sức.
+  \item \textbf{Lỗi nhỏ trên nền biến thiên.} Nhiều lỗi chỉ chiếm một phần rất nhỏ diện tích ảnh, trong khi ảnh tốt
+        vẫn khác nhau tự nhiên về ánh sáng, tư thế và kết cấu bề mặt.
+\end{itemize}
 
-Phân tích cảm xúc là một ứng dụng khác, sử dụng NLP để đánh giá tâm trạng hoặc thái độ của người dùng dựa trên nội dung văn bản – rất hữu ích trong phân tích đánh giá sản phẩm, phản hồi khách hàng hoặc theo dõi dư luận trên mạng xã hội.
+\subsection{Phát hiện và định vị bất thường}
 
-Trong lĩnh vực tóm tắt văn bản, các mô hình hiện đại có thể tự động rút gọn nội dung từ bài viết, tài liệu dài thành bản tóm tắt ngắn gọn, vẫn đảm bảo thông tin cốt lõi, phục vụ cho nghiên cứu, báo cáo hay tổng hợp tin tức.
+Bài toán gồm hai nhiệm vụ trả lời hai câu hỏi khác nhau. \textbf{Phát hiện} trả lời ``sản phẩm này có lỗi không'':
+đầu ra là một số cho cả ảnh, điểm bất thường $s(x)$, và được đánh giá trên từng ảnh. \textbf{Định vị} trả lời ``lỗi
+nằm ở đâu'': đầu ra là bản đồ bất thường $A_x(u,v)$ cùng kích thước ảnh, mỗi điểm ảnh một giá trị, và được đánh giá
+trên từng điểm ảnh so với mặt nạ vùng lỗi. Điểm ảnh thường được suy ra từ bản đồ, ví dụ
+$s(x) = \max_{u,v} A_x(u,v)$. Điểm càng cao thì càng khác thường; điểm không phải xác suất có lỗi và không có thang
+đo chung giữa các phương pháp.
 
-Ngoài ra, NLP hỗ trợ nhận diện các thực thể tên riêng thông qua kỹ thuật NER, cho phép trích xuất thông tin quan trọng như tên người, địa điểm, tổ chức từ văn bản – một phương pháp hiệu quả trong lĩnh vực phân tích dữ liệu văn bản và xây dựng cơ sở tri thức.
+Hai nhiệm vụ có thể cho kết quả khác nhau trên cùng một mô hình. Với một hạt dẻ bị nứt, mô hình có thể khoanh đúng
+vết nứt trên bản đồ (định vị tốt), nhưng nếu bản đồ của ảnh tốt cũng có vài điểm sáng thì điểm lớn nhất của ảnh tốt
+và ảnh lỗi khó phân biệt (phát hiện kém). Ngược lại, một mô hình có thể nhận ra ảnh lỗi nhờ một vùng sai lệch lớn
+mà vẫn khoanh lệch vị trí. Vì vậy đề tài đánh giá riêng hai nhiệm vụ (Mục~\ref{sec:danh-gia}). Trong ứng dụng thực
+tế, phát hiện quyết định loại hay giữ sản phẩm, còn định vị giúp người vận hành kiểm tra lại và truy nguyên nhân lỗi.
 
-Nhờ sự phát triển đồng bộ của AI, học máy và học sâu, NLP ngày càng trở nên mạnh mẽ, không chỉ giúp máy hiểu ngôn ngữ con người mà còn có khả năng tham gia đối thoại tự nhiên, sinh văn bản sáng tạo và hỗ trợ nhiều tác vụ trí tuệ phức tạp.
+\subsection{Vì sao chỉ học từ ảnh tốt}
+
+Một bộ phân loại có giám sát cần các ví dụ lỗi đã gán nhãn và có thể khó khái quát sang kiểu lỗi chưa xuất hiện trong tập huấn luyện; với
+ảnh lỗi hiếm và lỗi mới liên tục xuất hiện, điều kiện này khó đáp ứng. Hướng không giám sát đảo ngược cách đặt vấn
+đề: thay vì học ``lỗi trông như thế nào'', mô hình học ``bình thường trông như thế nào'' từ tập ảnh tốt
+$\mathcal{X}_{\text{train}} = \{x_1, \dots, x_N\}$, rồi coi mọi sai khác đáng kể là bất
+thường~\cite{bergmannMVTecADComprehensive2019}. Cách này chỉ cần ảnh tốt, vốn dễ thu thập, và về nguyên tắc phát
+hiện được cả kiểu lỗi chưa từng xuất hiện. Đổi lại, mô hình không biết đâu là lỗi ``thật'': mọi khác thường, kể cả
+một vết bẩn vô hại trên nền, đều có thể bị báo. Ảnh lỗi và mặt nạ vùng lỗi chỉ dùng ở bước đánh giá.
+
+\subsection{Hai loại bất thường}
+
+Trên ảnh công nghiệp, bất thường thường chia làm hai loại. Bất thường cấu trúc là thay đổi cục bộ về bề mặt hay
+hình dạng, như vết xước, vết nứt, lỗ thủng, vết bẩn. Bất thường logic là trường hợp từng chi tiết đều trông bình
+thường nhưng tổng thể sai, như thiếu linh kiện, lắp sai vị trí hay lật ngược. Phân biệt hai loại giúp giải thích vì
+sao một phương pháp so sánh từng vùng nhỏ có thể bỏ sót lỗi dù khoanh vùng tốt các vết trên bề mặt.
+
+\subsection{Các hướng tiếp cận và vị trí của ba phương pháp}
+
+Các phương pháp phát hiện bất thường không giám sát trên ảnh khác nhau ở chỗ chúng mô tả ``bình thường'' bằng gì và
+đo ``khác thường'' ra sao (Bảng~\ref{tab:approaches}). Đề tài chọn ba phương pháp thuộc ba hướng đầu: Autoencoder
+thuộc hướng tái tạo, so sánh trực tiếp trên điểm ảnh; PaDiM thuộc hướng mô hình hóa phân phối đặc trưng; PatchCore
+thuộc hướng bộ nhớ đặc trưng. Hai phương pháp sau cùng dựa trên đặc trưng học trước, nhưng PaDiM gắn thống kê với
+từng vị trí còn PatchCore so sánh không phụ thuộc vị trí. Hai hướng còn lại được nêu để thấy vị trí của ba phương
+pháp, không nằm trong phạm vi thực nghiệm.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Các hướng tiếp cận phát hiện bất thường không giám sát trên ảnh}
+  \label{tab:approaches}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}p{4.6cm} >{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}p{2.4cm}@{}}
+    \toprule
+    Hướng & Mô tả bình thường bằng & Điểm bất thường & Ví dụ \\
+    \midrule
+    Tái tạo & Mạng học dựng lại ảnh tốt & Sai khác giữa ảnh và ảnh dựng lại & Autoencoder \\
+    Phân phối đặc trưng & Phân phối xác suất của đặc trưng học trước & Độ lệch khỏi phân phối & PaDiM \\
+    Bộ nhớ đặc trưng & Tập vector đặc trưng của ảnh tốt & Khoảng cách tới mẫu gần nhất & PatchCore \\
+    Chưng cất tri thức & Mạng học trò bắt chước mạng thầy trên ảnh tốt & Sai khác giữa đặc trưng thầy và trò & STFPM \\
+    Tự giám sát với lỗi giả & Bộ phân loại học trên lỗi tổng hợp & Đầu ra của bộ phân loại & CutPaste \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Chương 2 trình bày chi tiết cách ba phương pháp được chọn mô tả trạng thái bình thường và tính điểm bất thường.
+
+\section{Đánh giá mô hình}
+\label{sec:danh-gia}
+
+\subsection{Các chỉ số phân loại thông thường}
+
+Với bài toán phân loại hai lớp (lỗi là lớp dương, tốt là lớp âm), mỗi dự đoán rơi vào một trong bốn ô của ma trận
+nhầm lẫn: dương thật (TP), dương giả (FP), âm thật (TN), âm giả (FN). Từ đó có các chỉ số thường dùng:
+\begin{equation}
+  \begin{aligned}
+    \text{Accuracy} &= \frac{\text{TP}+\text{TN}}{\text{TP}+\text{TN}+\text{FP}+\text{FN}}, &\qquad
+    \text{Precision} &= \frac{\text{TP}}{\text{TP}+\text{FP}}, \\
+    \text{Recall} &= \frac{\text{TP}}{\text{TP}+\text{FN}}, &\qquad
+    F_1 &= \frac{2\,\text{Precision}\cdot\text{Recall}}{\text{Precision}+\text{Recall}} .
+  \end{aligned}
+  \label{eq:prf}
+\end{equation}
+Accuracy là tỷ lệ dự đoán đúng; Precision cho biết trong các mẫu bị báo lỗi có bao nhiêu là lỗi thật; Recall cho
+biết bắt được bao nhiêu phần lỗi thật; $F_1$ cân bằng hai chỉ số sau. Với bài toán hồi quy, các chỉ số tương ứng là
+sai số tuyệt đối trung bình (MAE) và căn sai số bình phương trung bình (RMSE). Tất cả các chỉ số phân loại trên đều
+cần một ngưỡng quyết định cố định, và Accuracy còn bị lệch khi hai lớp chênh lệch số lượng, như ở mức điểm ảnh, nơi
+gần như mọi điểm ảnh đều bình thường.
+
+\subsection{Đường cong ROC và AUROC}
+
+Để quyết định tốt hay lỗi, cần một ngưỡng $t$: ảnh có $s(x) > t$ bị coi là lỗi. Với mỗi ngưỡng, tỷ lệ phát hiện
+đúng (TPR, chính là Recall) và tỷ lệ báo động giả (FPR) là
+\begin{equation}
+  \text{TPR}(t) = \frac{\text{TP}(t)}{\text{TP}(t) + \text{FN}(t)}, \qquad
+  \text{FPR}(t) = \frac{\text{FP}(t)}{\text{FP}(t) + \text{TN}(t)} .
+  \label{eq:tpr-fpr}
+\end{equation}
+Đường cong ROC vẽ TPR theo FPR khi $t$ chạy qua mọi giá trị; AUROC là diện tích dưới đường cong
+đó~\cite{fawcettIntroductionROCAnalysis2006}. AUROC bằng xác suất một mẫu lỗi chọn ngẫu nhiên có điểm cao hơn một
+mẫu bình thường chọn ngẫu nhiên. AUROC bằng 1 nghĩa là có ngưỡng tách hoàn toàn hai nhóm; bằng 0,5 nghĩa là
+không hơn đoán ngẫu nhiên (Hình~\ref{fig:roc}).
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\linewidth]{images/img07.png}
-  \caption{Chatbot – Ứng dụng của xử lý ngôn ngữ tự nhiên}
-  \label{fig:chatbot}
+  \includegraphics[width=0.7225\linewidth]{images/duong_roc.png}
+  \caption{Đường cong ROC và AUROC (hình minh họa khái niệm, không phải kết quả thực nghiệm)}
+  \label{fig:roc}
 \end{figure}
 
-\subsection{Xử lý ảnh}
+Đề tài dùng AUROC vì chưa chọn ngưỡng quyết định, cần đánh giá khả năng xếp hạng và so sánh với công bố trên MVTec AD. Khác với accuracy, AUROC không phụ thuộc tỷ lệ mẫu tốt/lỗi khi phân phối điểm của từng lớp giữ nguyên.
 
-Xử lý ảnh là một trong những bài toán nền tảng trong trí tuệ nhân tạo, học máy và học sâu, với mục tiêu chính là phân tích, trích xuất thông tin từ hình ảnh hoặc thực hiện các phép biến đổi nhằm phục vụ cho những tác vụ cao hơn như nhận diện, theo dõi, hoặc ra quyết định.
+Image-AUROC tính trên điểm $s(x)$ và nhãn tốt/lỗi của các ảnh test; pixel-AUROC tính trên giá trị $A_x(u,v)$ và
+mặt nạ vùng lỗi của mọi điểm ảnh test. Cả hai được tính riêng cho từng loại sản phẩm rồi lấy trung bình, vì điểm
+của các mô hình khác loại không cùng thang đo. Một hạn chế cần lưu ý: pixel-AUROC được tính trên từng điểm ảnh,
+nên vùng lỗi lớn đóng góp nhiều hơn vùng lỗi nhỏ.
 
-Một ứng dụng quen thuộc là gắn thẻ hình ảnh (image tagging), chẳng hạn như khi người dùng đăng ảnh lên mạng xã hội, thuật toán có khả năng nhận diện tự động và đề xuất thẻ tên cho khuôn mặt xuất hiện trong ảnh. Cơ chế đằng sau đó thường dựa vào các mô hình học sâu, trong đó mạng nơ-ron CNN được sử dụng phổ biến nhất, có khả năng học từ dữ liệu gắn nhãn sẵn (ảnh người dùng từng được gắn thẻ trước đó), từ đó nhận diện lại trong các bức ảnh mới.
+\section{Công cụ và thư viện}
 
-Một ứng dụng khác là nhận dạng ký tự quang học (OCR – Optical Character Recognition), cho phép chuyển đổi hình ảnh chứa văn bản thành dữ liệu số có thể chỉnh sửa và tìm kiếm. Các mô hình học máy và học sâu được phát triển nhằm mục đích nhận dạng các ký tự xuất hiện trong hình ảnh, bất kể font chữ, bố cục hay chất lượng hình ảnh, từ đó phục vụ cho số hóa tài liệu, trích xuất thông tin trên hóa đơn, văn bản hành chính\ldots
-
-Trong lĩnh vực phương tiện tự hành, xử lý ảnh đóng vai trò như “đôi mắt” của hệ thống điều khiển. Thuật toán học máy và học sâu liên tục xử lý các khung hình thu được từ camera gắn trên xe, giúp phát hiện mép đường, biển báo, làn xe, người đi bộ và các vật cản. Đây là tiền đề để xe đưa ra hành động như rẽ, phanh hay tăng tốc một cách chính xác và an toàn.
-
-\subsection{Y tế và chăm sóc sức khỏe}
-
-Trong lĩnh vực y tế, trí tuệ nhân tạo đóng vai trò quan trọng trong việc hỗ trợ bác sĩ chẩn đoán và ra quyết định điều trị. Học máy được áp dụng để nghiên cứu trong hồ sơ bệnh án số (EHR), từ đó phát hiện sớm nguy cơ mắc bệnh như tiểu đường, tim mạch, hoặc tái phát ung thư. Học sâu trong xử lý hình ảnh y tế còn đặc biệt hiệu quả như X-quang, CT hay MRI góp phần hỗ trợ phát hiện sớm tổn thương, khối u với độ chính xác cao hơn cả một số chuyên gia trong từng tình huống cụ thể.
-
-Ngoài ra, các thuật toán AI còn góp phần thúc đẩy quá trình nghiên cứu và phát triển dược phẩm, mô phỏng phản ứng phân tử và tối ưu hiệu năng thử nghiệm lâm sàng. Các hệ thống khuyến nghị điều trị, kết hợp dữ liệu bệnh nhân và hướng dẫn y khoa, là sự tổng hòa giữa AI truyền thống và các mô hình học máy hiện đại.
-
-\subsection{Tài chính – ngân hàng}
-
-AI, ML và DL đang làm thay đổi sâu sắc ngành tài chính. Các mô hình học máy hỗ trợ quy trình chấm điểm tín dụng, tự động hóa quy trình phân tích rủi ro tiềm ẩn cùng với nhận dạng các hành vi lừa đảo trong giao dịch tài chính nhờ vào việc học từ dữ liệu lịch sử. Học sâu còn được triển khai trong việc phân tích chuỗi thời gian phức tạp như biến động thị trường chứng khoán hoặc hành vi khách hàng đa kênh.
-
-Ngoài ra, các tổ chức tài chính, bao gồm ngân hàng đã ứng dụng chatbot thông minh dựa trên học sâu để cung cấp tư vấn tài chính cá nhân hóa, giúp cải thiện trải nghiệm khách hàng và giảm tải cho tổng đài viên. Từ đó, AI không chỉ hỗ trợ tự động hóa, mà còn tạo ra lợi thế cạnh tranh vượt trội trong thị trường tài chính hiện đại.
-
-\subsection{Giao thông và phương tiện tự hành}
-
-Phương tiện tự lái là một minh chứng rõ ràng cho việc triển khai sâu rộng các giải pháp trí tuệ nhân tạo trong thực tiễn của cả AI, ML và DL. AI giúp hệ thống đưa ra quyết định tổng thể, trong khi ML học từ hành vi lái xe để tối ưu hoá hành động, và DL xử lý trực tiếp tín hiệu đầu vào từ camera, radar, LiDAR để nhận diện đường đi, vật cản, biển báo hoạt động theo thời gian thực.
-
-Giải pháp quản lý giao thông hiện đại và thông minh dựa trên bản đồ số cũng ứng dụng học máy nhằm xử lý và khai thác dữ liệu lớn trong thời gian thực, từ đó hỗ trợ quá trình ra quyết định hiệu quả hơn, tối ưu hóa lộ trình. Ở cấp đô thị, AI giúp phân tích dòng xe, dự báo mật độ giao thông, điều phối đèn tín hiệu một cách thích ứng, góp phần giảm tắc nghẽn và tai nạn.
-
-\subsection{Công nghiệp và sản xuất}
-
-Trong công nghiệp, AI giúp cải thiện hiệu suất và giảm thiểu lãng phí thông qua các hệ thống ra quyết định thông minh. Học máy được ứng dụng trong bảo trì dự đoán – nơi các mô hình học từ dữ liệu cảm biến để dự báo tình trạng máy móc, tránh hỏng hóc đột xuất. Học sâu hỗ trợ thị giác máy tính trong dây chuyền kiểm tra chất lượng tự động hóa, giúp hệ thống phát hiện lỗi sản phẩm với tốc độ và độ chính xác cao.
-
-Ngoài ra, robot cộng tác (cobots) – thường được điều khiển bởi hệ thống học sâu – có khả năng học hỏi từ hành vi con người và làm việc linh hoạt trong môi trường sản xuất hỗn hợp. Việc tối ưu chuỗi cung ứng cũng dựa vào các mô hình học máy để phân tích xu hướng tiêu dùng, dự báo nhu cầu và quản lý kho hiệu quả hơn.
-
-\subsection{Giáo dục và đào tạo}
-
-AI hỗ trợ cá nhân hóa quá trình học tập bằng cách đề xuất nội dung phù hợp với trình độ và sở thích của từng học sinh. Học máy được ứng dụng trong việc nghiên cứu hành vi học tập và dự đoán nguy cơ bỏ học hoặc tụt lùi trong quá trình học, từ đó hỗ trợ giảng viên đưa ra các can thiệp kịp thời.
-
-Học sâu giữ vai trò thiết yếu trong việc xây dựng các hệ thống chấm điểm tự động, đặc biệt là với bài tập lập trình hoặc xử lý ngôn ngữ tự nhiên. Thêm vào đó, công nghệ thực tế ảo (VR/AR) kết hợp với AI mở ra các mô hình đào tạo mới, mô phỏng tình huống phức tạp như thí nghiệm hóa học, mô phỏng phòng mổ hay huấn luyện kỹ năng mềm.
-
-\section{Tiểu kết chương 1}
-
-Trong chương này, chúng ta đã cùng nhau tìm hiểu tổng quan về ba lĩnh vực công nghệ nổi bật và có ảnh hưởng lớn trong kỷ nguyên số hiện nay là trí tuệ nhân tạo (AI), học máy (Machine Learning) và học sâu (Deep Learning). Trong đó, AI là khái niệm tổng thể, còn học máy và học sâu đóng vai trò là những phương pháp then chốt trong việc phát triển các hệ thống thông minh giúp cho máy tính khai thác dữ liệu để tự động rút ra kết luận và có khả năng tự đưa ra quyết định dựa trên dữ liệu đầu vào mà không phụ thuộc vào các quy tắc được lập trình sẵn.
-
-Chương còn đi sâu tìm hiểu các yếu tố thiết yếu trong một hệ thống học máy, bắt đầu từ dữ liệu đầu vào, mô hình mạng nơ-ron nhân tạo, quy trình huấn luyện và đánh giá mô hình, cùng với các công cụ hỗ trợ phổ biến như TensorFlow, PyTorch, Scikit-learn,\ldots Những kiến thức này đóng vai trò nền tảng trong việc phát triển các hệ thống thông minh ứng dụng trong thực tế.
-
-Ngoài ra, chương cũng trình bày một số ứng dụng tiêu biểu của AI và học sâu trong nhiều lĩnh vực khác nhau. Những ví dụ này cho thấy rõ ràng tính thực tiễn cũng như tác động mạnh mẽ của các công nghệ đối với cuộc sống của con người.
-
-Những nội dung đã giới thiệu trong chương 1 sẽ là cơ sở lý thuyết quan trọng, hỗ trợ cho việc khai thác sâu hơn ở các chương sau, nơi chúng ta nhắm đến mục tiêu giải quyết bài toán đặc thù mà đề tài hướng đến, lựa chọn mô hình học sâu phù hợp, cũng như các bước triển khai, huấn luyện và đánh giá mô hình trong thực tiễn.
+\begin{table}[htbp]
+  \centering
+  \caption{Công cụ và thư viện sử dụng trong đề tài}
+  \label{tab:tools}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{11.3cm}@{}}
+    \toprule
+    Thư viện & Vai trò trong đề tài \\
+    \midrule
+    PyTorch, torchvision~\cite{pytorchOptimizingModelParameters} & Xây dựng và huấn luyện Autoencoder; nạp ResNet-18,
+      Wide-ResNet-50-2 học trước; đọc và biến đổi ảnh \\
+    Anomalib~\cite{akcayAnomalibDeepLearning2022} & Cài đặt PaDiM và PatchCore (phiên bản 2.7.0) \\
+    scikit-learn~\cite{scikit-learnMachineLearning} & Tính image-AUROC và pixel-AUROC \\
+    NumPy~\cite{numpyNumPy}, SciPy & Xử lý mảng bản đồ bất thường, làm mượt Gauss \\
+    Matplotlib~\cite{matplotlibVisualizationPython} & Vẽ ảnh, mặt nạ và bản đồ bất thường minh họa \\
+    pandas & Ghi và tổng hợp bảng kết quả \\
+    Google Colab & Môi trường chạy thực nghiệm với GPU Tesla T4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

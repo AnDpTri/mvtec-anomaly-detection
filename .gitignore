@@ -40,3 +40,16 @@ lightning_logs/
 Thumbs.db
 .vscode/
 .idea/
+
+# Thư mục biên dịch tạm của báo cáo (LaTeX, xuất Word)
+bao_cao/build/
+
+# Bản sao lưu và tệp xuất thử chỉ lưu trên máy; bản chính Word/PDF vẫn đưa lên git.
+lich_su/
+bao_cao/bao_cao_moi.docx
+bao_cao/$taskLatex/
+bao_cao/-
+.local-review/
+*.pt.tmp
+~$*
+*.xdv

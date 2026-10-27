@@ -2,15 +2,23 @@
 \documentclass[12pt,a4paper]{report}
 
 \usepackage{fontspec}
-\setmainfont{TeX Gyre Termes}   % tương đương Times New Roman; đổi thành {Times New Roman} nếu máy có font này
+% TeX Gyre Termes (tương đương Times New Roman), nạp theo tên file để chạy được cả MiKTeX lẫn Overleaf
+\setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+  ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
 \usepackage[vietnamese]{babel}
 \usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx,booktabs,array,enumitem,setspace}
 \usepackage[labelsep=period]{caption}
 \usepackage{titlesec,tocloft}
+\usepackage{tikz}  % viền trang bìa
+\usetikzlibrary{calc}
 \usepackage[backend=biber,style=ieee,sorting=none,language=american]{biblatex}
 \addbibresource{references.bib}
+% Cho phép ngắt URL dài trong tài liệu tham khảo ở chữ thường, chữ hoa và chữ số
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
+\setcounter{biburlnumpenalty}{9000}
 \DeclareLanguageMapping{vietnamese}{english}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
 
@@ -31,9 +39,26 @@
 \titleformat{\subsection}{\bfseries\normalsize}{\thesubsection.}{0.5em}{}
 
 % Mục lục
-\renewcommand{\contentsname}{MỤC LỤC}
+\addto\captionsvietnamese{%  babel ghi đè nếu đặt trực tiếp
+  \renewcommand{\contentsname}{MỤC LỤC}%
+  \renewcommand{\listfigurename}{DANH MỤC HÌNH}%
+  \renewcommand{\listtablename}{DANH MỤC BẢNG}}
 \renewcommand{\cftchappresnum}{CHƯƠNG }
 \renewcommand{\cftchapaftersnum}{.}
+% Tiêu đề mục lục, danh mục hình, danh mục bảng căn giữa như tiêu đề chương
+\renewcommand{\cfttoctitlefont}{\hspace*{\fill}\bfseries\large}
+\renewcommand{\cftaftertoctitle}{\hspace*{\fill}}
+\renewcommand{\cftloftitlefont}{\hspace*{\fill}\bfseries\large}
+\renewcommand{\cftafterloftitle}{\hspace*{\fill}}
+\renewcommand{\cftlottitlefont}{\hspace*{\fill}\bfseries\large}
+\renewcommand{\cftafterlottitle}{\hspace*{\fill}}
+\setlength{\cftbeforetoctitleskip}{0pt}
+\setlength{\cftbeforeloftitleskip}{0pt}
+\setlength{\cftbeforelottitleskip}{0pt}
+\renewcommand{\cftfigpresnum}{Hình }
+\renewcommand{\cfttabpresnum}{Bảng }
+\setlength{\cftfignumwidth}{5em}
+\setlength{\cfttabnumwidth}{5.5em}
 \setlength{\cftchapnumwidth}{6.5em}
 \renewcommand{\cftchapfont}{\bfseries}
 \renewcommand{\cftchapleader}{\bfseries\cftdotfill{\cftdotsep}}
@@ -46,13 +71,22 @@
 \pagenumbering{roman}
 \tableofcontents
 \clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+\input{chapters/phan_cong}
+\clearpage
 \pagenumbering{arabic}
 
 \input{chapters/mo_dau}
 \input{chapters/chuong1}
 \input{chapters/chuong2}
 \input{chapters/chuong3}
+\input{chapters/ket_luan}
 
 \printbibliography[heading=bibintoc,title={TÀI LIỆU THAM KHẢO}]
+
+\input{chapters/phu_luc}
 
 \end{document}

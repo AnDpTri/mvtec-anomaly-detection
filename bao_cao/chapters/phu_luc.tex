@@ -1,0 +1,48 @@
+\chapter*{PHỤ LỤC. MÃ NGUỒN VÀ CÁCH TÁI LẬP}
+\addcontentsline{toc}{chapter}{PHỤ LỤC. MÃ NGUỒN VÀ CÁCH TÁI LẬP}
+
+\section*{Kho mã nguồn}
+
+Toàn bộ mã nguồn, cấu hình và tệp kết quả nằm trong kho mã nguồn của nhóm~\cite{nhom13MVTecAnomalyDetection2026}:
+\begin{center}
+  \url{https://github.com/AnDpTri/mvtec-anomaly-detection}
+\end{center}
+Kết quả trong Chương 3 được tạo từ commit \texttt{a839dd0} (PaDiM,
+PatchCore) và \texttt{37fb3e5} (Autoencoder).
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{6.1cm} >{\raggedright\arraybackslash}p{8.3cm}@{}}
+    \toprule
+    Thư mục & Nội dung \\
+    \midrule
+    \texttt{configs/common.yaml} & Cấu hình chung: kích thước ảnh, chuẩn hóa, seed, danh sách 15 loại \\
+    \texttt{src/data/} & Đọc ảnh, mặt nạ và nhãn của MVTec AD \\
+    \texttt{src/evaluation/} & Tính AUROC, vẽ hình minh họa, ghi và tổng hợp kết quả \\
+    \texttt{src/autoencoder/} & Kiến trúc, huấn luyện và đánh giá Autoencoder \\
+    \texttt{src/padim/}, \texttt{src/patchcore/} & Chạy PaDiM và PatchCore \\
+    \texttt{src/common/} & Tiện ích chung, gồm lớp gọi mô hình của Anomalib \\
+    \texttt{notebooks/colab\_run\_all.ipynb} & Notebook chạy toàn bộ thực nghiệm trên Google Colab \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section*{Dữ liệu}
+
+Đường tải chính thức của MVTec AD không còn truy cập được khi thực hiện đề tài; nhóm dùng bản sao trên Hugging Face
+(\texttt{foersben/mvtec-ad}), cùng cấu trúc thư mục và số ảnh như Bảng~\ref{tab:mvtec}. Lệnh
+\texttt{python tools/download\_mvtec.py <thư mục>} tải về đủ 15 loại.
+
+\section*{Chạy lại thực nghiệm}
+
+Từ thư mục gốc của kho mã nguồn, sau khi cài các thư viện trong \texttt{requirements.txt}:
+\begin{verbatim}
+python -m src.autoencoder.train --data-root <thư mục MVTecAD>
+python -m src.padim.run         --data-root <thư mục MVTecAD>
+python -m src.patchcore.run     --data-root <thư mục MVTecAD>
+python -m src.evaluation.summary
+\end{verbatim}
+Mỗi lệnh chạy đủ 15 loại, ghi một dòng vào \texttt{results/results.csv} sau mỗi loại và bỏ qua các loại đã có kết
+quả, nên có thể chạy tiếp sau khi bị gián đoạn. Lệnh cuối in bảng AUROC theo loại và trung bình theo nhóm như
+Bảng~\ref{tab:summary} và Bảng~\ref{tab:per-category}.

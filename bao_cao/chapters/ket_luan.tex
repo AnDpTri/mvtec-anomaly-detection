@@ -1,0 +1,21 @@
+\chapter*{KẾT LUẬN}
+\addcontentsline{toc}{chapter}{KẾT LUẬN}
+
+Đề tài đã xây dựng và đánh giá ba phương pháp phát hiện và định vị bất thường không giám sát trên đủ 15 loại của
+MVTec AD theo cùng một giao thức. Autoencoder do nhóm tự thiết kế và huấn luyện; PaDiM và PatchCore dùng đặc trưng
+học trước qua thư viện Anomalib.
+
+Kết quả cho thấy PatchCore tốt nhất (image-AUROC 0,983, pixel-AUROC 0,980), sát số liệu của bài báo gốc. PaDiM đứng
+thứ hai (0,890 và 0,960), nhanh nhất, nhưng điểm ảnh kém tin cậy ở các loại vật thể xoay. Autoencoder thấp nhất
+(0,756 và 0,843): bản tái tạo mờ làm sai số xuất hiện ở viền và nền thay vì ở vùng lỗi, dù phương pháp vẫn tốt ở các
+loại có lỗi lớn như toothbrush. Trong phạm vi thực nghiệm này, dùng lại đặc trưng ImageNet hiệu quả hơn nhiều so
+với học tái tạo ảnh từ đầu trên vài trăm ảnh tốt.
+
+Các hướng phát triển xuất phát trực tiếp từ hạn chế ở Chương 3:
+\begin{itemize}
+  \item Chạy Autoencoder với nhiều seed và thử hàm mất mát SSIM~\cite{bergmannImprovingUnsupervisedDefect2019} để
+        biết phần nào của khoảng cách là do cấu hình.
+  \item Chạy PaDiM và PatchCore với cùng backbone để tách ảnh hưởng của cơ chế khỏi ảnh hưởng của backbone.
+  \item Chọn ngưỡng quyết định từ một tập ảnh tốt tách riêng và đo tỷ lệ báo động giả, làm cơ sở cho việc dùng mô
+        hình trong một hệ thống kiểm tra thực tế.
+\end{itemize}

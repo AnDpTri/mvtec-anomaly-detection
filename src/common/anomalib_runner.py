@@ -12,7 +12,9 @@ PatchCore trên GPU 4 GB: embedding gom về CPU, chỉ đưa các đặc trưng
 chạy k-center-greedy (cùng thuật toán với Anomalib, chỉ khác nơi lưu), rồi memory bank sau coreset mới
 nằm trên GPU.
 """
+
 import time
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -54,20 +56,45 @@ def _coreset(embeddings, ratio, device):
     return embeddings[chosen]
 
 
-def _build_model(method, backbone, layers, n_features, num_neighbors):
+def _build_model(method, backbone, layers, n_features, num_neighbors, pre_trained=True):
     if method == "patchcore":
         from anomalib.models.image.patchcore.torch_model import PatchcoreModel
 
-        return PatchcoreModel(layers=layers, backbone=backbone, pre_trained=True, num_neighbors=num_neighbors)
+        return PatchcoreModel(
+            layers=layers,
+            backbone=backbone,
+            pre_trained=pre_trained,
+            num_neighbors=num_neighbors,
+        )
     if method == "padim":
         from anomalib.models.image.padim.torch_model import PadimModel
 
-        return PadimModel(backbone=backbone, layers=layers, pre_trained=True, n_features=n_features)
+        return PadimModel(
+            backbone=backbone,
+            layers=layers,
+            pre_trained=pre_trained,
+            n_features=n_features,
+        )
     raise ValueError(f"method phải là 'padim' hoặc 'patchcore', nhận được: {method}")
 
 
-def run_category(method, category, cfg, device, backbone, layers=None, batch_size=16, workers=2,
-                 data_root=None, coreset_ratio=0.1, n_features=None, num_neighbors=9, figures=True):
+def run_category(
+    method,
+    category,
+    cfg,
+    device,
+    backbone,
+    layers=None,
+    batch_size=16,
+    workers=2,
+    data_root=None,
+    coreset_ratio=0.1,
+    n_features=None,
+    num_neighbors=9,
+    figures=True,
+    checkpoint_dir=None,
+    calibration_samples=64,
+):
     """Huấn luyện + đánh giá `method` ('padim' | 'patchcore') trên một loại.
 
     Trả về dict: result ({image_auroc, pixel_auroc}), train_time (s), infer_ms (ms/ảnh), memory_mb.
@@ -78,8 +105,12 @@ def run_category(method, category, cfg, device, backbone, layers=None, batch_siz
     size, mean, std = data["image_size"], data["normalize_mean"], data["normalize_std"]
     train_ds = MVTecDataset(root, category, "train", size, mean, std)
     test_ds = MVTecDataset(root, category, "test", size, mean, std)
-    train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=False, num_workers=workers)
-    test_dl = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=workers)
+    train_dl = DataLoader(
+        train_ds, batch_size=batch_size, shuffle=False, num_workers=workers
+    )
+    test_dl = DataLoader(
+        test_ds, batch_size=batch_size, shuffle=False, num_workers=workers
+    )
 
     model = _build_model(method, backbone, layers, n_features, num_neighbors).to(device)
 
@@ -92,7 +123,9 @@ def run_category(method, category, cfg, device, backbone, layers=None, batch_siz
         for batch in train_dl:
             model(batch["image"].to(device))
             # đưa embedding về CPU để không tràn VRAM
-            store = model.embedding_store if method == "patchcore" else model.memory_bank
+            store = (
+                model.embedding_store if method == "patchcore" else model.memory_bank
+            )
             store[-1] = store[-1].cpu()
     if method == "patchcore":
         embeddings = torch.vstack(model.embedding_store)
@@ -109,6 +142,44 @@ def run_category(method, category, cfg, device, backbone, layers=None, batch_siz
 
     # Suy luận
     model.eval()
+    # Checkpoint và ngưỡng tham khảo chỉ dùng train/good, không nhìn nhãn test.
+    from src.demo.artifacts import infer_tensor, save_artifact
+
+    config = {
+        "image_size": size,
+        "mean": list(mean),
+        "std": list(std),
+        "backbone": backbone,
+        "layers": layers,
+        "n_features": n_features,
+        "num_neighbors": num_neighbors,
+        "coreset_ratio": coreset_ratio,
+        "seed": cfg["seed"],
+        "threshold": None,
+        "calibration": "train_normal_quantile_0.995_in_sample",
+        "calibration_warning": "Ngưỡng tham khảo từ train/good, không bảo đảm FPR ngoài mẫu.",
+    }
+    reference_maps, reference_scores = [], []
+    indices = np.linspace(
+        0, len(train_ds) - 1, min(calibration_samples, len(train_ds)), dtype=int
+    )
+    with torch.no_grad():
+        for start in range(0, len(indices), batch_size):
+            x = torch.stack(
+                [train_ds[int(i)]["image"] for i in indices[start : start + batch_size]]
+            ).to(device)
+            rm, rs = infer_tensor(model, x, method, config)
+            reference_maps.append(rm)
+            reference_scores.append(rs)
+    config["threshold"] = float(np.quantile(np.concatenate(reference_scores), 0.995))
+    config["map_scale"] = max(
+        float(np.quantile(np.concatenate(reference_maps), 0.995)), 1e-8
+    )
+    config["calibration_samples"] = len(indices)
+    ckpt_root = checkpoint_dir or ROOT / "results" / "checkpoints"
+    save_artifact(
+        model, method, category, config, Path(ckpt_root) / method / f"{category}.pt"
+    )
     maps, scores, labels, masks = [], [], [], []
     infer_time = 0.0
     with torch.no_grad():
@@ -126,19 +197,34 @@ def run_category(method, category, cfg, device, backbone, layers=None, batch_siz
     infer_ms = infer_time / len(test_ds) * 1000
 
     maps = np.concatenate(maps)
-    result = evaluate(np.concatenate(labels), np.concatenate(scores), np.concatenate(masks), maps)
+    result = evaluate(
+        np.concatenate(labels), np.concatenate(scores), np.concatenate(masks), maps
+    )
 
     if method == "patchcore":
-        memory_mb = model.memory_bank.numel() * model.memory_bank.element_size() / 2 ** 20
+        memory_mb = model.memory_bank.numel() * model.memory_bank.element_size() / 2**20
     else:
         g = model.gaussian
-        memory_mb = (g.mean.numel() * g.mean.element_size()
-                     + g.inv_covariance.numel() * g.inv_covariance.element_size()) / 2 ** 20
+        memory_mb = (
+            g.mean.numel() * g.mean.element_size()
+            + g.inv_covariance.numel() * g.inv_covariance.element_size()
+        ) / 2**20
 
     if figures:
-        save_examples(test_ds, maps, ROOT / "results" / "figures" / method / category, mean=mean, std=std)
+        save_examples(
+            test_ds,
+            maps,
+            ROOT / "results" / "figures" / method / category,
+            mean=mean,
+            std=std,
+        )
 
     del model
     if device.type == "cuda":
         torch.cuda.empty_cache()
-    return {"result": result, "train_time": train_time, "infer_ms": infer_ms, "memory_mb": memory_mb}
+    return {
+        "result": result,
+        "train_time": train_time,
+        "infer_ms": infer_ms,
+        "memory_mb": memory_mb,
+    }

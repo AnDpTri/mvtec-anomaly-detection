@@ -23,7 +23,8 @@ loss, siêu tham số đều tự chọn, miễn giữ giao thức đánh giá c
 ([docs/giao-dien-chung.md](docs/giao-dien-chung.md) mục 0). File đề xuất gợi ý Anomalib cho PaDiM, PatchCore.
 
 ## Cấu hình chung (để so sánh công bằng)
-Xem `configs/common.yaml`: ảnh 256×256, chuẩn hóa ImageNet, seed 42, cùng module `src/evaluation/`,
+Xem `configs/common.yaml`: ảnh 256×256, seed 42, cùng module `src/evaluation/`;
+AE dùng ảnh [0,1], PaDiM/PatchCore chuẩn hóa ImageNet theo backbone học trước.
 AUROC tính riêng từng loại rồi mới lấy trung bình. Chạy thử trên bottle, carpet, screw trước khi chạy đủ 15 loại.
 
 ## Cài đặt
@@ -57,13 +58,35 @@ docs/                       tài liệu: phân công, giao diện chung, dữ li
 ```
 Mỗi module có `README.md` riêng: người phụ trách, mục tiêu, đầu vào/đầu ra, cách chạy.
 
-## Cách chạy (dự kiến, từ thư mục gốc dự án)
+## Cách chạy (từ thư mục gốc dự án)
 ```bash
 python -m src.autoencoder.train            # Autoencoder, đủ 15 loại
 python -m src.padim.run                    # PaDiM
-python -m src.patchcore.run --categories bottle cable ...   # PatchCore theo phần chia
+python -m src.patchcore.run               # PatchCore, đủ 15 loại
 python -m src.demo.app                     # Demo
 ```
+
+Demo đã có phần suy luận từ checkpoint, điểm và heatmap. Xem [hướng dẫn demo](docs/demo.md) để tạo đủ 45 mô hình, tiếp tục sau gián đoạn và hiểu ngưỡng tham khảo. Kết quả Colab gốc nằm ở [results/results.csv](results/results.csv); [báo cáo kết quả](docs/ket-qua.md) nêu giới hạn so sánh thời gian. Chương 3 của [báo cáo LaTeX](bao_cao/main.tex) lấy bảng trực tiếp từ CSV.
+
+## Kết quả và báo cáo
+
+Đã có kết quả Colab cho cả 3 phương pháp trên đủ 15 loại, lưu tại
+[results/results.csv](results/results.csv). Image-AUROC/pixel-AUROC trung bình:
+AE 0,756/0,843; PaDiM 0,890/0,960; PatchCore 0,983/0,980.
+Chi tiết và giới hạn phép đo thời gian: [docs/ket-qua.md](docs/ket-qua.md).
+
+- Báo cáo chỉnh sửa bằng Word, có trường Zotero: [bao_cao/bao_cao.docx](bao_cao/bao_cao.docx).
+- Bản PDF biên dịch từ LaTeX: [bao_cao/main.pdf](bao_cao/main.pdf).
+- Nguồn LaTeX: [bao_cao/main.tex](bao_cao/main.tex), dùng XeLaTeX + Biber.
+- Script xuất Word: `bao_cao/xuat_word.py`, cần Pandoc, python-docx, Microsoft Word trên Windows;
+  Zotero cùng Word add-in dùng để làm mới trích dẫn. Cài `python-docx` riêng nếu cần xuất Word.
+  Trước khi xuất lại phải giữ các chỉnh sửa trực tiếp của người dùng trong bản Word.
+
+Demo đọc checkpoint đã lưu; dataset và checkpoint không nằm trên GitHub.
+Xem [docs/demo.md](docs/demo.md) để tạo hoặc cấu hình thư mục checkpoint.
+Các mô hình hiện chưa có ngưỡng hiệu chuẩn độc lập, nên giao diện hiển thị điểm và heatmap,
+chưa kết luận tốt/lỗi. Bản PaDiM tự cài và Autoencoder NumPy là phần tùy chọn chưa triển khai;
+luồng thực nghiệm chính dùng PyTorch/Anomalib.
 
 ## Phân công
 - **An (Đặng Hoàng An, AnDpTri):** `src/autoencoder/`, `src/demo/`, README.
