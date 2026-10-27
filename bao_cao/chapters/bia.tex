@@ -1,0 +1,35 @@
+% Lề riêng cho bìa: đối xứng để chữ nằm giữa khung, đủ xa hoa văn ở các góc
+\newgeometry{left=3cm,right=3cm,top=3.6cm,bottom=3.6cm}
+\begin{titlepage}
+% Viền hoa văn theo mẫu bìa của trường (ảnh lấy từ bìa báo cáo mẫu), giữ tỷ lệ, đặt giữa trang.
+% vien_bia_xanh.png: như vien_bia.jpg nhưng khung ngoài tô màu xanhbien, hoa văn giữ màu đen
+\definecolor{xanhbien}{RGB}{0,51,153}
+\begin{tikzpicture}[remember picture, overlay]
+  \node at (current page.center)
+    {\includegraphics[width=17.2cm,height=26.5cm,keepaspectratio]{images/vien_bia_xanh.png}};
+\end{tikzpicture}\par
+\centering
+{\bfseries ĐẠI HỌC THÁI NGUYÊN\par
+TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG\par
+KHOA CÔNG NGHỆ THÔNG TIN\par}
+\vspace{1cm}
+\includegraphics[width=3.5cm]{images/img01.png}\par
+\vspace{1.5cm}
+{\bfseries\Large BÁO CÁO DỰ ÁN\par}
+{\bfseries\large HỌC PHẦN HỌC SÂU (DEEP LEARNING)\par}
+\vspace{1.5cm}
+{\bfseries Đề tài:\par}
+\vspace{0.3cm}
+{\bfseries\Large PHÁT HIỆN VÀ ĐỊNH VỊ BẤT THƯỜNG\\ TRÊN SẢN PHẨM CÔNG NGHIỆP\\ BẰNG HỌC KHÔNG GIÁM SÁT\par}
+\vspace{1.5cm}
+\begin{tabular}{@{}l l@{}}
+\bfseries Tên nhóm: & \color{xanhbien}\bfseries NHÓM 13 \\[0.4cm]
+\bfseries Sinh viên thực hiện: & \color{xanhbien}\bfseries Đặng Hoàng An \\
+ & \color{xanhbien}\bfseries Trần Văn Dưỡng \\
+ & \color{xanhbien}\bfseries Lớp KHMT K22A \\[0.4cm]
+\bfseries Giáo viên hướng dẫn: & TS. Ngô Hữu Huy \\
+\end{tabular}
+\vfill
+{\bfseries THÁI NGUYÊN, NĂM 2026\par}
+\end{titlepage}
+\restoregeometry
