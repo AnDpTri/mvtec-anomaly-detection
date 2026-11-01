@@ -14,3 +14,4 @@ matplotlib
 pyyaml
 pandas
 gradio
+opencv-python-headless   # src/tn (thí nghiệm TN1–TN5)
