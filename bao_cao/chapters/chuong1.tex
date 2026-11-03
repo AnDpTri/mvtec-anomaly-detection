@@ -1,9 +1,8 @@
 \chapter{CƠ SỞ LÝ THUYẾT}
 
 Chương này đặt đề tài vào bức tranh chung của trí tuệ nhân tạo và học máy, rồi trình bày các nền tảng mà ba phương
-pháp dựa vào: dữ liệu và tiền xử lý, huấn luyện mạng nơ-ron (Autoencoder), mạng tích chập (cả ba phương pháp), đặc
-trưng học trước (PaDiM, PatchCore), thị giác máy tính, bài toán phát hiện bất thường, cách đánh giá và các thư viện
-được dùng.
+pháp dựa vào: huấn luyện mạng nơ-ron (Autoencoder), mạng tích chập (cả ba phương pháp), việc dùng lại đặc trưng của
+mạng học trước (PaDiM, PatchCore), xử lý ảnh số và bài toán phát hiện bất thường cùng cơ sở thống kê của nó.
 
 \section{Trí tuệ nhân tạo, học máy và học sâu}
 
@@ -23,15 +22,11 @@ trình sẵn từng quy tắc. Mô hình được xây dựng trên dữ liệu 
 cho dữ liệu mới mà nó chưa thấy. Vì vậy, điều quan trọng của một mô hình học máy không phải là thuộc lòng dữ liệu
 huấn luyện mà là tổng quát hóa được sang dữ liệu mới~\cite{zhangGeneralization}.
 
-Theo cách dùng dữ liệu, học máy chia làm ba nhóm (Hình~\ref{fig:ml-types}):
-\begin{itemize}
-  \item \textbf{Học có giám sát:} dữ liệu đã gán nhãn, mô hình học cách dự đoán nhãn, ví dụ phân loại ảnh sản phẩm
-        thành ``tốt'' hoặc ``lỗi'' khi có sẵn nhiều ảnh lỗi đã gán nhãn.
-  \item \textbf{Học không giám sát:} dữ liệu không có nhãn, mô hình tìm cấu trúc ẩn trong dữ liệu, như nhóm các mẫu
-        giống nhau, giảm số chiều hoặc nhận ra mẫu nào khác thường.
-  \item \textbf{Học tăng cường:} hệ thống học qua tương tác với môi trường và nhận thưởng hoặc phạt cho từng hành
-        động; nhóm này không liên quan đến đề tài.
-\end{itemize}
+Theo cách dùng dữ liệu, học máy chia làm ba nhóm (Hình~\ref{fig:ml-types}). Trong học có giám sát, dữ liệu đã được
+gán nhãn và mô hình học cách dự đoán nhãn, ví dụ phân loại ảnh sản phẩm thành ``tốt'' hoặc ``lỗi'' khi có sẵn nhiều
+ảnh lỗi đã gán nhãn. Trong học không giám sát, dữ liệu không có nhãn và mô hình tìm cấu trúc ẩn trong dữ liệu, như
+nhóm các mẫu giống nhau, giảm số chiều hoặc nhận ra mẫu nào khác thường. Trong học tăng cường, hệ thống học qua tương
+tác với môi trường và nhận thưởng hoặc phạt cho từng hành động; nhóm này không liên quan đến đề tài.
 
 \begin{figure}[htbp]
   \centering
@@ -39,6 +34,13 @@ Theo cách dùng dữ liệu, học máy chia làm ba nhóm (Hình~\ref{fig:ml-t
   \caption{Phân loại thuật toán học máy theo việc dữ liệu có nhãn hay không}
   \label{fig:ml-types}
 \end{figure}
+
+Dù thuộc nhóm nào, một bài toán học máy thường đi qua cùng một quy trình: thu thập dữ liệu, tiền xử lý và chia tập,
+chọn mô hình, huấn luyện, đánh giá trên dữ liệu chưa dùng khi huấn luyện, rồi triển khai và theo dõi. Báo cáo đi theo
+đúng trình tự này: dữ liệu và tiền xử lý ở Mục~\ref{sec:du-lieu}, mô hình và cách huấn luyện ở Mục~\ref{sec:ae}
+đến~\ref{sec:patchcore}, đánh giá ở Chương 3, còn triển khai dừng ở mức một ứng dụng minh họa (Mục~\ref{sec:demo}).
+Điểm khác của bài toán phát hiện bất thường nằm ở bước chia tập: dữ liệu huấn luyện chỉ gồm ảnh tốt, còn ảnh lỗi chỉ
+xuất hiện ở bước đánh giá.
 
 Phát hiện bất thường trong đề tài thuộc học không giám sát theo nghĩa hẹp: mô hình chỉ được thấy ảnh tốt, không
 thấy ảnh lỗi hay nhãn vùng lỗi nào khi học. Một số tài liệu gọi thiết lập này là học một lớp, vì dữ liệu huấn luyện
@@ -59,16 +61,42 @@ và các thư viện như PyTorch giúp xây dựng và huấn luyện mạng d�
   \label{fig:deep-learning}
 \end{figure}
 
-Một số kiến trúc học sâu tiêu biểu và mức liên quan đến đề tài:
-\begin{itemize}
-  \item \textbf{Mạng nơ-ron tích chập (CNN):} xử lý ảnh, giữ được cấu trúc không gian; là nền của cả ba phương pháp
-        trong đề tài (Mục~\ref{sec:cnn}).
-  \item \textbf{Autoencoder:} mạng nén rồi dựng lại dữ liệu, dùng để giảm chiều hoặc phát hiện bất thường; là một
-        trong ba phương pháp của đề tài.
-  \item \textbf{Mạng hồi quy (RNN, LSTM):} xử lý dữ liệu chuỗi như văn bản, tiếng nói; không dùng trong đề tài.
-  \item \textbf{Transformer:} dùng cơ chế chú ý để mô hình hóa quan hệ giữa các phần của dữ liệu, phổ biến trong xử
-        lý ngôn ngữ và ngày càng dùng nhiều cho ảnh; không dùng trong đề tài.
-\end{itemize}
+Học sâu không phải ý tưởng mới; các khái niệm nền tảng đã có từ nhiều thập kỷ trước, nhưng chỉ trở nên thực tế khi
+có đủ dữ liệu và sức tính. Bảng~\ref{tab:moc-dl} tóm tắt các mốc liên quan trực tiếp đến những kỹ thuật được dùng
+trong đề tài.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Một số mốc phát triển của học sâu liên quan đến đề tài}
+  \label{tab:moc-dl}
+  \small
+  \begin{tabular}{@{}l >{\raggedright\arraybackslash}p{5.6cm} >{\raggedright\arraybackslash}p{7.2cm}@{}}
+    \toprule
+    Năm & Mốc & Liên quan đến đề tài \\
+    \midrule
+    1958 & Perceptron~\cite{rosenblattPerceptronProbabilisticModel1958} & Mô hình nơ-ron nhân tạo, công thức
+      \eqref{eq:neuron} \\
+    1986 & Lan truyền ngược~\cite{rumelhartLearningRepresentationsBackpropagating1986} & Cách huấn luyện Autoencoder \\
+    1998 & LeNet~\cite{lecunGradientbasedLearningApplied1998} & Lớp tích chập, nền của cả ba phương pháp \\
+    2009 & ImageNet~\cite{dengImageNetLargescaleHierarchical2009} & Dữ liệu huấn luyện của backbone dùng cho PaDiM,
+      PatchCore \\
+    2012 & AlexNet~\cite{krizhevskyImageNetClassificationDeep2012} & Huấn luyện mạng sâu trên GPU, ReLU, dropout \\
+    2015 & Chuẩn hóa theo lô~\cite{ioffeBatchNormalizationAccelerating2015}, Adam~\cite{kingmaAdamMethodStochastic2015}
+      & Dùng khi huấn luyện Autoencoder \\
+    2016 & ResNet~\cite{heDeepResidualLearning2016}, Wide ResNet~\cite{zagoruykoWideResidualNetworks2016} & Backbone
+      Wide-ResNet-50-2 \\
+    2019 & MVTec AD~\cite{bergmannMVTecADComprehensive2019} & Bộ dữ liệu chuẩn cho phát hiện bất thường công nghiệp \\
+    2021--2022 & PaDiM~\cite{defardPaDiMPatchDistribution2021}, PatchCore~\cite{rothTotalRecallIndustrial2022} &
+      Hai trong ba phương pháp của đề tài \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Mỗi kiến trúc học sâu tiêu biểu hợp với một loại dữ liệu. Mạng nơ-ron tích chập (CNN) xử lý ảnh và giữ được cấu trúc
+không gian; đây là nền của cả ba phương pháp trong đề tài (Mục~\ref{sec:cnn}). Autoencoder nén rồi dựng lại dữ liệu,
+được dùng để giảm chiều hoặc phát hiện bất thường, và là một trong ba phương pháp của đề tài. Mạng hồi quy (RNN,
+LSTM) xử lý dữ liệu chuỗi như văn bản, tiếng nói. Transformer dùng cơ chế chú ý để mô hình hóa quan hệ giữa các phần
+của dữ liệu, phổ biến trong xử lý ngôn ngữ và ngày càng dùng nhiều cho ảnh. Hai kiến trúc sau không dùng trong đề tài.
 
 \subsection{Quan hệ giữa ba khái niệm}
 
@@ -83,27 +111,6 @@ luyện, còn PaDiM và PatchCore dựa trên đặc trưng của một mạng n
   \label{fig:ai-ml-dl}
 \end{figure}
 
-\section{Dữ liệu và tiền xử lý}
-
-Dữ liệu quyết định chất lượng của mô hình học máy. Dữ liệu thường được chia làm ba loại: có cấu trúc (bảng với các
-cột rõ ràng, như cơ sở dữ liệu), phi cấu trúc (ảnh, âm thanh, văn bản) và bán cấu trúc (JSON, XML, nhật ký hệ
-thống). Ảnh sản phẩm của đề tài là dữ liệu phi cấu trúc: mỗi ảnh là một ma trận giá trị điểm ảnh, ý nghĩa nằm ở cách
-các điểm ảnh sắp xếp chứ không ở từng giá trị riêng lẻ. Đây là loại dữ liệu mà học sâu xử lý tốt hơn hẳn các phương
-pháp dùng đặc trưng thủ công.
-
-Trước khi đưa vào mô hình, dữ liệu cần được tiền xử lý. Các bước thường gặp và cách đề tài áp dụng:
-\begin{itemize}
-  \item \textbf{Làm sạch:} loại mẫu hỏng, thiếu hoặc sai. MVTec AD là bộ dữ liệu đã được làm sạch nên đề tài chỉ kiểm
-        tra đủ số ảnh.
-  \item \textbf{Chuẩn hóa:} đưa dữ liệu về cùng thang đo, như đổi ảnh về cùng kích thước và đưa giá trị điểm ảnh về
-        cùng phân phối. Với mạng học trước, dữ liệu phải được chuẩn hóa giống lúc mạng đó được huấn luyện.
-  \item \textbf{Chia tập:} tách tập huấn luyện để xây dựng mô hình và tập kiểm thử để đánh giá. Tập kiểm thử không
-        được dùng khi xây dựng hay chọn mô hình, nếu không kết quả đánh giá sẽ lạc quan hơn thực tế.
-  \item \textbf{Tăng cường dữ liệu:} tạo thêm mẫu bằng cách xoay, lật, đổi độ sáng. Kỹ thuật này hữu ích khi phép biến
-        đổi không làm thay đổi bản chất mẫu; với bài toán tìm lỗi, nó có thể biến ảnh tốt thành ảnh trông giống lỗi,
-        nên đề tài không dùng (Mục~\ref{sec:preprocess}).
-\end{itemize}
-
 \section{Mạng nơ-ron và quá trình huấn luyện}
 
 \subsection{Cấu trúc mạng nơ-ron}
@@ -115,10 +122,12 @@ qua hàm kích hoạt phi tuyến $\varphi$:
   \label{eq:neuron}
 \end{equation}
 Nhiều nơ-ron xếp thành lớp, nhiều lớp nối tiếp thành mạng; đầu ra của lớp trước là đầu vào của lớp sau
-(Hình~\ref{fig:ann})~\cite{zhangMultilayerPerceptrons}. Hàm kích hoạt phi tuyến là điều kiện để mạng nhiều lớp
-biểu diễn được quan hệ phi tuyến; nếu bỏ đi, cả mạng chỉ tương đương một phép biến đổi tuyến tính. Autoencoder
-của đề tài dùng LeakyReLU, $\varphi(t) = \max(t, 0{,}2\,t)$, ở các lớp ẩn và hàm sigmoid ở lớp ra để giá trị
-điểm ảnh tái tạo nằm trong $[0,1]$.
+(Hình~\ref{fig:ann})~\cite{zhangMultilayerPerceptrons}. Viết gọn cho cả lớp thứ $l$, với ma trận trọng số
+$W^{(l)}$ và vector độ lệch $b^{(l)}$:
+\begin{equation}
+  a^{(l)} = W^{(l)} h^{(l-1)} + b^{(l)}, \qquad h^{(l)} = \varphi\bigl(a^{(l)}\bigr), \qquad h^{(0)} = x .
+  \label{eq:layer}
+\end{equation}
 
 \begin{figure}[htbp]
   \centering
@@ -131,43 +140,183 @@ Mạng gồm lớp vào nhận dữ liệu thô, các lớp ẩn biến đổi d
 kết quả cuối cùng. Mạng có nhiều lớp ẩn được gọi là mạng sâu; càng nhiều lớp, mạng càng biểu diễn được quan hệ phức
 tạp, nhưng cũng càng khó huấn luyện và càng cần nhiều dữ liệu.
 
-\subsection{Quá trình huấn luyện}
+Một lớp kết nối đầy đủ từ $n_{\text{vào}}$ sang $n_{\text{ra}}$ nơ-ron có $n_{\text{vào}} n_{\text{ra}} + n_{\text{ra}}$
+tham số. Con số này tăng rất nhanh: lớp nén $16384 \to 256$ ở cổ chai Autoencoder của đề tài (Mục~\ref{sec:ae}) có
+$16384 \cdot 256 + 256 \approx 4{,}19$ triệu tham số, và hai lớp kết nối đầy đủ ở cổ chai chiếm khoảng 70\% tham số
+của cả mạng. Đây là lý do các lớp xử lý ảnh dùng phép tích chập thay vì kết nối đầy đủ (Mục~\ref{sec:cnn}).
+
+\subsection{Hàm kích hoạt}
+
+Hàm kích hoạt phi tuyến là điều kiện để mạng nhiều lớp biểu diễn được quan hệ phi tuyến: nếu bỏ $\varphi$ trong
+\eqref{eq:layer}, tích các ma trận $W^{(L)}\cdots W^{(1)}$ vẫn chỉ là một phép biến đổi tuyến tính, nên thêm lớp không
+làm mạng mạnh hơn. Bốn hàm thường gặp được tóm tắt ở Bảng~\ref{tab:activation}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Các hàm kích hoạt thường gặp và nơi dùng trong đề tài}
+  \label{tab:activation}
+  \small
+  \begin{tabular}{@{}l l l >{\raggedright\arraybackslash}p{5.2cm}@{}}
+    \toprule
+    Hàm & Công thức & Miền giá trị & Dùng trong đề tài \\
+    \midrule
+    Sigmoid & $\sigma(t) = 1/(1+e^{-t})$ & $(0, 1)$ & Lớp ra của Autoencoder \\
+    Tanh & $\tanh(t) = (e^{t}-e^{-t})/(e^{t}+e^{-t})$ & $(-1, 1)$ & Không dùng \\
+    ReLU & $\max(0, t)$ & $[0, \infty)$ & Wide-ResNet-50-2; bộ giải mã Autoencoder \\
+    LeakyReLU & $\max(t, \alpha t)$, $0<\alpha<1$ & $(-\infty, \infty)$ & Bộ mã hóa Autoencoder, $\alpha = 0{,}2$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Sigmoid và tanh bão hòa khi $|t|$ lớn: đạo hàm của sigmoid lớn nhất chỉ bằng 0,25 và gần 0 ở hai đầu. Khi lan truyền
+ngược qua nhiều lớp, gradient bị nhân với các đạo hàm nhỏ này liên tiếp và gần như biến mất ở các lớp đầu, khiến
+mạng sâu học rất chậm. ReLU~\cite{nairRectifiedLinearUnits2010} có đạo hàm bằng 1 với mọi $t>0$ nên tránh được hiện
+tượng này và tính rất nhanh; nó là hàm kích hoạt của hầu hết mạng tích chập hiện đại, trong đó có Wide-ResNet-50-2.
+Nhược điểm của ReLU là nơ-ron có $t<0$ với mọi đầu vào sẽ có gradient bằng 0 và ngừng học. LeakyReLU giữ một độ dốc
+nhỏ $\alpha$ ở nửa âm để gradient luôn khác 0; bộ mã hóa của Autoencoder dùng hàm này. Lớp ra của Autoencoder dùng
+sigmoid vì giá trị điểm ảnh tái tạo cần nằm trong $[0,1]$, cùng thang với ảnh đầu vào.
+
+\subsection{Hàm mất mát}
+
+Hàm mất mát đo sai lệch giữa đầu ra của mạng và mục tiêu, và là đại lượng mà quá trình huấn luyện làm nhỏ. Với bài
+toán dựng lại ảnh, mục tiêu chính là ảnh đầu vào $x$, và hàm thường dùng nhất là sai số bình phương trung bình (MSE)
+trên $n$ giá trị điểm ảnh:
+\begin{equation}
+  L_{\text{MSE}}(x, \hat{x}) = \frac{1}{n}\sum_{i=1}^{n} (x_i - \hat{x}_i)^2 .
+  \label{eq:mse}
+\end{equation}
+Với bài toán phân loại hai lớp, mạng cho xác suất $p$ để mẫu thuộc lớp dương, và hàm thường dùng là entropy chéo
+$L = -[\,y \log p + (1-y)\log(1-p)\,]$ với nhãn $y \in \{0, 1\}$. Đề tài không có bài toán phân loại nào, nên chỉ dùng
+MSE cho Autoencoder.
+
+Làm nhỏ MSE tương đương tìm $\hat{x}$ có khả năng lớn nhất khi giả định ảnh thật bằng ảnh dựng lại cộng nhiễu Gauss
+độc lập ở từng điểm ảnh: $-\log p(x \mid \hat{x}) = \lVert x - \hat{x}\rVert^2 / (2\sigma^2) + \text{hằng số}$. Giả
+định này có hai hệ quả cho phát hiện bất thường. Thứ nhất, MSE phạt nặng sai số lớn và nhẹ sai số nhỏ, nên một vết
+xước mảnh chỉ lệch vài điểm ảnh đóng góp rất ít vào mất mát. Thứ hai, khi nhiều chi tiết đều có thể đúng (vị trí
+chính xác của từng sợi ren, từng hạt trên bề mặt kim loại), lời giải tốt nhất theo MSE là trung bình của chúng, nên ảnh
+dựng lại mờ ở cạnh và kết cấu. Hàm mất mát dựa trên SSIM~\cite{bergmannImprovingUnsupervisedDefect2019} so sánh độ
+sáng trung bình, độ tương phản và cấu trúc của từng vùng nhỏ thay vì từng điểm ảnh, và được đề xuất để khắc phục hai
+hạn chế trên; đề tài chưa thử hàm này.
+
+\subsection{Quá trình huấn luyện và lan truyền ngược}
 
 Huấn luyện là tìm tham số $\theta$ (toàn bộ trọng số và độ lệch) làm nhỏ hàm mất mát $L(\theta)$ trên dữ liệu
-huấn luyện~\cite{pytorchOptimizingModelParameters}. Một vòng huấn luyện gồm các bước:
-\begin{enumerate}
-  \item \textbf{Khởi tạo trọng số} ngẫu nhiên theo phân phối phù hợp, để các nơ-ron không học giống hệt nhau.
-  \item \textbf{Lan truyền tiến:} đưa một lô dữ liệu qua mạng để được đầu ra dự đoán.
-  \item \textbf{Tính mất mát:} đo sai lệch giữa dự đoán và mục tiêu, ví dụ sai số bình phương trung bình (MSE) cho bài
-        toán dựng lại ảnh hoặc entropy chéo cho bài toán phân loại.
-  \item \textbf{Lan truyền ngược:} tính gradient $\nabla_\theta L$ theo quy tắc đạo hàm hàm hợp, đi từ lớp ra về lớp
-        vào~\cite{goodfellowDeepLearning2016}.
-  \item \textbf{Cập nhật tham số} ngược hướng gradient bằng một thuật toán tối ưu, rồi lặp lại với lô tiếp theo.
-\end{enumerate}
-Mỗi lần cập nhật dùng một lô nhỏ (mini-batch) thay vì toàn bộ dữ liệu; một lượt đi qua hết dữ liệu gọi là một
-epoch. Thuật toán tối ưu đơn giản nhất là SGD, cập nhật mọi tham số với cùng một bước. Đề tài dùng
-Adam~\cite{kingmaAdamMethodStochastic2015}, trong đó mỗi tham số có bước cập nhật riêng, điều chỉnh theo trung bình
-động của gradient và của bình phương gradient, nên thường hội tụ nhanh và ít phải chỉnh tốc độ học.
+huấn luyện~\cite{pytorchOptimizingModelParameters}. Trọng số trước hết được khởi tạo ngẫu nhiên theo một phân phối
+phù hợp, để các nơ-ron không học giống hệt nhau. Mỗi vòng huấn luyện đưa một lô dữ liệu qua mạng để được đầu ra dự
+đoán (lan truyền tiến), rồi tính mất mát, tính gradient $\nabla_\theta L$ (lan truyền ngược) và cập nhật tham số
+ngược hướng gradient. Phương pháp hạ gradient cơ bản cập nhật với tốc độ học $\eta$:
+\begin{equation}
+  \theta_{k+1} = \theta_k - \eta\, \nabla_\theta L(\theta_k) .
+  \label{eq:gd}
+\end{equation}
+
+Lan truyền ngược~\cite{rumelhartLearningRepresentationsBackpropagating1986} tính gradient cho mọi lớp bằng quy tắc
+đạo hàm hàm hợp, đi từ lớp ra về lớp vào. Với mạng \eqref{eq:layer}, đặt $\delta^{(l)} = \partial L / \partial
+a^{(l)}$, ta có
+\begin{equation}
+  \delta^{(l)} = \Bigl[\bigl(W^{(l+1)}\bigr)^{\top} \delta^{(l+1)}\Bigr] \odot \varphi'\bigl(a^{(l)}\bigr), \qquad
+  \frac{\partial L}{\partial W^{(l)}} = \delta^{(l)} \bigl(h^{(l-1)}\bigr)^{\top}, \qquad
+  \frac{\partial L}{\partial b^{(l)}} = \delta^{(l)} ,
+  \label{eq:backprop}
+\end{equation}
+với $\odot$ là phép nhân từng phần tử. Công thức cho thấy gradient ở lớp $l$ là tích của các ma trận trọng số và các
+đạo hàm $\varphi'$ của mọi lớp phía sau. Nếu các thừa số này nhỏ hơn 1, gradient giảm theo cấp số nhân khi đi về các
+lớp đầu; nếu lớn hơn 1, gradient tăng vọt. Đây là gốc của hai kỹ thuật trình bày ở mục sau, ReLU và chuẩn hóa theo
+lô, và của kết nối tắt trong ResNet (Mục~\ref{sec:cnn-arch}). PyTorch tự tính \eqref{eq:backprop} cho mọi phép toán,
+nên đề tài chỉ cần định nghĩa mạng và hàm mất mát.
+
+\subsection{Khởi tạo trọng số và tốc độ học}
+
+Cách khởi tạo trọng số ảnh hưởng trực tiếp đến việc gradient có truyền được qua mạng sâu hay không. Nếu mọi trọng số
+bằng nhau, mọi nơ-ron trong một lớp nhận cùng gradient và học giống hệt nhau; nếu trọng số quá lớn hoặc quá nhỏ,
+phương sai của tín hiệu tăng hoặc giảm theo cấp số nhân qua các lớp, đúng hiện tượng đã thấy ở \eqref{eq:backprop}.
+Khởi tạo Xavier~\cite{glorotUnderstandingDifficultyTraining2010} chọn phương sai của trọng số để giữ phương sai tín
+hiệu gần như không đổi qua mỗi lớp, $\operatorname{Var}(w) = 2/(n_{\text{vào}} + n_{\text{ra}})$, phù hợp với hàm
+kích hoạt đối xứng như tanh. Với ReLU, một nửa đầu vào bị đưa về 0, nên khởi tạo
+He~\cite{heDelvingDeepRectifiers2015} nhân đôi phương sai, $\operatorname{Var}(w) = 2/n_{\text{vào}}$. PyTorch mặc
+định khởi tạo các lớp tích chập theo một biến thể của cách thứ hai, và Autoencoder của đề tài dùng mặc định này. Với
+PaDiM và PatchCore, câu hỏi khởi tạo không đặt ra vì trọng số được lấy nguyên từ mạng đã học trên ImageNet.
+
+Tốc độ học $\eta$ trong \eqref{eq:gd} là siêu tham số quan trọng nhất của quá trình huấn luyện. $\eta$ quá lớn làm
+mất mát dao động hoặc tăng vọt; $\eta$ quá nhỏ làm mạng học rất chậm và dễ dừng ở một điểm kém. Nhiều quy trình huấn
+luyện giảm dần $\eta$ theo một lịch cố định, để đi nhanh ở đầu và tinh chỉnh ở cuối. Đề tài giữ $\eta$ cố định vì
+Adam đã tự điều chỉnh bước cho từng tham số và số bước huấn luyện tương đối ít.
+
+\subsection{Thuật toán tối ưu}
+
+Tính gradient trên toàn bộ dữ liệu ở mỗi bước rất tốn, nên trong thực tế mỗi lần cập nhật dùng một lô nhỏ
+(mini-batch) $B$ mẫu; gradient trên lô là ước lượng không chệch nhưng có nhiễu của gradient thật. Một lượt đi qua hết
+dữ liệu gọi là một epoch. Hạ gradient ngẫu nhiên (SGD) dùng trực tiếp ước lượng này trong \eqref{eq:gd}, với cùng một
+tốc độ học cho mọi tham số. Biến thể có quán tính (momentum) cộng dồn gradient của các bước trước để đi nhanh theo
+hướng ổn định và giảm dao động theo hướng nhiễu.
+
+Adam~\cite{kingmaAdamMethodStochastic2015} kết hợp quán tính với một tốc độ học riêng cho từng tham số. Với gradient
+$g_k$ ở bước $k$, Adam giữ trung bình động của gradient và của bình phương gradient, hiệu chỉnh độ chệch do khởi tạo
+bằng 0, rồi cập nhật:
+\begin{equation}
+  \begin{aligned}
+    m_k &= \beta_1 m_{k-1} + (1-\beta_1)\, g_k, &\qquad
+    v_k &= \beta_2 v_{k-1} + (1-\beta_2)\, g_k^2, \\
+    \hat{m}_k &= \frac{m_k}{1-\beta_1^{k}}, &\qquad
+    \hat{v}_k &= \frac{v_k}{1-\beta_2^{k}}, \qquad
+    \theta_{k} = \theta_{k-1} - \eta\, \frac{\hat{m}_k}{\sqrt{\hat{v}_k} + \epsilon} .
+  \end{aligned}
+  \label{eq:adam}
+\end{equation}
+Tham số có gradient thường lớn được chia cho $\sqrt{\hat{v}_k}$ lớn nên bước đi nhỏ lại, và ngược lại; nhờ vậy Adam ít
+nhạy với việc chọn $\eta$ hơn SGD. Đề tài dùng các giá trị mặc định $\beta_1 = 0{,}9$, $\beta_2 = 0{,}999$, $\epsilon =
+10^{-8}$ và $\eta = 5\cdot10^{-4}$, lô 16 ảnh, 1500 bước cho mỗi loại sản phẩm.
+
+Để huấn luyện nhanh hơn trên GPU, Autoencoder được tính ở độ chính xác hỗn hợp~\cite{micikeviciusMixedPrecisionTraining2018}:
+phần lớn phép tính chạy ở số thực 16 bit, còn trọng số được giữ và cập nhật ở 32 bit. Số thực 16 bit biểu diễn được
+ít giá trị nhỏ hơn, nên gradient rất nhỏ có thể bị làm tròn về 0; mất mát được nhân với một hệ số lớn trước khi lan
+truyền ngược và gradient được chia lại cho hệ số đó trước khi cập nhật.
 
 \subsection{Quá khớp và cách hạn chế}
 
 Quá khớp (overfitting) là khi mô hình học thuộc cả nhiễu và chi tiết riêng của dữ liệu huấn luyện: mất mát trên
 tập huấn luyện rất thấp nhưng kết quả trên dữ liệu mới kém~\cite{zhangGeneralization}. Nguy cơ này cao khi mô hình
-có nhiều tham số mà dữ liệu ít, đúng tình huống của đề tài: mỗi loại sản phẩm chỉ có 60 đến 391 ảnh tốt. Các cách
-hạn chế thường dùng:
-\begin{itemize}
-  \item \textbf{Chính quy hóa L2 (weight decay):} cộng vào mất mát một khoản tỷ lệ với bình phương độ lớn trọng số, để
-        trọng số không quá lớn. Autoencoder của đề tài dùng weight decay $10^{-5}$.
-  \item \textbf{Dropout:} tắt ngẫu nhiên một phần nơ-ron khi huấn luyện để mạng không phụ thuộc vào vài nơ-ron.
-  \item \textbf{Dừng sớm (early stopping):} ngừng huấn luyện khi kết quả trên tập kiểm định thôi cải thiện.
-  \item \textbf{Giảm số tham số cần học:} dùng mạng nhỏ hơn hoặc dùng lại đặc trưng học trước. PaDiM và PatchCore
-        không học tham số mạng nào trên MVTec AD, nên gần như không có nguy cơ quá khớp theo nghĩa này.
-\end{itemize}
+có nhiều tham số mà dữ liệu ít, đúng tình huống của đề tài: mỗi loại sản phẩm chỉ có 137 đến 769 ảnh tốt để xây dựng
+mô hình.
+
+Có bốn cách hạn chế thường dùng. Chính quy hóa L2 (weight decay) cộng vào mất mát một khoản tỷ lệ với bình phương độ
+lớn trọng số, để trọng số không quá lớn. Dropout~\cite{srivastavaDropoutSimpleWay2014} tắt ngẫu nhiên một phần nơ-ron
+khi huấn luyện để mạng không phụ thuộc vào vài nơ-ron. Dừng sớm (early stopping) ngừng huấn luyện khi kết quả trên
+tập kiểm định thôi cải thiện. Cách thứ tư là giảm số tham số cần học, bằng mạng nhỏ hơn hoặc bằng cách dùng lại đặc
+trưng học trước; PaDiM và PatchCore không học tham số mạng nào trên dữ liệu của đề tài, nên gần như không có nguy cơ
+quá khớp theo nghĩa này.
+
 Với Autoencoder, quá khớp còn có một dạng riêng: mạng quá mạnh học được cách dựng lại mọi thứ, kể cả lỗi, nên mất
-khả năng phát hiện. Cổ chai hẹp (Mục 2.5) là cách đề tài hạn chế điều này.
+khả năng phát hiện. Cổ chai hẹp (Mục~\ref{sec:ae}) là cách đề tài hạn chế điều này. Dừng sớm cũng khó áp dụng, vì
+mất mát thấp trên ảnh tốt kiểm định không có nghĩa là phát hiện lỗi tốt hơn; đề tài cố định 1500 bước cho mọi loại.
+
+\subsection{Autoencoder và các biến thể}
+
+Autoencoder là mạng được huấn luyện để đầu ra bằng chính đầu vào, gồm bộ mã hóa $f$ biến ảnh $x$ thành mã $z$ và bộ
+giải mã $g$ dựng lại $\hat{x} = g(f(x))$. Nếu không có ràng buộc nào, mạng có thể học hàm đồng nhất và không rút ra
+được gì về cấu trúc của dữ liệu; vì vậy luôn cần một ràng buộc buộc mạng chỉ giữ lại những gì quan trọng
+nhất~\cite{goodfellowDeepLearning2016}. Ràng buộc phổ biến nhất là cổ chai: $z$ có số chiều nhỏ hơn nhiều so với $x$.
+Với ảnh $256\times256\times3$, tức 196\,608 giá trị, và mã $z$ 256 chiều như trong đề tài, mã nhỏ hơn đầu vào khoảng
+770 lần.
+
+Các biến thể khác dùng ràng buộc khác thay cho cổ chai. Autoencoder thưa phạt số thành phần khác 0 của $z$.
+Autoencoder khử nhiễu~\cite{vincentExtractingComposingRobust2008} nhận ảnh đã bị thêm nhiễu và học dựng lại ảnh sạch,
+nên phải học cấu trúc của dữ liệu để biết đâu là nhiễu; ý tưởng này gần với phát hiện bất thường, vì lỗi có thể coi
+là một thứ cần loại khỏi ảnh. Autoencoder biến phân (VAE)~\cite{kingmaAutoEncodingVariationalBayes2014} coi $z$ là
+biến ngẫu nhiên và ép phân phối của nó gần phân phối chuẩn, nên ngoài sai số tái tạo còn cho một ước lượng xác suất
+của mẫu. Đề tài dùng dạng đơn giản nhất, Autoencoder có cổ chai, để làm mốc so sánh.
+
+Dùng Autoencoder để phát hiện bất thường dựa trên giả định rằng mạng chỉ học từ ảnh tốt nên dựng lại tốt ảnh tốt và
+dựng sai vùng lỗi. Giả định này có thể sai theo hai hướng. Mạng có thể khái quát quá tốt và dựng lại được cả lỗi, nhất
+là lỗi nhỏ hoặc lỗi có kết cấu giống nền, khi đó sai số ở vùng lỗi không nổi lên. Ngược lại, mạng có thể dựng ảnh tốt
+chưa đủ sắc ở cạnh và kết cấu chi tiết, khiến ảnh tốt cũng có sai số cao. Chương 3 cho thấy cả hai trường hợp đều
+xảy ra: lưới bị cong của grid được dựng lại gần như lưới thẳng nhưng sai số vẫn nhỏ, còn thân con vít có ren bị sai số
+cao dọc theo cả thân.
 
 \section{Mạng nơ-ron tích chập}
 \label{sec:cnn}
+
+\subsection{Phép tích chập}
 
 Với ảnh, lớp kết nối đầy đủ có hai nhược điểm: số tham số rất lớn (ảnh $256\times256\times3$ có gần 200 nghìn
 giá trị đầu vào) và mất thông tin điểm ảnh nào nằm cạnh điểm ảnh nào. Lớp tích chập khắc phục cả hai bằng một
@@ -177,54 +326,190 @@ bộ lọc nhỏ $K$ trượt trên ảnh~\cite{lecunGradientbasedLearningApplie
   \label{eq:conv}
 \end{equation}
 Cùng một bộ lọc được dùng ở mọi vị trí (chia sẻ trọng số), nên số tham số chỉ phụ thuộc kích thước bộ lọc và số
-kênh, không phụ thuộc kích thước ảnh. Đầu ra vẫn là một bản đồ có tọa độ không gian, nên mỗi vị trí của bản đồ
+kênh, không phụ thuộc kích thước ảnh. Một lớp có $C_{\text{ra}}$ bộ lọc kích thước $k\times k$ trên $C_{\text{vào}}$
+kênh có $k^2 C_{\text{vào}} C_{\text{ra}} + C_{\text{ra}}$ tham số; lớp đầu của bộ mã hóa Autoencoder ($k = 4$, 3 kênh
+vào, 32 kênh ra) chỉ có 1568 tham số. Đầu ra vẫn là một bản đồ có tọa độ không gian, nên mỗi vị trí của bản đồ
 đặc trưng ứng với một vùng (patch) của ảnh gốc. Tính chất này là cơ sở để cả ba phương pháp trong đề tài tạo
 được bản đồ bất thường theo vị trí.
 
-Bước trượt (stride) lớn hơn 1 làm bản đồ đặc trưng nhỏ dần; tích chập chuyển vị (transposed convolution) làm
-điều ngược lại, phóng to bản đồ. Autoencoder dùng cặp phép toán này để nén rồi dựng lại ảnh. Chuẩn hóa theo lô
-(batch normalization) đưa đầu ra mỗi lớp về trung bình 0, phương sai 1 trên từng lô, giúp huấn luyện ổn định
-hơn~\cite{ioffeBatchNormalizationAccelerating2015}.
+Với đầu vào cạnh $I$, bộ lọc cạnh $k$, bước trượt (stride) $S$ và đệm (padding) $P$ điểm ảnh mỗi bên, cạnh của bản đồ
+ra là
+\begin{equation}
+  O = \left\lfloor \frac{I - k + 2P}{S} \right\rfloor + 1 .
+  \label{eq:conv-size}
+\end{equation}
+Các lớp mã hóa của Autoencoder dùng $k = 4$, $S = 2$, $P = 1$, nên mỗi lớp giảm đúng một nửa: $256 \to 128 \to \dots
+\to 8$ sau năm lớp. Bảng~\ref{tab:ae-size} áp dụng \eqref{eq:conv-size} và công thức số tham số ở trên cho từng lớp
+của bộ mã hóa, cùng trường tiếp nhận tính theo \eqref{eq:receptive} ở mục sau. Số tham số tăng nhanh theo số kênh,
+nhưng cả năm lớp tích chập cộng lại, khoảng 1,74 triệu tham số, vẫn chưa bằng một nửa lớp kết nối đầy đủ ở cổ chai.
 
-Khi xếp chồng nhiều lớp, mỗi vị trí ở lớp sâu nhìn được một vùng ảnh rộng hơn (trường tiếp nhận lớn hơn). Các
-lớp nông phản hồi với cạnh, màu và kết cấu đơn giản; các lớp sâu biểu diễn cấu trúc phức tạp hơn nhưng có độ
-phân giải không gian thấp hơn~\cite{yosinskiHowTransferableAre2014}. PaDiM và PatchCore chọn các tầng trung gian
-vì cần cả hai: đủ chi tiết để thấy lỗi nhỏ và đủ ngữ cảnh để phân biệt lỗi với biến thiên bình thường.
+\begin{table}[htbp]
+  \centering
+  \caption{Kích thước, số tham số và trường tiếp nhận các lớp tích chập của bộ mã hóa Autoencoder}
+  \label{tab:ae-size}
+  \small
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Lớp & Kênh vào $\to$ ra & Bản đồ ra & Số tham số & Trường tiếp nhận \\
+    \midrule
+    Tích chập 1 & $3 \to 32$    & $128\times128$ & 1\,568   & 4 \\
+    Tích chập 2 & $32 \to 64$   & $64\times64$   & 32\,832  & 10 \\
+    Tích chập 3 & $64 \to 128$  & $32\times32$   & 131\,200 & 22 \\
+    Tích chập 4 & $128 \to 256$ & $16\times16$   & 524\,544 & 46 \\
+    Tích chập 5 & $256 \to 256$ & $8\times8$     & 1\,048\,832 & 94 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-ResNet~\cite{heDeepResidualLearning2016} cho phép huấn luyện mạng rất sâu bằng kết nối tắt: mỗi khối học phần
-chênh lệch $F(x)$ rồi cộng lại với đầu vào,
+\subsection{Gộp, tích chập chuyển vị và chuẩn hóa theo lô}
+
+Phép gộp (pooling) thay mỗi vùng $k\times k$ bằng một giá trị đại diện, giá trị lớn nhất (max pooling) hoặc trung bình
+(average pooling). Gộp không có tham số; với bước trượt lớn hơn 1 nó giảm kích thước bản đồ, còn với bước trượt 1 và
+đệm phù hợp nó giữ nguyên kích thước và chỉ làm mỗi vị trí mang thông tin của lân cận. PatchCore dùng cách thứ hai:
+gộp trung bình $3\times3$ với bước trượt 1 để mỗi vector đặc trưng tổng hợp cả vùng xung quanh, bền hơn với dịch
+chuyển nhỏ (Mục~\ref{sec:patchcore}).
+
+Tích chập chuyển vị (transposed convolution) làm điều ngược lại với tích chập có bước trượt: phóng to bản đồ, với cạnh
+ra $O = (I-1)S - 2P + k$. Với cùng $k = 4$, $S = 2$, $P = 1$, mỗi lớp giải mã của Autoencoder nhân đôi kích thước, $8
+\to 16 \to \dots \to 256$, đối xứng với bộ mã hóa.
+
+Chuẩn hóa theo lô (batch normalization)~\cite{ioffeBatchNormalizationAccelerating2015} chuẩn hóa đầu ra $x$ của mỗi
+kênh theo trung bình $\mu_B$ và phương sai $\sigma_B^2$ trên lô hiện tại, rồi cho mạng học lại thang đo $\gamma$ và
+độ dời $\beta$:
+\begin{equation}
+  \hat{x} = \frac{x - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}}, \qquad y = \gamma\, \hat{x} + \beta .
+  \label{eq:bn}
+\end{equation}
+Nhờ đầu vào của mỗi lớp giữ được thang đo ổn định trong suốt quá trình huấn luyện, mạng dùng được tốc độ học lớn hơn
+và hội tụ nhanh hơn. Khi suy luận, $\mu_B$ và $\sigma_B^2$ được thay bằng trung bình tích lũy trong lúc huấn luyện.
+Điều này quan trọng với PaDiM và PatchCore: Wide-ResNet-50-2 chạy ở chế độ suy luận với thống kê học từ ImageNet, nên
+đặc trưng của một ảnh không phụ thuộc vào các ảnh khác trong cùng lô.
+
+\subsection{Trường tiếp nhận và thứ bậc đặc trưng}
+
+Mỗi vị trí ở bản đồ đặc trưng chỉ ``nhìn'' một vùng giới hạn của ảnh gốc, gọi là trường tiếp nhận. Với lớp $l$ có bộ
+lọc cạnh $k_l$ và bước trượt $s_l$, cạnh trường tiếp nhận $r_l$ và khoảng cách $j_l$ giữa hai vị trí liền kề (tính bằng
+điểm ảnh gốc) tăng dần theo
+\begin{equation}
+  r_l = r_{l-1} + (k_l - 1)\, j_{l-1}, \qquad j_l = j_{l-1}\, s_l, \qquad r_0 = j_0 = 1 .
+  \label{eq:receptive}
+\end{equation}
+Như vậy trường tiếp nhận tăng nhanh khi mạng sâu hơn, nhất là sau các lớp có bước trượt lớn hơn 1. Các lớp nông có
+trường tiếp nhận nhỏ, phản hồi với cạnh, màu và kết cấu đơn giản; các lớp sâu có trường tiếp nhận rộng, biểu diễn
+cấu trúc phức tạp hơn nhưng có độ phân giải không gian thấp hơn~\cite{yosinskiHowTransferableAre2014}. PaDiM và
+PatchCore chọn các tầng trung gian vì cần cả hai: đủ chi tiết để thấy lỗi nhỏ và đủ ngữ cảnh để phân biệt lỗi với
+biến thiên bình thường. Với Autoencoder, năm lớp bước trượt 2 cho mỗi vị trí ở bản đồ $8\times8$ một trường tiếp nhận
+rộng 94 điểm ảnh theo \eqref{eq:receptive}, và lớp kết nối đầy đủ ở cổ chai nối mọi vị trí với nhau, nên mỗi điểm ảnh dựng lại phụ thuộc
+vào toàn bộ ảnh.
+
+\subsection{Các kiến trúc mạng tích chập tiêu biểu}
+\label{sec:cnn-arch}
+
+LeNet~\cite{lecunGradientbasedLearningApplied1998} là một trong những mạng tích chập đầu tiên được dùng thực tế, để
+nhận dạng chữ số viết tay. AlexNet~\cite{krizhevskyImageNetClassificationDeep2012} thắng cuộc thi phân loại ImageNet
+năm 2012 với cách biệt lớn, nhờ huấn luyện mạng sâu hơn trên GPU, dùng ReLU và dropout; từ đó học sâu trở thành hướng
+chính của thị giác máy tính. VGG~\cite{simonyanVeryDeepConvolutional2015} cho thấy xếp chồng nhiều lớp $3\times3$ nhỏ
+(16 đến 19 lớp) tốt hơn ít lớp có bộ lọc lớn. Tuy vậy, chỉ thêm lớp thì đến một mức nào đó mạng sâu hơn lại cho sai
+số huấn luyện cao hơn, do gradient khó truyền qua quá nhiều lớp.
+
+ResNet~\cite{heDeepResidualLearning2016} giải quyết vấn đề này bằng kết nối tắt: mỗi khối học phần chênh lệch $F(x)$
+rồi cộng lại với đầu vào,
 \begin{equation}
   y = F(x) + x .
   \label{eq:residual}
 \end{equation}
-Các khối được nhóm thành bốn tầng \texttt{layer1}--\texttt{layer4}; mỗi tầng sau giảm một nửa kích thước không
-gian và tăng số kênh (Hình~\ref{fig:resnet}). Với ảnh vào $256\times256$ của đề tài, \texttt{layer1},
-\texttt{layer2}, \texttt{layer3} cho bản đồ $64\times64$, $32\times32$, $16\times16$. Wide
-ResNet~\cite{zagoruykoWideResidualNetworks2016} giữ cấu trúc đó nhưng tăng gấp đôi số kênh bên trong mỗi khối. Đề
-tài dùng ResNet-18 (khoảng 11,7 triệu tham số) cho PaDiM và Wide-ResNet-50-2 (khoảng 68,9 triệu tham số) cho
-PatchCore. Cả hai phương pháp đều bỏ \texttt{layer4}: tầng này có độ phân giải quá thấp để định vị lỗi và mang đặc
-trưng thiên về nhiệm vụ phân loại ImageNet.
+Đạo hàm của $y$ theo $x$ luôn có thành phần 1 từ nhánh tắt, nên gradient đi qua được hàng chục khối mà không bị triệt
+tiêu, và một khối không cần thiết chỉ việc học $F(x) \approx 0$. Các bản ResNet từ 50 lớp trở lên dùng khối cổ chai:
+tích chập $1\times1$ giảm số kênh, tích chập $3\times3$ trên số kênh nhỏ đó, rồi tích chập $1\times1$ tăng số kênh lại,
+để giảm chi phí tính toán. Tích chập $1\times1$ không nhìn lân cận mà chỉ trộn các kênh tại từng vị trí, nên rất rẻ.
+Với đầu vào 256 kênh, hai lớp $3\times3$ giữ nguyên 256 kênh cần khoảng $2 \cdot 9 \cdot 256^2 \approx 1{,}18$ triệu
+trọng số, trong khi khối cổ chai $256 \to 64 \to 64 \to 256$ chỉ cần $256 \cdot 64 + 9 \cdot 64^2 + 64 \cdot 256
+\approx 70$ nghìn. Wide-ResNet-50-2 dùng 128 thay vì 64 kênh bên trong khối này, nên mỗi khối cần khoảng 213 nghìn
+trọng số, gấp ba khối của ResNet-50; đây là lý do mạng có 68,9 triệu tham số so với khoảng 25,6 triệu của ResNet-50,
+đổi lại đặc trưng phong phú hơn ở mỗi tầng.
+
+Các khối được nhóm thành bốn tầng \texttt{layer1}--\texttt{layer4}; mỗi tầng sau giảm một nửa kích thước không gian
+và tăng gấp đôi số kênh (Hình~\ref{fig:resnet}). Wide ResNet~\cite{zagoruykoWideResidualNetworks2016} giữ cấu trúc đó
+nhưng tăng gấp đôi số kênh bên trong mỗi khối cổ chai; số kênh ở đầu ra của mỗi tầng không đổi. Đề tài dùng
+Wide-ResNet-50-2 (khoảng 68,9 triệu tham số) cho cả PaDiM và PatchCore. Bảng~\ref{tab:wrn} cho kích thước đặc trưng
+của từng tầng với ảnh vào $256\times256$. Cả hai phương pháp đều bỏ \texttt{layer4}: tầng này có độ phân giải quá thấp
+để định vị lỗi và mang đặc trưng thiên về nhiệm vụ phân loại ImageNet.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Các tầng của Wide-ResNet-50-2 với ảnh vào $256\times256$}
+  \label{tab:wrn}
+  \small
+  \begin{tabular}{@{}l c c c c l@{}}
+    \toprule
+    Tầng & Số khối & Kênh trong khối & Kênh ra & Bản đồ & Dùng trong \\
+    \midrule
+    Tích chập đầu và gộp & -- & -- & 64 & $64\times64$ & -- \\
+    \texttt{layer1} & 3 & 128  & 256  & $64\times64$ & PaDiM \\
+    \texttt{layer2} & 4 & 256  & 512  & $32\times32$ & PaDiM, PatchCore \\
+    \texttt{layer3} & 6 & 512  & 1024 & $16\times16$ & PaDiM, PatchCore \\
+    \texttt{layer4} & 3 & 1024 & 2048 & $8\times8$   & Không dùng \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{images/resnet_cac_tang.png}
-  \caption{Các tầng của Wide-ResNet-50-2 và tầng đặc trưng mà PaDiM, PatchCore sử dụng (kích thước minh họa với
-    ảnh $224\times224$; với ảnh $256\times256$ của đề tài là $64$, $32$, $16$ và $8$)}
+  \caption[Các tầng của Wide-ResNet-50-2 và tầng đặc trưng được sử dụng]{Các tầng của Wide-ResNet-50-2 và tầng đặc
+    trưng mà PaDiM, PatchCore sử dụng (kích thước minh họa với ảnh $224\times224$; với ảnh $256\times256$ của đề tài
+    là $64$, $32$, $16$ và $8$)}
   \label{fig:resnet}
 \end{figure}
 
-\section{Đặc trưng học trước}
+\section{Học chuyển giao: dùng lại đặc trưng của mạng học trên ImageNet}
+\label{sec:hoc-truoc}
+
+\subsection{ImageNet và mạng học trước}
 
 ImageNet là bộ dữ liệu khoảng 1,2 triệu ảnh thuộc 1000 lớp đối tượng~\cite{dengImageNetLargescaleHierarchical2009}.
 Một mạng tích chập huấn luyện để phân loại ImageNet học được các bộ lọc cho cạnh, kết cấu và hình dạng; các bộ
 lọc ở tầng nông và tầng giữa dùng lại được cho dữ liệu khác với hiệu quả tốt~\cite{yosinskiHowTransferableAre2014}.
+Học chuyển giao là việc lấy mạng đã học trên một bài toán có nhiều dữ liệu như vậy làm điểm xuất phát cho một bài toán
+khác có ít dữ liệu hơn.
 
-PaDiM và PatchCore dùng mạng như vậy làm bộ trích xuất đặc trưng cố định: không cập nhật trọng số nào trên
-MVTec AD. Phần ``học'' trên ảnh tốt chỉ là ghi nhận đặc trưng của chúng, dưới dạng thống kê (PaDiM) hoặc tập
-vector tham chiếu (PatchCore). Nhờ đó hai phương pháp không cần lan truyền ngược và không cần nhiều ảnh tốt.
-Đổi lại, chất lượng phụ thuộc vào việc đặc trưng ImageNet có phân biệt được lỗi công nghiệp hay không.
+\subsection{Tinh chỉnh và trích đặc trưng cố định}
 
-\section{Thị giác máy tính và ứng dụng}
+Có hai cách dùng lại một mạng học trước. Tinh chỉnh (fine-tuning) tiếp tục huấn luyện một phần hoặc toàn bộ trọng số
+trên dữ liệu mới, thường với tốc độ học nhỏ; cách này cần một hàm mất mát có ý nghĩa cho bài toán mới, thường là nhãn
+phân loại. Trích đặc trưng cố định giữ nguyên mọi trọng số và chỉ dùng đầu ra của một số tầng làm biểu diễn của ảnh,
+rồi xây dựng mô hình đơn giản trên biểu diễn đó.
+
+PaDiM và PatchCore dùng cách thứ hai: không cập nhật trọng số nào trên dữ liệu của đề tài. Lý do là bài toán không có
+nhãn lỗi để tinh chỉnh, còn tinh chỉnh chỉ trên ảnh tốt không có mục tiêu rõ ràng và dễ làm đặc trưng sụp về một
+điểm. Phần ``học'' trên ảnh tốt chỉ là ghi nhận đặc trưng của chúng, dưới dạng thống kê (PaDiM) hoặc tập vector tham
+chiếu (PatchCore). Nhờ đó hai phương pháp không cần lan truyền ngược, xây dựng mô hình trong một lượt duyệt ảnh và
+không cần nhiều ảnh tốt.
+
+\subsection{Khoảng cách miền}
+
+Ảnh ImageNet là ảnh chụp tự nhiên của động vật, đồ vật, phong cảnh, khác xa ảnh cận cảnh một tấm kim loại hay một
+bảng mạch dưới ánh sáng công nghiệp. Sự khác biệt giữa dữ liệu nguồn và dữ liệu đích gọi là khoảng cách miền (domain
+gap). Thực nghiệm của Yosinski và cộng sự~\cite{yosinskiHowTransferableAre2014} cho thấy khả năng chuyển giao giảm khi
+tầng càng sâu và khi hai bài toán càng khác nhau: tầng nông mang đặc trưng chung như cạnh, màu, kết cấu, còn tầng sâu
+chuyên biệt cho các lớp của ImageNet. Đây là thêm một lý do để PaDiM và PatchCore dùng \texttt{layer1} đến
+\texttt{layer3} và bỏ \texttt{layer4}.
+
+Để đặc trưng có ý nghĩa, ảnh đầu vào phải có cùng phân phối với ảnh lúc mạng được huấn luyện; vì vậy mỗi kênh màu
+$c$ của ảnh, đã đưa về $[0,1]$, được chuẩn hóa theo trung bình $m_c$ và độ lệch chuẩn $d_c$ tính trên toàn bộ ImageNet,
+\begin{equation}
+  x'_c = \frac{x_c - m_c}{d_c}, \qquad m = (0{,}485;\ 0{,}456;\ 0{,}406), \qquad d = (0{,}229;\ 0{,}224;\ 0{,}225),
+  \label{eq:imagenet-norm}
+\end{equation}
+trước khi đưa vào Wide-ResNet-50-2 (Mục~\ref{sec:preprocess}). Nếu bỏ bước này, đầu vào lệch khỏi phân phối mà các
+lớp chuẩn hóa theo lô của mạng đã ghi nhận, và đặc trưng của mọi tầng đều bị dịch đi. Chất
+lượng của hai phương pháp vẫn phụ thuộc vào việc đặc trưng ImageNet có phân biệt được lỗi công nghiệp hay không;
+Chương 3 cho thấy điều này đúng với phần lớn các loại, nhưng đặc trưng cũng thay đổi theo ánh sáng, nên ảnh chụp ở
+điều kiện khác lúc huấn luyện có thể bị coi là bất thường dù không có lỗi.
+
+\section{Thị giác máy tính và xử lý ảnh số}
+
+\subsection{Các nhiệm vụ cơ bản}
 
 Thị giác máy tính là lĩnh vực của AI giúp máy tính hiểu nội dung ảnh và video. Ba nhiệm vụ cơ bản xếp theo mức chi
 tiết tăng dần: phân loại ảnh (ảnh thuộc lớp nào), phát hiện đối tượng (đối tượng nằm ở hộp nào trong ảnh,
@@ -239,15 +524,55 @@ chập ra đời, cả ba nhiệm vụ đều do học sâu đảm nhận là ch
   \label{fig:cv-detection}
 \end{figure}
 
-Hai nhóm ứng dụng gần với đề tài nhất:
-\begin{itemize}
-  \item \textbf{Kiểm tra chất lượng trong sản xuất:} camera chụp từng sản phẩm trên dây chuyền, mô hình quyết định đạt
-        hay không đạt và chỉ ra vị trí lỗi để truy nguyên nhân. Khác với nhiều ứng dụng khác, ở đây ảnh lỗi hiếm và
-        kiểu lỗi khó lường trước, nên hướng chỉ học từ ảnh tốt được dùng rộng rãi.
-  \item \textbf{Phân tích ảnh y học:} học sâu được dùng để phát hiện tổn thương trên ảnh X-quang, CT, MRI. Ảnh bệnh
-        lý hiếm hơn ảnh bình thường và việc khoanh vùng tổn thương cần chuyên gia, nên lĩnh vực này cũng gặp đúng khó
-        khăn về dữ liệu như kiểm tra chất lượng công nghiệp.
-\end{itemize}
+\subsection{Ảnh số và thay đổi kích thước ảnh}
+
+Một ảnh màu được lưu dưới dạng mảng $H \times W \times 3$, mỗi phần tử là cường độ của một kênh đỏ, lục hoặc lam tại
+một điểm ảnh, thường là số nguyên 8 bit từ 0 đến 255; ảnh xám chỉ có một kênh. Trước khi đưa vào mạng, giá trị được
+chia cho 255 để nằm trong $[0, 1]$. Grid và screw trong MVTec AD là ảnh xám, nên được nhân thành ba kênh giống nhau để dùng
+chung mạng với ảnh màu.
+
+Ảnh gốc của ba bộ dữ liệu có cạnh từ khoảng 1000 đến hơn 4000 điểm ảnh, quá lớn để xử lý trực tiếp, nên được thu
+nhỏ. Phép thu nhỏ cần nội suy giá trị tại các vị trí mới. Nội suy lân cận gần nhất lấy giá trị của điểm ảnh gốc gần
+nhất; cách này không tạo giá trị mới, nên được dùng cho mặt nạ để mặt nạ vẫn chỉ có hai giá trị lỗi và không lỗi.
+Nội suy song tuyến tính lấy trung bình có trọng số của bốn điểm lân cận: với vị trí $(u + a, v + b)$, $0 \le a, b <
+1$, nằm giữa bốn điểm nguyên,
+\begin{equation}
+  \begin{aligned}
+    I(u + a, v + b) ={} & (1-a)(1-b)\, I(u, v) + a(1-b)\, I(u+1, v) \\
+    & + (1-a)\,b\, I(u, v+1) + a\,b\, I(u+1, v+1) .
+  \end{aligned}
+  \label{eq:bilinear}
+\end{equation}
+Cách này cho kết quả mượt và phù hợp khi phóng to, như khi đưa bản đồ bất thường từ lưới đặc trưng $64\times64$ hay
+$32\times32$ về kích thước ảnh: mỗi vị trí đặc trưng trải ra một vùng 4 hoặc 8 điểm ảnh, và giá trị chuyển dần giữa
+các vùng thay vì thành từng khối vuông. Nội suy theo diện tích lấy trung bình mọi điểm ảnh gốc nằm trong vùng ứng
+với một điểm ảnh mới; khi thu nhỏ nhiều lần, cách này tránh hiện tượng răng cưa và chi tiết giả, nên được dùng cho
+ảnh đầu vào. Cái giá của việc thu nhỏ là mất chi tiết: ảnh sheet\_metal $4224\times1056$ thu về $1024\times256$, tức
+mỗi chiều nhỏ đi khoảng 4 lần, nên một vết xước rộng 8 điểm ảnh chỉ còn khoảng 2 điểm ảnh.
+
+\subsection{Lọc Gauss}
+
+Lọc Gauss là phép tích chập ảnh với hàm Gauss hai chiều
+\begin{equation}
+  G_\sigma(u, v) = \frac{1}{2\pi\sigma^2} \exp\!\left(-\frac{u^2+v^2}{2\sigma^2}\right),
+  \label{eq:gauss}
+\end{equation}
+tức thay mỗi điểm bằng trung bình có trọng số của lân cận, với trọng số giảm dần theo khoảng cách; $\sigma$ càng lớn
+thì ảnh càng mượt. Trên thực tế bộ lọc được cắt ở bán kính khoảng $4\sigma$. Cả ba phương pháp làm mượt bản đồ bất
+thường bằng lọc Gauss với $\sigma = 4$ (bộ lọc $33\times33$) trước khi lấy giá trị lớn nhất làm điểm của ảnh. Mục đích
+là để điểm ảnh phản ánh một vùng sai lệch có kích thước đáng kể, không bị quyết định bởi một điểm lẻ do nhiễu; đổi
+lại, một lỗi chỉ rộng vài điểm ảnh cũng bị làm yếu đi.
+
+\subsection{Ứng dụng trong kiểm tra chất lượng}
+
+Hai nhóm ứng dụng gần với đề tài nhất là kiểm tra chất lượng trong sản xuất và phân tích ảnh y học. Một hệ thống kiểm
+tra quang học tự động gồm camera, nguồn sáng và bộ xử lý: camera chụp từng sản phẩm trên dây chuyền ở vị trí và ánh
+sáng cố định, mô hình quyết định đạt hay không đạt và chỉ ra vị trí lỗi để truy nguyên nhân. Ánh sáng ổn định là giả
+định ngầm của hầu hết các phương pháp; khi nguồn sáng thay đổi, ảnh sản phẩm tốt cũng khác ảnh lúc huấn luyện. Thay đổi ánh sáng là một trong các tình huống mà
+MVTec AD 2 được xây dựng để đánh giá (Mục~\ref{sec:du-lieu}). Khác với nhiều ứng dụng khác, ở đây ảnh
+lỗi hiếm và kiểu lỗi khó lường trước, nên hướng chỉ học từ ảnh tốt được dùng rộng rãi. Trong y học, học sâu được dùng
+để phát hiện tổn thương trên ảnh X-quang, CT, MRI. Ảnh bệnh lý hiếm hơn ảnh bình thường và việc khoanh vùng tổn thương
+cần chuyên gia, nên lĩnh vực này gặp đúng khó khăn về dữ liệu như kiểm tra chất lượng công nghiệp.
 
 \section{Bài toán phát hiện bất thường không giám sát}
 \label{sec:anomaly}
@@ -256,26 +581,22 @@ Hai nhóm ứng dụng gần với đề tài nhất:
 
 Trên dây chuyền sản xuất, mỗi sản phẩm cần được kiểm tra để loại bỏ những chiếc bị xước, nứt, nhiễm bẩn, biến dạng
 hay thiếu chi tiết. Kiểm tra bằng mắt người chậm hơn tốc độ dây chuyền, phụ thuộc kinh nghiệm và độ tập trung của
-người kiểm tra, và dễ bỏ sót lỗi nhỏ. Tự động hóa khâu này bằng thị giác máy tính gặp bốn khó khăn đặc thù:
-\begin{itemize}
-  \item \textbf{Ảnh lỗi hiếm.} Dây chuyền ổn định có tỷ lệ lỗi thấp, nên thu đủ ảnh lỗi để huấn luyện tốn nhiều thời
-        gian. Ngược lại, ảnh sản phẩm tốt có sẵn với số lượng lớn.
-  \item \textbf{Lỗi đa dạng và khó lường trước.} Không thể liệt kê trước mọi kiểu lỗi; một kiểu lỗi mới có thể xuất
-        hiện bất cứ lúc nào khi nguyên liệu hay máy móc thay đổi.
-  \item \textbf{Gán nhãn tốn kém.} Khoanh vùng lỗi chính xác đến từng điểm ảnh cần người có chuyên môn và nhiều công
-        sức.
-  \item \textbf{Lỗi nhỏ trên nền biến thiên.} Nhiều lỗi chỉ chiếm một phần rất nhỏ diện tích ảnh, trong khi ảnh tốt
-        vẫn khác nhau tự nhiên về ánh sáng, tư thế và kết cấu bề mặt.
-\end{itemize}
+người kiểm tra, và dễ bỏ sót lỗi nhỏ. Tự động hóa khâu này bằng thị giác máy tính gặp bốn khó khăn đặc thù.
+
+Thứ nhất, ảnh lỗi hiếm: dây chuyền ổn định có tỷ lệ lỗi thấp, nên thu đủ ảnh lỗi để huấn luyện tốn nhiều thời gian,
+trong khi ảnh sản phẩm tốt có sẵn với số lượng lớn. Thứ hai, lỗi đa dạng và khó lường trước: không thể liệt kê trước
+mọi kiểu lỗi, và một kiểu lỗi mới có thể xuất hiện bất cứ lúc nào khi nguyên liệu hay máy móc thay đổi. Thứ ba, gán
+nhãn tốn kém: khoanh vùng lỗi chính xác đến từng điểm ảnh cần người có chuyên môn và nhiều công sức. Thứ tư, lỗi nhỏ
+nằm trên nền biến thiên: nhiều lỗi chỉ chiếm một phần rất nhỏ diện tích ảnh, trong khi ảnh tốt vẫn khác nhau tự
+nhiên về ánh sáng, tư thế và kết cấu bề mặt.
 
 \subsection{Phát hiện và định vị bất thường}
 
-Bài toán gồm hai nhiệm vụ trả lời hai câu hỏi khác nhau. \textbf{Phát hiện} trả lời ``sản phẩm này có lỗi không'':
-đầu ra là một số cho cả ảnh, điểm bất thường $s(x)$, và được đánh giá trên từng ảnh. \textbf{Định vị} trả lời ``lỗi
-nằm ở đâu'': đầu ra là bản đồ bất thường $A_x(u,v)$ cùng kích thước ảnh, mỗi điểm ảnh một giá trị, và được đánh giá
-trên từng điểm ảnh so với mặt nạ vùng lỗi. Điểm ảnh thường được suy ra từ bản đồ, ví dụ
-$s(x) = \max_{u,v} A_x(u,v)$. Điểm càng cao thì càng khác thường; điểm không phải xác suất có lỗi và không có thang
-đo chung giữa các phương pháp.
+Bài toán gồm hai nhiệm vụ trả lời hai câu hỏi khác nhau. Phát hiện trả lời ``sản phẩm này có lỗi không'': đầu ra là
+một số cho cả ảnh, điểm bất thường $s(x)$, và được đánh giá trên từng ảnh. Định vị trả lời ``lỗi nằm ở đâu'': đầu ra
+là bản đồ bất thường $A_x(u,v)$ cùng kích thước ảnh, mỗi điểm ảnh một giá trị, và được đánh giá trên từng điểm ảnh so
+với mặt nạ vùng lỗi. Điểm ảnh thường được suy ra từ bản đồ, ví dụ $s(x) = \max_{u,v} A_x(u,v)$. Điểm càng cao thì
+càng khác thường; điểm không phải xác suất có lỗi và không có thang đo chung giữa các phương pháp.
 
 Hai nhiệm vụ có thể cho kết quả khác nhau trên cùng một mô hình. Với một hạt dẻ bị nứt, mô hình có thể khoanh đúng
 vết nứt trên bản đồ (định vị tốt), nhưng nếu bản đồ của ảnh tốt cũng có vài điểm sáng thì điểm lớn nhất của ảnh tốt
@@ -285,10 +606,10 @@ tế, phát hiện quyết định loại hay giữ sản phẩm, còn định v
 
 \subsection{Vì sao chỉ học từ ảnh tốt}
 
-Một bộ phân loại có giám sát cần các ví dụ lỗi đã gán nhãn và có thể khó khái quát sang kiểu lỗi chưa xuất hiện trong tập huấn luyện; với
-ảnh lỗi hiếm và lỗi mới liên tục xuất hiện, điều kiện này khó đáp ứng. Hướng không giám sát đảo ngược cách đặt vấn
-đề: thay vì học ``lỗi trông như thế nào'', mô hình học ``bình thường trông như thế nào'' từ tập ảnh tốt
-$\mathcal{X}_{\text{train}} = \{x_1, \dots, x_N\}$, rồi coi mọi sai khác đáng kể là bất
+Một bộ phân loại có giám sát cần các ví dụ lỗi đã gán nhãn và có thể khó khái quát sang kiểu lỗi chưa xuất hiện
+trong tập huấn luyện; với ảnh lỗi hiếm và lỗi mới liên tục xuất hiện, điều kiện này khó đáp ứng. Hướng không giám
+sát đảo ngược cách đặt vấn đề: thay vì học ``lỗi trông như thế nào'', mô hình học ``bình thường trông như thế nào''
+từ tập ảnh tốt $\mathcal{X}_{\text{train}} = \{x_1, \dots, x_N\}$, rồi coi mọi sai khác đáng kể là bất
 thường~\cite{bergmannMVTecADComprehensive2019}. Cách này chỉ cần ảnh tốt, vốn dễ thu thập, và về nguyên tắc phát
 hiện được cả kiểu lỗi chưa từng xuất hiện. Đổi lại, mô hình không biết đâu là lỗi ``thật'': mọi khác thường, kể cả
 một vết bẩn vô hại trên nền, đều có thể bị báo. Ảnh lỗi và mặt nạ vùng lỗi chỉ dùng ở bước đánh giá.
@@ -299,6 +620,96 @@ Trên ảnh công nghiệp, bất thường thường chia làm hai loại. Bấ
 hình dạng, như vết xước, vết nứt, lỗ thủng, vết bẩn. Bất thường logic là trường hợp từng chi tiết đều trông bình
 thường nhưng tổng thể sai, như thiếu linh kiện, lắp sai vị trí hay lật ngược. Phân biệt hai loại giúp giải thích vì
 sao một phương pháp so sánh từng vùng nhỏ có thể bỏ sót lỗi dù khoanh vùng tốt các vết trên bề mặt.
+
+\subsection{Cơ sở thống kê của điểm bất thường}
+
+Mọi phương pháp phát hiện bất thường đều ngầm ước lượng mức độ ``hiếm'' của một mẫu so với dữ liệu bình thường. Ba
+phương pháp của đề tài ứng với ba cách ước lượng khác nhau.
+
+Cách thứ nhất là giả định dạng phân phối. Nếu vector đặc trưng $z \in \mathbb{R}^d$ của mẫu bình thường tuân theo
+phân phối Gauss nhiều chiều $\mathcal{N}(\mu, \Sigma)$, mật độ xác suất là
+\begin{equation}
+  p(z) = \frac{1}{(2\pi)^{d/2} \lvert\Sigma\rvert^{1/2}}
+  \exp\!\Bigl(-\tfrac{1}{2} (z-\mu)^{\top} \Sigma^{-1} (z-\mu)\Bigr) ,
+  \label{eq:gaussian}
+\end{equation}
+nên $-\log p(z) = \tfrac{1}{2} d_M(z)^2 + \text{hằng số}$, với $d_M(z) = \sqrt{(z-\mu)^{\top}\Sigma^{-1}(z-\mu)}$ là
+khoảng cách Mahalanobis~\cite{mahalanobisGeneralizedDistanceStatistics1936}. Mẫu càng xa trung bình theo khoảng cách
+này thì mật độ càng thấp, tức càng bất thường. Khi $\Sigma = I$, khoảng cách Mahalanobis trở thành khoảng cách Euclid;
+khi $\Sigma$ bất kỳ, nó co giãn từng hướng theo độ biến thiên của dữ liệu, nên lệch theo một hướng vốn ít dao động bị
+coi là nghiêm trọng hơn. PaDiM dùng đúng cách này cho từng vị trí trên ảnh (Mục~\ref{sec:padim}).
+
+Một ví dụ hai chiều cho thấy sự khác biệt. Giả sử đặc trưng bình thường có trung bình $\mu = (0, 0)$, độ lệch chuẩn 1
+theo chiều thứ nhất, 0,1 theo chiều thứ hai, và hai chiều độc lập, tức $\Sigma = \operatorname{diag}(1;\ 0{,}01)$.
+Điểm $z_1 = (2, 0)$ và điểm $z_2 = (0;\ 0{,}2)$ có khoảng cách Euclid tới $\mu$ lần lượt là 2 và 0,2, nên theo Euclid
+$z_1$ bất thường hơn gấp 10 lần. Theo Mahalanobis, cả hai đều cách $\mu$ đúng 2 độ lệch chuẩn theo chiều của mình,
+nên có cùng khoảng cách $d_M = 2$. Với đặc trưng nhiều chiều của ảnh, nơi có chiều dao động mạnh theo kết cấu bình
+thường và có chiều gần như cố định, khoảng cách Euclid sẽ bị các chiều dao động mạnh chi phối, còn Mahalanobis đưa mọi
+chiều về cùng thang đo.
+
+Để dùng \eqref{eq:gaussian}, phải ước lượng $\Sigma$ từ $N$ mẫu và nghịch đảo nó. Ma trận hiệp phương sai ước lượng
+có hạng không quá $N - 1$, nên khi $N \le d$ nó suy biến và không nghịch đảo được; khi $N$ chỉ lớn hơn $d$ không nhiều,
+nó nghịch đảo được nhưng các trị riêng nhỏ bị ước lượng thấp, khiến $\Sigma^{-1}$ khuếch đại nhiễu. Với PaDiM, mỗi vị
+trí có $d = 100$ chiều và chỉ $N = 137$ đến $769$ ảnh tốt, nên một khoản $\varepsilon I$ nhỏ được cộng vào đường chéo
+để ổn định phép nghịch đảo.
+
+Cách thứ hai không giả định dạng phân phối mà dùng trực tiếp các mẫu: mật độ quanh một điểm tỷ lệ nghịch với khoảng
+cách từ điểm đó tới các mẫu bình thường gần nhất. Khoảng cách tới láng giềng gần nhất vì vậy là một điểm bất thường
+phi tham số, mô tả được cả phân phối nhiều đỉnh, khi tại cùng một vị trí có nhiều kiểu bình thường khác nhau. Cái giá
+là phải lưu và tìm kiếm trên toàn bộ tập mẫu; PatchCore giảm chi phí này bằng cách chỉ giữ một tập con đại diện
+(Mục~\ref{sec:patchcore}).
+
+Cả hai cách trên đều làm việc trong không gian nhiều chiều, nơi trực giác hai, ba chiều không còn đúng. Khi số chiều
+tăng, thể tích tăng theo hàm mũ nên dữ liệu trở nên thưa, và khoảng cách giữa các điểm có xu hướng gần bằng nhau;
+hiện tượng này thường gọi là lời nguyền số chiều. Ước lượng hiệp phương sai cần số mẫu tăng theo bình phương số
+chiều, còn tìm láng giềng gần nhất chậm dần theo số chiều. Vì vậy cả PaDiM và PatchCore đều giảm chiều bằng một phép
+chọn hoặc chiếu ngẫu nhiên: PaDiM giữ 100 trong 1792 chiều, PatchCore chiếu đặc trưng xuống 128 chiều khi chọn
+coreset. Bổ đề Johnson--Lindenstrauss~\cite{johnsonExtensionsLipschitzMappings1984} cho cơ sở của cách làm này: với
+$n$ điểm bất kỳ, một phép chiếu ngẫu nhiên xuống $k$ chiều, với $k$ chỉ cần tỷ lệ với $\log n / \epsilon^2$, giữ mọi
+khoảng cách giữa các cặp điểm trong khoảng sai số tương đối $\epsilon$ với xác suất cao. Số chiều cần thiết chỉ phụ
+thuộc vào số điểm và sai số chấp nhận được, không phụ thuộc vào số chiều ban đầu.
+
+Cách thứ ba là học một biểu diễn nén. Autoencoder có cổ chai nhỏ hơn đầu vào chỉ dựng lại tốt những ảnh nằm gần tập
+dữ liệu nó đã học; sai số tái tạo là thước đo khoảng cách từ ảnh tới tập đó. Với bộ giải mã tuyến tính và hàm mất mát
+MSE, Autoencoder học được đúng không gian con của phân tích thành phần chính (PCA)~\cite{goodfellowDeepLearning2016};
+mạng phi tuyến nhiều lớp mở rộng ý tưởng đó sang các tập dữ liệu cong, phức tạp hơn một không gian con phẳng.
+
+\subsection{Ngưỡng quyết định và đánh đổi giữa báo nhầm và bỏ sót}
+
+Điểm bất thường chỉ là một con số; để kết luận một sản phẩm có lỗi hay không, cần so nó với một ngưỡng $t$. Hạ $t$
+thì bắt được nhiều lỗi hơn nhưng báo nhầm nhiều sản phẩm tốt hơn; nâng $t$ thì ngược lại. Không có ngưỡng tốt nhất
+cho mọi tình huống. Trên dây chuyền, bỏ sót một sản phẩm lỗi có thể đưa hàng lỗi đến tay khách hàng, còn báo nhầm
+chỉ tốn công kiểm tra lại, nên ngưỡng thường được chọn theo mức báo nhầm mà nhà máy chấp nhận được.
+
+Khi chỉ có ảnh tốt, ngưỡng phải đặt từ phân phối điểm của ảnh tốt. Một cách đơn giản là $t = \bar{s} + k\sigma_s$,
+với $\bar{s}$, $\sigma_s$ là trung bình và độ lệch chuẩn của điểm trên một tập ảnh tốt không dùng để xây dựng mô hình.
+Nếu điểm của ảnh tốt có phân phối chuẩn, $k = 3$ cho xác suất một ảnh tốt vượt ngưỡng khoảng 0,13\%. Nếu không giả
+định gì về phân phối, bất đẳng thức Cantelli chỉ bảo đảm xác suất này không quá $1/(1+k^2)$, tức 10\% với $k = 3$.
+Điểm bất thường lấy từ giá trị lớn nhất của bản đồ thường lệch về phía giá trị lớn, nên tỷ lệ báo nhầm thực tế nằm
+đâu đó giữa hai mức này. Ngoài ra, $\bar{s}$ và $\sigma_s$ ước lượng từ vài chục ảnh có sai số đáng kể, và ngưỡng
+chỉ đúng khi ảnh mới có cùng phân phối với ảnh dùng để đặt ngưỡng; nếu điều kiện chụp thay đổi, cả phân phối điểm
+dịch chuyển theo. Mục~\ref{sec:dat-nguong} trình bày cách đề tài áp dụng ngưỡng này.
+
+\subsection{Các bộ dữ liệu chuẩn}
+
+Một bộ dữ liệu chuẩn cho bài toán này cần ảnh tốt để huấn luyện, ảnh test gồm cả tốt và lỗi, và mặt nạ khoanh vùng
+lỗi đến từng điểm ảnh để đánh giá định vị. Trước năm 2019, các nghiên cứu thường dùng bộ dữ liệu phân loại như MNIST
+hay CIFAR-10, coi một lớp là bình thường và các lớp khác là bất thường. Cách này khác xa bài toán công nghiệp, nơi
+bất thường là một vết nhỏ trên một sản phẩm vẫn thuộc đúng loại.
+
+MVTec AD~\cite{bergmannMVTecADComprehensive2019} là bộ dữ liệu đầu tiên được xây dựng riêng cho bài toán này, gồm
+5354 ảnh độ phân giải cao của 15 loại, chia thành 5 loại bề mặt (carpet, grid, leather, tile, wood) và 10 loại vật
+thể, với 73 kiểu lỗi và mặt nạ cho mọi ảnh lỗi. Bộ này nhanh chóng trở thành thước đo chung, đến mức nhiều phương pháp
+gần đây đạt image-AUROC trung bình trên 0,99, và khoảng cách giữa các phương pháp không còn rõ.
+VisA~\cite{zouSPotDifferenceSelfsupervisedPretraining2022} có 10\,821 ảnh của 12 loại, trong đó 1200 ảnh lỗi, với các
+vật thể phức tạp hơn như bảng mạch nhiều linh kiện, nhiều vật thể trong một ảnh, hay vật thể không căn chỉnh. MVTec
+AD 2~\cite{hecklerkramMVTecAD2Dataset2026} gồm 8 loại với các tình huống khó hơn: vật thể trong suốt hay phản quang,
+lỗi rất nhỏ trên ảnh lớn, và ảnh test chụp ở nhiều điều kiện ánh sáng khác lúc huấn luyện. Real-IAD~\cite{wangRealIADRealWorldMultiView2024}
+chụp mỗi sản phẩm từ 5 góc, với 30 loại vật thể, gần với điều kiện sản xuất thật hơn nữa.
+
+Ba bộ dữ liệu đầu được dùng trong đề tài. MVTec AD cho phép so sánh trực tiếp với kết quả đã công bố; VisA và MVTec AD
+2 thử ba phương pháp trong những điều kiện mà MVTec AD không có. Chương 2 trình bày chín loại sản phẩm được chọn và lý
+do chọn từng loại.
 
 \subsection{Các hướng tiếp cận và vị trí của ba phương pháp}
 
@@ -327,77 +738,61 @@ pháp, không nằm trong phạm vi thực nghiệm.
   \end{tabular}
 \end{table}
 
-Chương 2 trình bày chi tiết cách ba phương pháp được chọn mô tả trạng thái bình thường và tính điểm bất thường.
+\subsection{Một số phương pháp tiêu biểu theo từng hướng}
 
-\section{Đánh giá mô hình}
-\label{sec:danh-gia}
+Ở hướng tái tạo, bên cạnh Autoencoder dùng MSE như trong đề tài, Bergmann và cộng sự đề xuất dùng hàm mất mát
+SSIM~\cite{bergmannImprovingUnsupervisedDefect2019}. DRAEM~\cite{zavrtanikDRAEMDiscriminativelyTrained2021} kết hợp
+tái tạo với lỗi giả: mạng tái tạo học bỏ đi các lỗi tổng hợp được dán lên ảnh tốt, rồi một mạng thứ hai học khoanh
+vùng khác biệt giữa ảnh vào và ảnh dựng lại, nhờ đó không còn phụ thuộc vào việc sai số từng điểm ảnh có đủ lớn hay
+không.
 
-\subsection{Các chỉ số phân loại thông thường}
+Ở hướng phân phối đặc trưng, PaDiM~\cite{defardPaDiMPatchDistribution2021} là đại diện đơn giản nhất, với một phân
+phối Gauss cho mỗi vị trí. Các phương pháp dùng dòng chuẩn hóa (normalizing flow) như
+CFLOW-AD~\cite{gudovskiyCFLOWADRealTimeUnsupervised2022} học một phép biến đổi khả nghịch đưa đặc trưng bình thường về
+phân phối chuẩn, nên mô tả được phân phối phức tạp hơn một phân phối Gauss mà vẫn tính được mật độ chính xác.
 
-Với bài toán phân loại hai lớp (lỗi là lớp dương, tốt là lớp âm), mỗi dự đoán rơi vào một trong bốn ô của ma trận
-nhầm lẫn: dương thật (TP), dương giả (FP), âm thật (TN), âm giả (FN). Từ đó có các chỉ số thường dùng:
-\begin{equation}
-  \begin{aligned}
-    \text{Accuracy} &= \frac{\text{TP}+\text{TN}}{\text{TP}+\text{TN}+\text{FP}+\text{FN}}, &\qquad
-    \text{Precision} &= \frac{\text{TP}}{\text{TP}+\text{FP}}, \\
-    \text{Recall} &= \frac{\text{TP}}{\text{TP}+\text{FN}}, &\qquad
-    F_1 &= \frac{2\,\text{Precision}\cdot\text{Recall}}{\text{Precision}+\text{Recall}} .
-  \end{aligned}
-  \label{eq:prf}
-\end{equation}
-Accuracy là tỷ lệ dự đoán đúng; Precision cho biết trong các mẫu bị báo lỗi có bao nhiêu là lỗi thật; Recall cho
-biết bắt được bao nhiêu phần lỗi thật; $F_1$ cân bằng hai chỉ số sau. Với bài toán hồi quy, các chỉ số tương ứng là
-sai số tuyệt đối trung bình (MAE) và căn sai số bình phương trung bình (RMSE). Tất cả các chỉ số phân loại trên đều
-cần một ngưỡng quyết định cố định, và Accuracy còn bị lệch khi hai lớp chênh lệch số lượng, như ở mức điểm ảnh, nơi
-gần như mọi điểm ảnh đều bình thường.
+Ở hướng bộ nhớ đặc trưng, SPADE~\cite{cohenSubImageAnomalyDetection2020} tìm các ảnh tốt gần nhất với ảnh kiểm thử,
+rồi so từng vị trí với mọi patch của các ảnh đó. Cách này cần lưu toàn bộ đặc trưng và tìm kiếm chậm.
+PatchCore~\cite{rothTotalRecallIndustrial2022} cải tiến trực tiếp từ SPADE bằng hai điểm: đặc trưng patch được gộp
+với lân cận để mang ngữ cảnh, và bộ nhớ được rút gọn bằng coreset.
 
-\subsection{Đường cong ROC và AUROC}
+Ở hướng chưng cất tri thức, mạng ``thầy'' là một mạng học trước, mạng ``trò'' được huấn luyện để cho đặc trưng giống
+thầy trên ảnh tốt; ở vùng lỗi, trò chưa từng học nên đặc trưng của hai mạng khác nhau. Phương pháp
+của Bergmann và cộng sự~\cite{bergmannUninformedStudentsStudentTeacher2020} và
+STFPM~\cite{wangStudentTeacherFeaturePyramid2021} thuộc hướng này. Ở hướng tự giám sát,
+CutPaste~\cite{liCutPasteSelfSupervisedLearning2021} cắt một mảnh của ảnh tốt rồi dán vào vị trí khác để tạo lỗi
+giả, huấn luyện một bộ phân loại phân biệt ảnh gốc với ảnh đã cắt dán, rồi dùng đặc trưng của bộ phân loại đó để
+phát hiện lỗi thật. Hai hướng sau đều phải huấn luyện mạng trên dữ liệu của từng loại sản phẩm, nên không được chọn
+trong phạm vi đề tài.
 
-Để quyết định tốt hay lỗi, cần một ngưỡng $t$: ảnh có $s(x) > t$ bị coi là lỗi. Với mỗi ngưỡng, tỷ lệ phát hiện
-đúng (TPR, chính là Recall) và tỷ lệ báo động giả (FPR) là
-\begin{equation}
-  \text{TPR}(t) = \frac{\text{TP}(t)}{\text{TP}(t) + \text{FN}(t)}, \qquad
-  \text{FPR}(t) = \frac{\text{FP}(t)}{\text{FP}(t) + \text{TN}(t)} .
-  \label{eq:tpr-fpr}
-\end{equation}
-Đường cong ROC vẽ TPR theo FPR khi $t$ chạy qua mọi giá trị; AUROC là diện tích dưới đường cong
-đó~\cite{fawcettIntroductionROCAnalysis2006}. AUROC bằng xác suất một mẫu lỗi chọn ngẫu nhiên có điểm cao hơn một
-mẫu bình thường chọn ngẫu nhiên. AUROC bằng 1 nghĩa là có ngưỡng tách hoàn toàn hai nhóm; bằng 0,5 nghĩa là
-không hơn đoán ngẫu nhiên (Hình~\ref{fig:roc}).
+\subsection{Thách thức khi đưa vào sản xuất}
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.7225\linewidth]{images/duong_roc.png}
-  \caption{Đường cong ROC và AUROC (hình minh họa khái niệm, không phải kết quả thực nghiệm)}
-  \label{fig:roc}
-\end{figure}
+Đạt AUROC cao trên một bộ dữ liệu chuẩn chưa đủ để một hệ thống dùng được trên dây chuyền. Có bốn thách thức thường
+gặp khi đưa vào sản xuất. Thứ nhất là thay đổi điều kiện: ánh sáng, độ nét của camera, vị trí đặt sản phẩm hay nguyên
+liệu đầu vào thay đổi dần theo thời gian, khiến ảnh tốt mới khác ảnh dùng để xây dựng mô hình. Một mô hình phát hiện
+bất thường, đúng với bản chất của nó, sẽ coi mọi thay đổi như vậy là bất thường. Thứ hai là ngưỡng: ngưỡng đặt lúc
+xây dựng mô hình chỉ đúng khi phân phối điểm của ảnh tốt giữ nguyên, nên cần được theo dõi và đặt lại; một hệ thống
+báo nhầm quá nhiều sẽ bị người vận hành bỏ qua. Thứ ba là tốc độ và tài nguyên: mỗi sản phẩm thường chỉ có vài chục
+đến vài trăm mili giây để kiểm tra, và mô hình phải chạy trên phần cứng đặt cạnh dây chuyền. Thứ tư là khả năng giải
+thích: người vận hành cần biết vì sao một sản phẩm bị loại, nên bản đồ bất thường chỉ đúng vùng lỗi có giá trị không
+kém một điểm số chính xác.
 
-Đề tài dùng AUROC vì chưa chọn ngưỡng quyết định, cần đánh giá khả năng xếp hạng và so sánh với công bố trên MVTec AD. Khác với accuracy, AUROC không phụ thuộc tỷ lệ mẫu tốt/lỗi khi phân phối điểm của từng lớp giữ nguyên.
+Bốn thách thức này định hướng cách đề tài đánh giá ba phương pháp. Ngoài AUROC, đề tài đo tỷ lệ báo nhầm và bắt lỗi
+tại một ngưỡng chốt trước, thời gian suy luận và dung lượng mô hình, xem bản đồ bất thường trên từng ảnh, và thử ba
+phương pháp khi dữ liệu và điều kiện chụp thay đổi (Chương 3).
 
-Image-AUROC tính trên điểm $s(x)$ và nhãn tốt/lỗi của các ảnh test; pixel-AUROC tính trên giá trị $A_x(u,v)$ và
-mặt nạ vùng lỗi của mọi điểm ảnh test. Cả hai được tính riêng cho từng loại sản phẩm rồi lấy trung bình, vì điểm
-của các mô hình khác loại không cùng thang đo. Một hạn chế cần lưu ý: pixel-AUROC được tính trên từng điểm ảnh,
-nên vùng lỗi lớn đóng góp nhiều hơn vùng lỗi nhỏ.
+\section*{Tiểu kết chương}  % không đánh số: to_do yêu cầu Chương 1 chỉ đến 1.6
 
-\section{Công cụ và thư viện}
+Chương này đã trình bày các nền tảng mà ba phương pháp của đề tài dựa vào. Autoencoder là một mạng nơ-ron tích chập
+được huấn luyện từ đầu bằng lan truyền ngược và Adam, với hàm mất mát MSE; cổ chai buộc mạng chỉ giữ cấu trúc chung
+của ảnh tốt, và chính tính chất của MSE giải thích vì sao ảnh dựng lại mờ ở cạnh và kết cấu. PaDiM và PatchCore không
+huấn luyện mạng nào mà dùng lại đặc trưng của Wide-ResNet-50-2 học trên ImageNet, lấy ở các tầng giữa để cân bằng giữa
+chi tiết và ngữ cảnh. PaDiM mô tả đặc trưng bình thường tại mỗi vị trí bằng một phân phối Gauss và tính điểm bằng
+khoảng cách Mahalanobis; PatchCore lưu một tập con đại diện của các patch bình thường và tính điểm bằng khoảng cách tới
+láng giềng gần nhất. Cả ba cho một bản đồ bất thường, được làm mượt bằng lọc Gauss, và lấy giá trị lớn nhất làm điểm
+của ảnh; kết luận tốt hay lỗi cần thêm một ngưỡng đặt trên ảnh tốt.
 
-\begin{table}[htbp]
-  \centering
-  \caption{Công cụ và thư viện sử dụng trong đề tài}
-  \label{tab:tools}
-  \small
-  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{11.3cm}@{}}
-    \toprule
-    Thư viện & Vai trò trong đề tài \\
-    \midrule
-    PyTorch, torchvision~\cite{pytorchOptimizingModelParameters} & Xây dựng và huấn luyện Autoencoder; nạp ResNet-18,
-      Wide-ResNet-50-2 học trước; đọc và biến đổi ảnh \\
-    Anomalib~\cite{akcayAnomalibDeepLearning2022} & Cài đặt PaDiM và PatchCore (phiên bản 2.7.0) \\
-    scikit-learn~\cite{scikit-learnMachineLearning} & Tính image-AUROC và pixel-AUROC \\
-    NumPy~\cite{numpyNumPy}, SciPy & Xử lý mảng bản đồ bất thường, làm mượt Gauss \\
-    Matplotlib~\cite{matplotlibVisualizationPython} & Vẽ ảnh, mặt nạ và bản đồ bất thường minh họa \\
-    pandas & Ghi và tổng hợp bảng kết quả \\
-    Google Colab & Môi trường chạy thực nghiệm với GPU Tesla T4 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+Chương cũng chỉ ra những giới hạn có thể đoán trước từ cơ chế: Autoencoder nhạy với cường độ điểm ảnh và dễ bỏ sót
+lỗi nhỏ, PaDiM phụ thuộc vào việc ảnh đã được căn chỉnh, PatchCore không dùng thông tin vị trí, còn cả hai phương pháp
+dùng đặc trưng học trước đều chịu khoảng cách miền giữa ImageNet và ảnh công nghiệp. Chương 2 trình bày chi tiết cách
+ba phương pháp được cài đặt, còn Chương 3 kiểm tra các dự đoán này bằng thực nghiệm.

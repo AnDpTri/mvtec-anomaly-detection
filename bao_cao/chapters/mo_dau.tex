@@ -1,4 +1,5 @@
 \chapter*{MỞ ĐẦU}
+\addcontentsline{toc}{chapter}{MỞ ĐẦU}
 
 Kiểm tra chất lượng là khâu bắt buộc trong sản xuất công nghiệp: sản phẩm có vết xước,
 nứt, nhiễm bẩn hay thiếu chi tiết phải bị loại trước khi đến tay người dùng. Kiểm tra bằng mắt người chậm, phụ thuộc
@@ -9,24 +10,27 @@ coi mọi sai khác đáng kể là bất thường, phù hợp hơn với đi�
 
 Đề tài xây dựng và đánh giá ba phương pháp phát hiện và định vị bất thường không giám sát trên
 ảnh sản phẩm công nghiệp, nhằm trả lời ba câu hỏi: phương pháp nào phát hiện và khoanh vùng lỗi chính xác nhất;
-phương pháp nào phù hợp với loại sản phẩm nào (bề mặt hay vật thể, vị trí cố định hay xoay); và mỗi phương pháp đánh
-đổi giữa độ chính xác với thời gian, bộ nhớ ra sao.
+phương pháp nào phù hợp với loại sản phẩm nào (bề mặt hay vật thể, vị trí cố định hay xoay, ánh sáng ổn định hay
+thay đổi); và khi chốt một ngưỡng để dùng thật thì mỗi phương pháp báo nhầm và bỏ sót bao nhiêu.
 
-Ba phương pháp được chọn đại diện cho hai hướng tiếp cận. Autoencoder, do nhóm tự xây
-dựng, học tái tạo ảnh từ đầu và dùng sai số tái tạo làm tín hiệu bất thường.
-PaDiM~\cite{defardPaDiMPatchDistribution2021} và PatchCore~\cite{rothTotalRecallIndustrial2022} dùng đặc trưng của
-mạng tích chập đã học trước trên ImageNet, lần lượt mô hình hóa đặc trưng bình thường bằng phân phối Gauss theo vị
-trí và bằng một bộ nhớ các vector đặc trưng. Dữ liệu là đủ 15 loại sản phẩm của bộ MVTec
-AD~\cite{bergmannMVTecADComprehensive2019}. Đề tài dừng ở mức đánh giá trên dữ liệu ảnh có sẵn, chưa triển khai trên
-dây chuyền và chưa chọn ngưỡng quyết định cho sử dụng thực tế.
+Ba phương pháp được chọn đại diện cho hai hướng tiếp cận. Autoencoder học tái tạo ảnh từ đầu và dùng sai số tái tạo
+làm tín hiệu bất thường. PaDiM~\cite{defardPaDiMPatchDistribution2021} và PatchCore~\cite{rothTotalRecallIndustrial2022}
+dùng đặc trưng của mạng tích chập đã học trước trên ImageNet, lần lượt mô hình hóa đặc trưng bình thường bằng phân
+phối Gauss theo vị trí và bằng một bộ nhớ các vector đặc trưng. Cả ba do nhóm tự cài đặt. Dữ liệu là 9 loại sản phẩm
+từ ba bộ dữ liệu công khai: grid, screw, transistor của MVTec AD~\cite{bergmannMVTecADComprehensive2019}; vial,
+sheet\_metal của MVTec AD 2~\cite{hecklerkramMVTecAD2Dataset2026}, có ảnh test chụp ở nhiều điều kiện ánh sáng; và bốn
+loại bảng mạch pcb1--pcb4 của VisA~\cite{zouSPotDifferenceSelfsupervisedPretraining2022}. Đề tài dừng ở mức đánh giá
+trên dữ liệu ảnh có sẵn và một ứng dụng minh họa, chưa triển khai trên dây chuyền.
 
-Về cách làm, nhóm tìm hiểu cơ chế của từng phương pháp qua bài báo gốc, cài đặt chúng theo cùng
-một giao thức, chạy trên cả 15 loại và đánh giá bằng
-image-AUROC cho nhiệm vụ phát hiện ảnh lỗi, pixel-AUROC cho nhiệm vụ định vị vùng lỗi.
-Kết quả cho thấy PatchCore đạt image-AUROC trung bình 0,983 và pixel-AUROC 0,980, sát số liệu công bố; PaDiM
-đạt 0,890 và 0,960 với thời gian xây dựng mô hình ngắn nhất; Autoencoder đạt 0,756 và 0,843. Như vậy, với
-vài trăm ảnh tốt cho mỗi loại, dùng lại đặc trưng học trước hiệu quả hơn nhiều so với học tái tạo ảnh từ đầu.
+Về cách làm, nhóm tìm hiểu cơ chế của từng phương pháp qua bài báo gốc, cài đặt chúng theo cùng một giao thức, xây
+dựng mô hình cho cả 9 loại và đánh giá bằng image-AUROC cho nhiệm vụ phát hiện ảnh lỗi, pixel-AUROC và AUPRO cho
+nhiệm vụ định vị vùng lỗi, cùng tỷ lệ báo nhầm và tỷ lệ bắt lỗi tại ngưỡng đặt trên ảnh tốt tách riêng. Kết quả cho
+thấy PatchCore tốt nhất ở cả ba bộ dữ liệu, với image-AUROC trung bình 0,937 và bắt được 75\% ảnh lỗi khi chỉ báo nhầm
+6\% ảnh tốt. PaDiM (0,828) và Autoencoder (0,820) gần bằng nhau: PaDiM hơn trên MVTec AD, Autoencoder hơn trên VisA.
+Cả ba phương pháp giảm mạnh trên MVTec AD 2, nơi ánh sáng lúc kiểm thử khác lúc huấn luyện. Ngoài ra, năm thí
+nghiệm chuyên sâu kiểm tra ba phương pháp khi tập huấn luyện lẫn ảnh lỗi, khi chỉ có vài ảnh tốt, khi đổi loại sản
+phẩm, khi điều kiện chụp thay đổi, và phân tích các ca thất bại theo từng kiểu lỗi.
 
-Chương 1 trình bày cơ sở lý thuyết: học sâu, mạng tích chập, đặc trưng học trước, bài toán
-phát hiện bất thường và cách đánh giá. Chương 2 trình bày bộ dữ liệu, giao thức đánh giá và cách triển khai ba
-phương pháp. Chương 3 trình bày kết quả thực nghiệm và đánh giá.
+Chương 1 trình bày cơ sở lý thuyết: học sâu, mạng tích chập, đặc trưng học trước và bài toán phát hiện bất thường.
+Chương 2 trình bày dữ liệu, cách tiền xử lý và cách triển khai ba phương pháp. Chương 3 trình bày chỉ số đánh giá,
+cách chạy thực nghiệm, kết quả trên 9 loại, năm thí nghiệm chuyên sâu và ứng dụng minh họa.

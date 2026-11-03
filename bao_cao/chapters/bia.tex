@@ -1,35 +1,33 @@
-% Lề riêng cho bìa: đối xứng để chữ nằm giữa khung, đủ xa hoa văn ở các góc
-\newgeometry{left=3cm,right=3cm,top=3.6cm,bottom=3.6cm}
+% Bìa theo mẫu bản Word của nhóm: khung viền dày cách mép giấy 24pt, tiêu đề đỏ
+\newgeometry{left=3cm,right=2.5cm,top=2.8cm,bottom=2.8cm}
 \begin{titlepage}
-% Viền hoa văn theo mẫu bìa của trường (ảnh lấy từ bìa báo cáo mẫu), giữ tỷ lệ, đặt giữa trang.
-% vien_bia_xanh.png: như vien_bia.jpg nhưng khung ngoài tô màu xanhbien, hoa văn giữ màu đen
-\definecolor{xanhbien}{RGB}{0,51,153}
+\definecolor{xanhbien}{RGB}{0,112,192}
 \begin{tikzpicture}[remember picture, overlay]
-  \node at (current page.center)
-    {\includegraphics[width=17.2cm,height=26.5cm,keepaspectratio]{images/vien_bia_xanh.png}};
+  \draw[line width=4.5pt]
+    ([xshift=24pt,yshift=24pt]current page.south west) rectangle ([xshift=-24pt,yshift=-24pt]current page.north east);
 \end{tikzpicture}\par
 \centering
-{\bfseries ĐẠI HỌC THÁI NGUYÊN\par
-TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG\par
-KHOA CÔNG NGHỆ THÔNG TIN\par}
-\vspace{1cm}
-\includegraphics[width=3.5cm]{images/img01.png}\par
-\vspace{1.5cm}
-{\bfseries\Large BÁO CÁO DỰ ÁN\par}
-{\bfseries\large HỌC PHẦN HỌC SÂU (DEEP LEARNING)\par}
-\vspace{1.5cm}
-{\bfseries Đề tài:\par}
+{\large TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG\par}
+{\large\bfseries KHOA CÔNG NGHỆ THÔNG TIN\par}
+\vspace{2pt}
+\rule{7cm}{0.5pt}\par
+\vspace{0.8cm}
+\includegraphics[width=3.8cm]{images/img01.png}\par
+\vspace{1.2cm}
+{\bfseries\fontsize{26}{32}\selectfont\color{red} BÁO CÁO DỰ ÁN\par}
+\vspace{0.2cm}
+{\bfseries\fontsize{18}{24}\selectfont\color{red} HỌC PHẦN HỌC SÂU (DEEP LEARNING)\par}
+\vspace{1.2cm}
+{\raggedright\bfseries\itshape\underline{Đề tài:}\par}
 \vspace{0.3cm}
-{\bfseries\Large PHÁT HIỆN VÀ ĐỊNH VỊ BẤT THƯỜNG\\ TRÊN SẢN PHẨM CÔNG NGHIỆP\\ BẰNG HỌC KHÔNG GIÁM SÁT\par}
-\vspace{1.5cm}
-\begin{tabular}{@{}l l@{}}
+{\bfseries\fontsize{18}{26}\selectfont Phát hiện và định vị bất thường trên sản\\ phẩm công nghiệp bằng học không giám sát\par}
+\vspace{1.2cm}
+\begin{tabular}{@{}p{4.2cm} l@{}}
 \bfseries Tên nhóm: & \color{xanhbien}\bfseries NHÓM 13 \\[0.4cm]
-\bfseries Sinh viên thực hiện: & \color{xanhbien}\bfseries Đặng Hoàng An \\
- & \color{xanhbien}\bfseries Trần Văn Dưỡng \\
- & \color{xanhbien}\bfseries Lớp KHMT K22A \\[0.4cm]
-\bfseries Giáo viên hướng dẫn: & TS. Ngô Hữu Huy \\
+\bfseries Sinh viên thực hiện: & \color{xanhbien}\bfseries Trần Văn Dưỡng \\
+ & \color{xanhbien}\bfseries Đặng Hoàng An \\[0.8cm]
+\multicolumn{2}{@{}l}{\bfseries Giáo viên hướng dẫn: TS. Ngô Hữu Huy} \\
 \end{tabular}
 \vfill
-{\bfseries THÁI NGUYÊN, NĂM 2026\par}
 \end{titlepage}
 \restoregeometry

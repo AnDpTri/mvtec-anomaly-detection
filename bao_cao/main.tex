@@ -69,12 +69,22 @@
 \input{chapters/bia}
 
 \pagenumbering{roman}
+\input{chapters/loi_cam_on}
+\clearpage
+% Mục lục, danh mục hình, bảng giãn dòng 1,05 để không tràn sang một trang gần trống
+\begingroup
+\setstretch{1.05}
 \tableofcontents
 \clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{DANH MỤC HÌNH}
 \listoffigures
 \clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{DANH MỤC BẢNG}
 \listoftables
 \clearpage
+\endgroup
 \input{chapters/phan_cong}
 \clearpage
 \pagenumbering{arabic}

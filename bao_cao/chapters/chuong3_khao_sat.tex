@@ -1,0 +1,71 @@
+\section{Khảo sát sơ bộ trên 15 loại MVTec AD}
+\label{sec:khao-sat}
+
+Trước khi chọn các loại sản phẩm cho thực nghiệm chính, nhóm chạy cả ba phương pháp trên đủ 15 loại của MVTec AD
+theo cùng một giao thức: ảnh $256\times256$, chia train/test gốc, seed 42, một lần chạy trên GPU Tesla T4. Khảo sát có
+hai mục đích: kiểm tra cách đánh giá của nhóm có tái lập được kết quả đã công bố hay không, và tìm các loại làm lộ
+điểm yếu của từng phương pháp. Ở bước này Autoencoder là mạng của nhóm, còn PaDiM và PatchCore được chạy bằng thư viện
+Anomalib~\cite{akcayAnomalibDeepLearning2022}, với PaDiM dùng backbone ResNet-18 và PatchCore dùng Wide-ResNet-50-2.
+Mọi kết quả từ Mục~\ref{sec:ket-qua-tong-hop} trở đi dùng mã tự cài trong \texttt{src/tn} và cùng backbone
+Wide-ResNet-50-2 cho cả PaDiM và PatchCore.
+
+\begin{table}[htbp]
+  \centering
+  \caption{AUROC trung bình trên 15 loại MVTec AD trong khảo sát sơ bộ}
+  \label{tab:khao-sat}
+  \begin{tabular}{@{}llccc@{}}
+    \toprule
+    Chỉ số & Nhóm loại & Autoencoder & PaDiM & PatchCore \\
+    \midrule
+    Image-AUROC & Bề mặt (5 loại)  & 0,784 & 0,945 & 0,993 \\
+                & Vật thể (10 loại) & 0,741 & 0,863 & 0,977 \\
+                & Cả 15 loại       & 0,756 & 0,890 & 0,983 \\
+    \midrule
+    Pixel-AUROC & Bề mặt (5 loại)  & 0,781 & 0,944 & 0,970 \\
+                & Vật thể (10 loại) & 0,875 & 0,968 & 0,985 \\
+                & Cả 15 loại       & 0,843 & 0,960 & 0,980 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+PatchCore cao nhất ở 13/15 loại theo image-AUROC và 14/15 loại theo pixel-AUROC, và thứ tự PatchCore, PaDiM,
+Autoencoder giữ nguyên ở cả nhóm bề mặt lẫn nhóm vật thể (Bảng~\ref{tab:khao-sat}). Kết quả của PatchCore (0,983 và
+0,980) sát số liệu của bài báo gốc (0,990 và 0,981)~\cite{rothTotalRecallIndustrial2022}; chênh lệch nhỏ ở
+image-AUROC có thể do nhóm không cắt vùng giữa $224\times224$ như bài gốc. Pixel-AUROC của Autoencoder (0,843) cũng gần
+mức 0,82 được trích trong bài báo PaDiM~\cite{defardPaDiMPatchDistribution2021}. Như vậy quy trình đánh giá của nhóm
+đủ tin cậy để dùng cho các thực nghiệm sau.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Image-AUROC theo từng loại trong khảo sát sơ bộ}
+  \label{tab:khao-sat-loai}
+  \small
+  \begin{tabular}{@{}lccc@{\hspace{1.2cm}}lccc@{}}
+    \toprule
+    Loại & AE & PaDiM & PatchCore & Loại & AE & PaDiM & PatchCore \\
+    \midrule
+    carpet  & 0,553 & 0,988 & 0,988 & hazelnut   & 0,923 & 0,720 & 1,000 \\
+    grid    & 0,857 & 0,829 & 0,990 & metal\_nut & 0,574 & 0,957 & 0,997 \\
+    leather & 0,807 & 0,999 & 1,000 & pill       & 0,603 & 0,824 & 0,942 \\
+    tile    & 0,766 & 0,943 & 1,000 & screw      & 0,579 & 0,752 & 0,964 \\
+    wood    & 0,938 & 0,966 & 0,987 & toothbrush & 0,958 & 0,772 & 0,917 \\
+    bottle  & 0,926 & 0,998 & 1,000 & transistor & 0,807 & 0,943 & 0,995 \\
+    cable   & 0,579 & 0,838 & 0,988 & zipper     & 0,776 & 0,927 & 0,977 \\
+    capsule & 0,689 & 0,903 & 0,994 &            &       &       &       \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Giá trị trung bình che đi nhiều khác biệt giữa các loại (Bảng~\ref{tab:khao-sat-loai}). Ba loại được chọn cho thực
+nghiệm chính, mỗi loại đại diện cho một kiểu điểm yếu. Screw là vật thể nhỏ xoay tự do, có image-AUROC thấp với cả
+Autoencoder (0,579) và PaDiM (0,752); cùng với hazelnut, đây là nơi PaDiM kém PatchCore nhiều nhất, phù hợp với việc
+thống kê theo vị trí bị ảnh hưởng khi vật thể không cố định. Grid là bề mặt lặp lại và không xoay, nhưng PaDiM vẫn
+kém PatchCore 0,161; góc xoay không giải thích được khoảng cách này, nên cần kiểm tra ảnh hưởng của backbone.
+Transistor là vật thể cố định, căn chỉnh tốt, có lỗi logic; cả PaDiM và PatchCore đều tốt, nên đây là loại đối
+chứng.
+
+Khảo sát có hai hạn chế mà các thực nghiệm sau đã khắc phục: PaDiM và PatchCore dùng backbone khác nhau nên không tách
+được ảnh hưởng của cơ chế với ảnh hưởng của backbone, và mỗi phương pháp chỉ chạy một lần. Khi chuyển PaDiM sang
+Wide-ResNet-50-2, image-AUROC trên grid tăng từ 0,829 lên 0,934, còn trên screw không tăng (0,752 so với 0,722). Khoảng
+cách trên grid vì vậy chủ yếu do backbone, còn khoảng cách trên screw gắn với giả định căn chỉnh của PaDiM. Do cấu
+hình khác, số liệu ở Bảng~\ref{tab:khao-sat-loai} chỉ dùng để chọn loại, không dùng để so sánh với các mục sau.

@@ -3,46 +3,53 @@
 
 \section*{Kho mã nguồn}
 
-Toàn bộ mã nguồn, cấu hình và tệp kết quả nằm trong kho mã nguồn của nhóm~\cite{nhom13MVTecAnomalyDetection2026}:
+Toàn bộ mã nguồn và tài liệu nằm trong kho mã nguồn của nhóm~\cite{nhom13MVTecAnomalyDetection2026}:
 \begin{center}
   \url{https://github.com/AnDpTri/mvtec-anomaly-detection}
 \end{center}
-Kết quả trong Chương 3 được tạo từ commit \texttt{a839dd0} (PaDiM,
-PatchCore) và \texttt{37fb3e5} (Autoencoder).
+Kết quả trong Chương 3 được tạo từ commit \texttt{d0216d1}.
 
 \begin{table}[htbp]
   \centering
   \small
   \begin{tabular}{@{}>{\raggedright\arraybackslash}p{6.1cm} >{\raggedright\arraybackslash}p{8.3cm}@{}}
     \toprule
-    Thư mục & Nội dung \\
+    Thư mục, tệp & Nội dung \\
     \midrule
-    \texttt{configs/common.yaml} & Cấu hình chung: kích thước ảnh, chuẩn hóa, seed, danh sách 15 loại \\
-    \texttt{src/data/} & Đọc ảnh, mặt nạ và nhãn của MVTec AD \\
-    \texttt{src/evaluation/} & Tính AUROC, vẽ hình minh họa, ghi và tổng hợp kết quả \\
-    \texttt{src/autoencoder/} & Kiến trúc, huấn luyện và đánh giá Autoencoder \\
-    \texttt{src/padim/}, \texttt{src/patchcore/} & Chạy PaDiM và PatchCore \\
-    \texttt{src/common/} & Tiện ích chung, gồm lớp gọi mô hình của Anomalib \\
-    \texttt{notebooks/colab\_run\_all.ipynb} & Notebook chạy toàn bộ thực nghiệm trên Google Colab \\
+    \texttt{src/tn/data.py} & Đọc ảnh, mặt nạ và nhãn của MVTec AD, MVTec AD 2, VisA \\
+    \texttt{src/tn/splits.py} & Tách ảnh tốt thành phần fit và phần validation \\
+    \texttt{src/tn/methods.py} & Autoencoder, PaDiM, PatchCore: xây dựng mô hình và tính bản đồ bất thường \\
+    \texttt{src/tn/metrics.py} & AUROC, AUPRO, ngưỡng và các chỉ số tại ngưỡng \\
+    \texttt{tools/build\_tn\_models.py} & Xây dựng, đánh giá và lưu mô hình cho 9 loại \\
+    \texttt{tools/make\_colab\_notebook.py} & Sinh notebook Colab có nhúng sẵn mã nguồn \\
+    \texttt{tools/tn\_report\_figures.py} & Đo thời gian suy luận, vẽ hình minh họa của Chương 3 \\
+    \texttt{src/demo/} & Ứng dụng minh họa Gradio \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \section*{Dữ liệu}
 
-Đường tải chính thức của MVTec AD không còn truy cập được khi thực hiện đề tài; nhóm dùng bản sao trên Hugging Face
-(\texttt{foersben/mvtec-ad}), cùng cấu trúc thư mục và số ảnh như Bảng~\ref{tab:mvtec}. Lệnh
-\texttt{python tools/download\_mvtec.py <thư mục>} tải về đủ 15 loại.
+MVTec AD (grid, screw, transistor) tải từ bản sao trên Hugging Face bằng lệnh
+\begin{verbatim}
+python tools/download_mvtec.py <thư mục>/MVTecAD grid screw transistor
+\end{verbatim}
+MVTec AD 2 (vial, sheet\_metal) tải từ trang
+của MVTec, VisA tải từ kho của Amazon; đường tải cụ thể nằm trong \texttt{src/tn/data.py}. Thư mục dữ liệu cần có
+\texttt{MVTecAD/}, \texttt{MVTecAD2/} và \texttt{VisA/}.
 
 \section*{Chạy lại thực nghiệm}
 
-Từ thư mục gốc của kho mã nguồn, sau khi cài các thư viện trong \texttt{requirements.txt}:
+Trên Google Colab: sinh notebook bằng \texttt{python tools/make\_colab\_notebook.py}, tải tệp
+\texttt{goi\_colab/build\_tn\_models\_colab.ipynb} lên Colab, chọn GPU T4 rồi chạy toàn bộ. Notebook tự tải dữ liệu,
+xây dựng mô hình cho 9 loại và ghi kết quả lên Google Drive.
+
+Trên máy có GPU, từ thư mục gốc của kho mã nguồn, sau khi cài các thư viện trong \texttt{requirements.txt}:
 \begin{verbatim}
-python -m src.autoencoder.train --data-root <thư mục MVTecAD>
-python -m src.padim.run         --data-root <thư mục MVTecAD>
-python -m src.patchcore.run     --data-root <thư mục MVTecAD>
-python -m src.evaluation.summary
+python tools/build_tn_models.py --data <thư mục dữ liệu>
+python -m src.demo.app
 \end{verbatim}
-Mỗi lệnh chạy đủ 15 loại, ghi một dòng vào \texttt{results/results.csv} sau mỗi loại và bỏ qua các loại đã có kết
-quả, nên có thể chạy tiếp sau khi bị gián đoạn. Lệnh cuối in bảng AUROC theo loại và trung bình theo nhóm như
-Bảng~\ref{tab:summary} và Bảng~\ref{tab:per-category}.
+Lệnh đầu lưu mô hình, ngưỡng, chỉ số và điểm của từng ảnh test, mỗi loại một thư mục con trong
+\path{results/checkpoints_tn}, và bỏ qua
+các loại đã có kết quả, nên có thể chạy tiếp sau khi bị gián đoạn. Lệnh thứ hai mở ứng dụng minh họa tại
+\texttt{http://127.0.0.1:7864}.
