@@ -1,42 +1,60 @@
 # Chạy demo từ mô hình đã lưu
 
-Demo đọc checkpoint, không fit lại khi tải ảnh. Chạy từ thư mục gốc:
+Demo đọc mô hình đã fit, không fit lại khi tải ảnh. Chạy từ thư mục gốc:
 
 ```powershell
 python -m src.demo.app --host 127.0.0.1 --port 7864
 ```
 
-Mở `http://127.0.0.1:7864`, chọn loại sản phẩm, phương pháp và ảnh RGB. Điểm là độ bất thường, không phải xác suất lỗi. Heatmap dùng thang cố định từ mẫu train tốt; màu giữa các phương pháp không biểu thị cùng một đơn vị đo.
+Mở `http://127.0.0.1:7864`, chọn loại sản phẩm, phương pháp và ảnh, hoặc bấm một ảnh mẫu. Điểm là độ bất thường, không phải xác suất lỗi.
 
-## Tạo hoặc bổ sung mô hình
+## Loại sản phẩm
+
+9 loại của thí nghiệm TN1–TN5, mỗi loại đủ Autoencoder, PaDiM, PatchCore:
+
+| Bộ | Loại | Kích thước ảnh | Coreset PatchCore |
+|---|---|---|---|
+| MVTec AD | grid, screw, transistor | 256×256 | 10% |
+| MVTec AD 2 | vial, sheet_metal | 256×192, 256×1024 | 1% |
+| VisA | pcb1–pcb4 | 256×320 | 1% |
+
+Ảnh mẫu trong giao diện lấy từ `datasets/`; thiếu dữ liệu thì demo vẫn chạy, chỉ không có ảnh mẫu.
+
+## Tạo mô hình
+
+Trên Colab (T4, khoảng 30 phút cho cả 9 loại): mở `goi_colab/build_tn_models_colab.ipynb`, chọn GPU T4, *Run all*. Kết quả ghi vào `MyDrive/goi_colab/checkpoints_tn/`; tải thư mục đó về và đặt thành `results/checkpoints_tn/`.
+
+Trên máy có GPU, khi đã có dữ liệu trong `datasets/MVTecAD`, `datasets/MVTecAD2`, `datasets/VisA`:
 
 ```powershell
-python -m tools.build_demo_models --data-root datasets/MVTecAD --ae-source PATH_TO_TRAINED_AE
+python tools/build_tn_models.py              # cả 9 loại
+python tools/build_tn_models.py grid pcb1    # một vài loại
 ```
 
-`--ae-source` chứa 15 trọng số AE đã train (`bottle.pt`, ...). Lệnh sao chép vào thư mục của dự án trước khi bổ sung metadata, không ghi lên nguồn. PaDiM và PatchCore fit trên `train/good`, tải backbone ImageNet lần đầu. Có thể giới hạn `--methods padim patchcore` hoặc `--categories bottle`. Batch mặc định 4 phù hợp GPU 4 GB; không đồng nhất với batch 16 của lần chạy Colab gốc.
+Loại đã có `meta.json` được bỏ qua, nên chạy lại được sau khi bị ngắt. Notebook Colab được sinh từ code bằng `python tools/make_colab_notebook.py`; sửa `src/tn` hoặc script thì sinh lại notebook.
 
-Checkpoint nằm ở `results/checkpoints/{ae,padim,patchcore}/CATEGORY.pt`, kèm JSON cấu hình. Chỉ bỏ qua một loại khi có cả hai tệp; có thể tiếp tục sau gián đoạn. `MVTEC_CHECKPOINT_ROOT` chỉ đổi nơi demo đọc checkpoint. Sau khi có đủ trọng số, demo suy luận offline và mặc định chạy CPU để tránh thiếu VRAM.
+Mỗi loại nằm trong `results/checkpoints_tn/<loại>/`, tổng khoảng 2,6 GB:
 
-Định dạng lưu gồm trọng số, method, category và thông số chuẩn hóa; dùng `torch.load(weights_only=True)`. Với PaDiM, trạng thái Gauss nằm trong state dict; với PatchCore, memory bank cũng nằm trong state dict. Nạp backbone với `pre_trained=False` khi reload để không tải lại dữ liệu qua mạng. Chỉ mở checkpoint từ nguồn tin cậy.
+| File | Nội dung |
+|---|---|
+| `ae.pt` | state_dict của `src.tn.methods.ConvAE` |
+| `padim.pt` | `mu`, `inv` (nghịch đảo hiệp phương sai mỗi vị trí), `H`, `W` |
+| `patchcore_bank.pt` | memory bank fp16 sau coreset |
+| `meta.json` | kích thước ảnh, ngưỡng, chỉ số trên tập test |
+| `test_scores.csv` | điểm của từng ảnh test, cả 3 phương pháp |
+
+Nạp bằng `torch.load(weights_only=True)`. `TN_CHECKPOINT_ROOT` đổi nơi demo đọc mô hình.
 
 ## Ngưỡng
 
-Các checkpoint hiện có lưu phân vị 99,5% điểm trên tối đa 64 ảnh `train/good` đã tham gia fit. Đây là ngưỡng trong mẫu, **không dùng để kết luận tốt/lỗi trên ảnh mới**. Kiểm tra bổ sung trên bottle, carpet, screw cho thấy ngưỡng này làm PaDiM/PatchCore báo lỗi 90–100% ảnh tốt. Vì vậy demo hiện chỉ hiển thị điểm và heatmap; không dùng ngưỡng này để phân loại.
+Ngưỡng ảnh = trung bình + 3 độ lệch chuẩn của điểm trên ảnh good validation, tính riêng cho từng loại và phương pháp. Validation là 15% train/good tách ra trước khi fit (seed 0); MVTec AD 2 dùng `validation/good` có sẵn. Không dùng ảnh đã fit, không dùng nhãn test. Ngưỡng pixel tính cùng cách và làm đầu thang màu của heatmap.
 
-Để có kết luận tốt/lỗi, cần giữ riêng ảnh tốt không tham gia fit, tính ngưỡng trên tập đó và đánh giá tỷ lệ báo động giả trên dữ liệu độc lập. Chỉ checkpoint có metadata `calibration="held_out_normal_quantile"` mới được giao diện dùng ngưỡng để phân loại. Công cụ tạo checkpoint hiện chưa thực hiện bước hiệu chuẩn giữ riêng này. Không dùng nhãn test để đặt ngưỡng. AUROC từ bộ đánh giá không phụ thuộc ngưỡng demo.
+Ngưỡng chặt: tỷ lệ báo nhầm ảnh tốt trên tập test 0–14%, đổi lại nhiều ảnh lỗi nhẹ không vượt ngưỡng. Chỉ số của từng mô hình nằm trong `meta.json` và hiện ngay trong ô kết luận.
 
-## Kết quả và lưu trữ
+## Kiểm tra ngày 03/11/2026
 
-- `results/results.csv`: 45 dòng Colab ngày 25/10/2026, giữ nguyên.
-- `results/demo_models/results.csv`: kết quả chạy bổ sung tại máy local; không gộp thời gian với Colab.
-- `docs/results_provenance.json`: hash và trung bình tính trực tiếp từ CSV gốc.
-- Checkpoint và dataset không đẩy GitHub theo quy định repo. Cần sao lưu thư mục checkpoint ra ổ lưu trữ riêng nếu chuyển máy.
+Fit trên Colab T4. I-AUROC, AUPRO, FPR tại ngưỡng của cả 27 mô hình khớp CSV thí nghiệm trong `Do_An_Deep_Learning/resuilts_6` (lệch I-AUROC tối đa 0,001). Điểm demo tính lại trên máy trùng điểm lúc fit trong `test_scores.csv`.
 
-Kiểm thử: `python -m unittest discover -s tests -v`. Sinh lại bảng báo cáo: `python -m tools.report_results`. Báo cáo chính biên dịch XeLaTeX + Biber từ `bao_cao/main.tex`.
+`docs/demo_validation.json` và `results/demo_models/` thuộc demo cũ (checkpoint Anomalib 15 loại), giữ lại làm lịch sử.
 
-## Kiểm tra hoàn tất ngày 26/10/2026
-
-Đã lưu đủ **45 checkpoint**, và nạp lại/suy luận thật trên một ảnh tốt cho từng mô hình với socket mạng bị chặn. Cả 45 trả bản đồ 256×256 và điểm hữu hạn. [Manifest](demo_validation.json) ghi SHA-256, kích thước và phiên bản môi trường; phép smoke test này không thay thế đánh giá AUROC toàn bộ test. CSV bổ sung đủ 30 dòng riêng cho PaDiM/PatchCore, CSV Colab 45 dòng không đổi byte. API Gradio đã nhận ảnh và trả ảnh heatmap/điểm/nhận xét cho cả ba phương pháp trên bottle.
-
-Chạy lại kiểm tra bằng `python -m tools.verify_demo_models --data-root PATH_TO_MVTEC`. Checkpoint hiện lưu tại worktree riêng ở `D:\Codex-Branches\2026-10-26\deep-learning\results\checkpoints`. **Giữ thư mục này khi dọn dự án**: GitHub chứa mã và manifest, không chứa trọng số. Để dùng checkpoint ở đó từ thư mục khác, đặt `MVTEC_CHECKPOINT_ROOT` tới thư mục `results/checkpoints` tương ứng. Báo cáo hiện tại biên dịch từ `bao_cao/main.tex` bằng XeLaTeX + Biber; bản Word là `bao_cao/bao_cao.docx`.
+Kiểm thử: `python -m unittest discover -s tests -v`.

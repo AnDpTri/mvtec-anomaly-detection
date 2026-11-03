@@ -80,25 +80,30 @@ class Contracts(unittest.TestCase):
         with self.assertRaises(ValueError):
             checkpoint_path("ae", "../other")
 
-    def test_in_sample_threshold_does_not_classify_new_images(self):
+    def test_demo_concludes_by_validation_threshold(self):
         from src.demo.app import predict
 
-        config = {
-            "threshold": 0.01,
-            "calibration": "train_normal_quantile_0.995_in_sample",
-            "map_scale": 1.0,
+        meta = {
+            "thr": {"patchcore": {"thr_img": 1.0, "thr_pix": 0.8, "lo": 0.5}},
+            "metrics": {"patchcore": {"i_auroc": 0.9, "img_fpr_thr": 0.05, "img_tpr_thr": 0.8}},
         }
-        for score in [0.001, 100.0]:
+        for score, label in [(0.7, "KHÔNG LỖI"), (1.0, "CÓ LỖI"), (1.6, "CÓ LỖI")]:
             with self.subTest(score=score), patch(
-                "src.demo.app.predict_file",
-                return_value=(np.zeros((32, 32)), score, config),
+                "src.demo.tn_models.predict",
+                return_value=(np.zeros((32, 48, 3), np.uint8), np.full((32, 48), 0.6, np.float32), score, meta),
             ):
-                _, actual_score, conclusion = predict(
-                    Image.new("RGB", (32, 32)), "bottle", "patchcore"
+                overlay, actual_score, conclusion = predict(
+                    Image.new("RGB", (64, 64)), "grid", "patchcore"
                 )
                 self.assertEqual(actual_score, score)
-                self.assertIn("chưa kết luận tốt/lỗi", conclusion)
-                self.assertNotIn("Có dấu hiệu bất thường", conclusion)
+                self.assertTrue(conclusion.startswith(label))
+                self.assertEqual(overlay.size, (48, 32))
+
+    def test_demo_input_keeps_model_size(self):
+        from src.demo.tn_models import to_input
+
+        x = to_input(Image.new("L", (100, 70)), (256, 192))
+        self.assertEqual((x.shape, x.dtype), ((1, 256, 192, 3), np.uint8))
 
 
 if __name__ == "__main__":

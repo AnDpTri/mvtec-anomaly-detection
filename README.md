@@ -49,9 +49,12 @@ src/
 ├── autoencoder/   [An]     autoencoder + numpy_ae/ (bản tự viết bằng NumPy, tùy chọn)
 ├── padim/         [Dưỡng]  PaDiM (Anomalib hoặc tự cài)
 ├── patchcore/     [Chung]  PatchCore (Anomalib hoặc tự cài; An 8 loại, Dưỡng 7 loại)
-└── demo/          [An]     demo Gradio
+├── tn/            [Dưỡng]  thí nghiệm TN1–TN5 (code tự viết, 3 phương pháp, MVTec AD / AD 2 / VisA)
+└── demo/          [An]     demo Gradio (mô hình của src/tn)
 configs/common.yaml         cấu hình chung
-tools/                      tải dữ liệu, ghép ảnh mẫu
+notebooks/tn/               notebook Colab chạy TN1–TN5
+goi_colab/                  notebook Colab fit mô hình cho demo
+tools/                      tải dữ liệu, ghép ảnh mẫu, fit mô hình demo
 results/                    kết quả (chỉ CSV được đưa lên git)
 docs/                       tài liệu: phân công, giao diện chung, dữ liệu, đánh giá, phương pháp
 .github/                    CODEOWNERS (ai duyệt module nào), mẫu Pull Request
@@ -63,10 +66,11 @@ Mỗi module có `README.md` riêng: người phụ trách, mục tiêu, đầu 
 python -m src.autoencoder.train            # Autoencoder, đủ 15 loại
 python -m src.padim.run                    # PaDiM
 python -m src.patchcore.run               # PatchCore, đủ 15 loại
+python tools/build_tn_models.py            # Mô hình cho demo (9 loại của TN1–TN5)
 python -m src.demo.app                     # Demo
 ```
 
-Demo đã có phần suy luận từ checkpoint, điểm và heatmap. Xem [hướng dẫn demo](docs/demo.md) để tạo đủ 45 mô hình, tiếp tục sau gián đoạn và hiểu ngưỡng tham khảo. Kết quả Colab gốc nằm ở [results/results.csv](results/results.csv); [báo cáo kết quả](docs/ket-qua.md) nêu giới hạn so sánh thời gian. Chương 3 của [báo cáo LaTeX](bao_cao/main.tex) lấy bảng trực tiếp từ CSV.
+Demo chạy trên 9 loại của thí nghiệm TN1–TN5 (MVTec AD, MVTec AD 2, VisA), kết luận lỗi/không lỗi theo ngưỡng đặt trên ảnh good validation. Cách tạo mô hình (trên máy hoặc Colab) và cách chọn ngưỡng: [hướng dẫn demo](docs/demo.md). Kết quả Colab gốc nằm ở [results/results.csv](results/results.csv); [báo cáo kết quả](docs/ket-qua.md) nêu giới hạn so sánh thời gian. Chương 3 của [báo cáo LaTeX](bao_cao/main.tex) lấy bảng trực tiếp từ CSV.
 
 ## Kết quả và báo cáo
 
@@ -82,10 +86,8 @@ Chi tiết và giới hạn phép đo thời gian: [docs/ket-qua.md](docs/ket-qu
   Zotero cùng Word add-in dùng để làm mới trích dẫn. Cài `python-docx` riêng nếu cần xuất Word.
   Trước khi xuất lại phải giữ các chỉnh sửa trực tiếp của người dùng trong bản Word.
 
-Demo đọc checkpoint đã lưu; dataset và checkpoint không nằm trên GitHub.
-Xem [docs/demo.md](docs/demo.md) để tạo hoặc cấu hình thư mục checkpoint.
-Các mô hình hiện chưa có ngưỡng hiệu chuẩn độc lập, nên giao diện hiển thị điểm và heatmap,
-chưa kết luận tốt/lỗi. Bản PaDiM tự cài và Autoencoder NumPy là phần tùy chọn chưa triển khai;
+Demo đọc mô hình đã lưu trong `results/checkpoints_tn/`; dataset và mô hình không nằm trên GitHub.
+Bản PaDiM tự cài và Autoencoder NumPy là phần tùy chọn chưa triển khai;
 luồng thực nghiệm chính dùng PyTorch/Anomalib.
 
 ## Phân công

@@ -75,7 +75,7 @@ def load_artifact(path, device_name="cpu"):
     p = Path(path)
     if not p.is_file():
         raise FileNotFoundError(
-            f"Chưa có mô hình: {p}. Xem tools/build_demo_models.py."
+            f"Chưa có mô hình: {p}. Checkpoint do src.common.anomalib_runner lưu khi chạy thực nghiệm 15 loại."
         )
     data = torch.load(p, map_location="cpu", weights_only=True)
     if "format_version" not in data:
