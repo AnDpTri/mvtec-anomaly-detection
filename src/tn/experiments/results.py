@@ -7,6 +7,8 @@ from src.tn.config import METHODS
 
 
 class Results:
+    """Thư mục kết quả: mỗi (thí nghiệm, phương pháp) một CSV, mỗi run một dòng có cột `key`."""
+
     def __init__(self, root):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
@@ -28,9 +30,14 @@ class Results:
         df.to_csv(p, mode="a", header=not p.exists(), index=False)
 
     def load(self, exp, dedup=True):
-        """Gộp CSV của cả 3 phương pháp; dedup giữ lần chạy cuối của mỗi key."""
+        """Gộp CSV của cả 3 phương pháp; dedup giữ lần chạy cuối của mỗi (phương pháp, key).
+
+        Key của TN1/TN2 không chứa tên phương pháp, nên phải khử trùng theo cả cột `method`.
+        """
         dfs = [pd.read_csv(self.path(exp, m)) for m in METHODS if self.path(exp, m).exists()]
         if not dfs:
             return pd.DataFrame()
         df = pd.concat(dfs, ignore_index=True)
-        return df.drop_duplicates("key", keep="last") if dedup else df
+        if not dedup:
+            return df
+        return df.drop_duplicates(["method", "key"] if "method" in df else "key", keep="last")

@@ -1,6 +1,6 @@
 # PatchCore
 
-Cài đặt: `greedy_coreset`, `patchcore_fit`, `patchcore_predict` trong `src/tn/methods.py`.
+Cài đặt: `greedy_coreset`, `PatchCoreDetector.fit_features`, `predict_features` trong `src/tn/methods/patchcore.py`; trích đặc trưng ở `src/tn/methods/backbone.py`.
 Bài gốc: Roth et al., *Towards Total Recall in Industrial Anomaly Detection*, CVPR 2022.
 
 ## Mục tiêu

@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 
-def screw_pose(img_u8):
+def screw_pose(img_u8: np.ndarray) -> tuple[float, float, float]:
     """-> (góc 0–360° theo hướng mũi -> đầu vít, cx, cy). Đầu vít = đầu rộng hơn của trục chính (PCA)."""
     g = cv2.GaussianBlur(cv2.cvtColor(img_u8, cv2.COLOR_RGB2GRAY), (5, 5), 0)
     _, bw = cv2.threshold(g, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
@@ -23,7 +23,7 @@ def screw_pose(img_u8):
     return float(np.degrees(np.arctan2(axis[1], axis[0])) % 360), c[0], c[1]
 
 
-def align_screw(img_u8, mask=None, target=180.0):
+def align_screw(img_u8: np.ndarray, mask: np.ndarray | None = None, target: float = 180.0):
     """Xoay + dịch: vít nằm ngang, đầu vít bên trái, tâm vít ở giữa ảnh. Mask đi theo cùng phép biến đổi."""
     ang, cx, cy = screw_pose(img_u8)
     H, W = img_u8.shape[:2]
@@ -38,4 +38,5 @@ def align_screw(img_u8, mask=None, target=180.0):
 
 
 def circ_dist(a, b):
+    """Khoảng cách góc theo vòng tròn, trong [0, 180] độ."""
     return np.abs((np.asarray(a) - np.asarray(b) + 180) % 360 - 180)

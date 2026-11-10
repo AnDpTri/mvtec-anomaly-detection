@@ -18,7 +18,7 @@ Dạy máy nhận ra **cái khác thường** khi nó **chỉ được thấy c�
 
 Mỗi phương pháp sau khắc phục điểm yếu của phương pháp trước: so pixel → so đặc trưng → bỏ ràng buộc vị trí.
 
-Cả ba phương pháp tự cài bằng PyTorch (`src/tn/methods.py`), cùng giao diện fit/predict, cùng hàm tính chỉ số
+Cả ba phương pháp tự cài bằng PyTorch (`src/tn/methods/`, mỗi phương pháp một file), cùng giao diện fit/predict, cùng hàm tính chỉ số
 (`src/tn/metrics.py`) và cùng siêu tham số chung (`src/tn/config.py`); backbone của PaDiM và PatchCore là
 WideResNet-50-2 học trước trên ImageNet. Đề tài dùng 9 loại: MVTec AD (grid, screw, transistor),
 MVTec AD 2 (vial, sheet_metal), VisA (pcb1–pcb4). Mỗi loại một mô hình, chỉ fit trên ảnh good,
@@ -41,12 +41,13 @@ MVTec AD 2 và VisA tải bằng notebook Colab (xem [datasets/README.md](datase
 ## Cấu trúc
 ```
 src/
-├── tn/            [Dưỡng]  config, data, splits, methods, metrics, shifts, screw, results, experiments, analysis
-└── demo/          [An]     demo Gradio: app.py, tn_models.py (nạp mô hình đã lưu)
+├── tn/            [Dưỡng]  config, data, download, splits, metrics; gói methods/ (ae, padim, patchcore),
+│                           experiments/ (tn1_tn2, tn2b, tn3, tn4), analysis/
+└── demo/          [An]     demo Gradio: app.py, inference.py (nạp mô hình đã lưu, suy luận)
 tools/                      fit mô hình demo, sinh notebook Colab, số liệu và hình cho báo cáo, tải MVTec AD
 notebooks/tn/               notebook Colab chạy TN1–TN5
 goi_colab/                  notebook Colab fit mô hình cho demo (sinh bằng tools/make_colab_notebook.py)
-tests/                      kiểm thử CPU: chia tập, chỉ số, fit/predict, demo
+tests/                      kiểm thử CPU: chia tập, chỉ số, fit/predict, vòng chạy thí nghiệm, demo
 results/                    kết quả (chỉ CSV được đưa lên git; mô hình trong results/checkpoints_tn/ không)
 docs/                       tài liệu: phân công, giao diện chung, dữ liệu, đánh giá, phương pháp, demo
 bao_cao/                    báo cáo LaTeX và bản Word

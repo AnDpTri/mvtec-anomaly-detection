@@ -1,7 +1,7 @@
-"""Nạp mô hình của tools/build_tn_models.py (results/checkpoints_tn/<loại>/) và chấm một ảnh.
+"""Suy luận cho demo: nạp mô hình của tools/build_tn_models.py (results/checkpoints_tn/<loại>/) và chấm một ảnh.
 
 Mỗi loại có ae.pt, padim.pt, patchcore_bank.pt và meta.json (kích thước ảnh, ngưỡng mean + 3σ trên ảnh good
-validation, chỉ số trên tập test). Suy luận dùng lại đúng hàm của src/tn nên kết quả trùng với lúc fit.
+validation, chỉ số trên tập test). Suy luận dùng lại đúng lớp Detector của src/tn nên kết quả trùng với lúc fit.
 """
 import json
 import os
@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from src.tn import methods
+from src.tn.methods import Detector, load_detector
 from src.tn.config import ROOT
 
 MODEL_ROOT = Path(os.environ.get("TN_CHECKPOINT_ROOT", ROOT / "results" / "checkpoints_tn"))
@@ -20,7 +20,7 @@ DATA_ROOT = ROOT / "datasets"
 DATASET_NAME = {"mvtec": "MVTec AD", "ad2": "MVTec AD 2", "visa": "VisA"}
 
 
-def categories():
+def categories() -> list[tuple[str, str]]:
     """-> [(nhãn hiển thị, tên loại)] cho các loại đã có meta.json."""
     out = []
     for d in sorted(MODEL_ROOT.glob("*/meta.json")):
@@ -30,7 +30,8 @@ def categories():
 
 
 @lru_cache(maxsize=None)
-def load_meta(cat):
+def load_meta(cat: str) -> dict:
+    """meta.json của một loại: kích thước ảnh, ngưỡng, chỉ số trên tập test."""
     p = MODEL_ROOT / cat / "meta.json"
     if not p.exists():
         raise FileNotFoundError(f"Chưa có mô hình cho {cat}: {p}. Xem tools/build_tn_models.py.")
@@ -38,11 +39,12 @@ def load_meta(cat):
 
 
 @lru_cache(maxsize=1)                       # PaDiM sheet_metal chiếm ~650 MB, chỉ giữ một mô hình
-def load_model(cat, method):
-    return methods.load_model(MODEL_ROOT / cat, method)
+def load_model(cat: str, method: str) -> Detector:
+    """Mô hình `method` của loại `cat`, nạp từ MODEL_ROOT/<loại>/."""
+    return load_detector(MODEL_ROOT / cat, method)
 
 
-def to_input(image, hw):
+def to_input(image, hw) -> np.ndarray:
     """Ảnh PIL/numpy -> uint8 (1, H, W, 3), resize như src.tn.data.read_image."""
     img = np.asarray(image.convert("RGB") if hasattr(image, "convert") else image, dtype=np.uint8)
     if img.ndim == 2:
@@ -50,15 +52,15 @@ def to_input(image, hw):
     return cv2.resize(img[..., :3], (hw[1], hw[0]), interpolation=cv2.INTER_AREA)[None]
 
 
-def predict(image, cat, method):
+def predict(image, cat: str, method: str) -> tuple[np.ndarray, np.ndarray, float, dict]:
     """-> (ảnh đã resize, anomaly map, điểm ảnh, meta)."""
     meta = load_meta(cat)
     x = to_input(image, tuple(meta["hw"]))
-    m = methods.predict_method(load_model(cat, method), x)[0]
+    m = load_model(cat, method).predict(x)[0]
     return x[0], m, float(m.max()), meta
 
 
-def examples(per_cat=2):
+def examples(per_cat: int = 2) -> list[list[str]]:
     """Ảnh test có sẵn trên máy: mỗi loại 1 ảnh tốt + (per_cat - 1) ảnh lỗi, lấy từ test_scores.csv."""
     out = []
     for _, cat in categories():

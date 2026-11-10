@@ -1,6 +1,6 @@
 # Autoencoder (baseline) · Phụ trách: An
 
-Cài đặt: `ConvAE`, `ae_fit`, `ae_predict` trong `src/tn/methods.py`.
+Cài đặt: `ConvAE`, `AEDetector.fit`, `AEDetector.predict` trong `src/tn/methods/ae.py`.
 
 ## Mục tiêu
 Tạo ra **phiên bản bình thường của chính ảnh đang kiểm tra**, rồi so với ảnh gốc: chỗ khác nhau là lỗi.

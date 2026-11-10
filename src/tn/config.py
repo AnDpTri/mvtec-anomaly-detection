@@ -1,4 +1,5 @@
 """Siêu tham số chung cho mọi thí nghiệm TN (giữ đúng giá trị đã dùng để ra kết quả trong resuilts_6)."""
+import gc
 from pathlib import Path
 
 import torch
@@ -21,7 +22,7 @@ AE_LR = 5e-4
 VAL_FRAC = 0.15                 # tách 15% ảnh train good để đặt ngưỡng (TN3, TN4)
 
 
-def check_gpu():
+def check_gpu() -> None:
     """In tên GPU và thử một phép nhân; sau lỗi CUDA trên Colab phải xóa runtime rồi chạy lại."""
     print("torch", torch.__version__, "| GPU:",
           torch.cuda.get_device_name(0) if torch.cuda.is_available() else "KHÔNG CÓ GPU (đổi runtime sang T4!)")
@@ -31,5 +32,13 @@ def check_gpu():
         print("GPU OK:", float((x @ x.transpose(1, 2)).mean()))
 
 
-def require_gpu():
+def require_gpu() -> None:
+    """Dừng nếu không có GPU (dùng trước các vòng chạy nặng)."""
     assert DEVICE == "cuda", "Không có GPU (hết hạn mức Colab?) — dừng lại, chạy lại khi có GPU T4."
+
+
+def free_gpu() -> None:
+    """Giải phóng bộ nhớ Python và cache CUDA giữa các lần fit."""
+    gc.collect()
+    if DEVICE == "cuda":
+        torch.cuda.empty_cache()

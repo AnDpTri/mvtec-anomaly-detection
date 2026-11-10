@@ -37,7 +37,7 @@ Mỗi loại nằm trong `results/checkpoints_tn/<loại>/`, tổng khoảng 2,6
 
 | File | Nội dung |
 |---|---|
-| `ae.pt` | state_dict của `src.tn.methods.ConvAE` (ghi bằng `save_model`, nạp bằng `load_model`) |
+| `ae.pt` | state_dict của `src.tn.methods.ae.ConvAE` (ghi bằng `Detector.save`, nạp bằng `load_detector`) |
 | `padim.pt` | `mu`, `inv` (nghịch đảo hiệp phương sai mỗi vị trí), `H`, `W` |
 | `patchcore_bank.pt` | memory bank fp16 sau coreset |
 | `meta.json` | kích thước ảnh, ngưỡng, chỉ số trên tập test |

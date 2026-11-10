@@ -21,10 +21,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.stdout.reconfigure(encoding="utf-8")
 
-from src.demo import tn_models  # noqa: E402
+from src.demo import inference  # noqa: E402
 from src.tn import data as D  # noqa: E402
-from src.tn.config import DEVICE, METHODS  # noqa: E402
-from src.tn.methods import MODEL_FILES, free_gpu, predict_method  # noqa: E402
+from src.tn.config import DEVICE, METHODS, free_gpu  # noqa: E402
+from src.tn.methods import DETECTORS  # noqa: E402
 
 N_TIME = 32                                      # số ảnh test dùng để đo thời gian suy luận
 NAME = {"ae": "Autoencoder", "padim": "PaDiM", "patchcore": "PatchCore"}
@@ -41,20 +41,20 @@ def sync():
 
 def cost():
     rows = []
-    for _, cat in tn_models.categories():
-        meta = tn_models.load_meta(cat)
-        df = pd.read_csv(tn_models.MODEL_ROOT / cat / "test_scores.csv")
-        imgs = D.load_imgs([str(tn_models.DATA_ROOT / p) for p in df.path[:N_TIME]], tuple(meta["hw"]))
+    for _, cat in inference.categories():
+        meta = inference.load_meta(cat)
+        df = pd.read_csv(inference.MODEL_ROOT / cat / "test_scores.csv")
+        imgs = D.load_imgs([str(inference.DATA_ROOT / p) for p in df.path[:N_TIME]], tuple(meta["hw"]))
         for m in METHODS:
-            model = tn_models.load_model(cat, m)
-            predict_method(model, imgs[:1])                           # khởi động GPU
+            model = inference.load_model(cat, m)
+            model.predict(imgs[:1])                                   # khởi động GPU
             sync()
             t0 = time.perf_counter()
             for i in range(N_TIME):                                   # từng ảnh một, như khi dùng demo
-                predict_method(model, imgs[i:i + 1])
+                model.predict(imgs[i:i + 1])
             sync()
             ms = (time.perf_counter() - t0) / N_TIME * 1000
-            mb = (tn_models.MODEL_ROOT / cat / MODEL_FILES[m]).stat().st_size / 2**20
+            mb = (inference.MODEL_ROOT / cat / DETECTORS[m].filename).stat().st_size / 2**20
             rows.append(dict(loai=cat, pp=m, hw=f"{meta['hw'][0]}x{meta['hw'][1]}", ms_per_img=round(ms, 1),
                              mb=round(mb, 1)))
             print(f"{cat:11s} {m:9s} {ms:6.1f} ms/ảnh  {mb:6.1f} MB")
@@ -65,12 +65,12 @@ def cost():
 
 
 def figure(cat, dtype, k):
-    meta = tn_models.load_meta(cat)
+    meta = inference.load_meta(cat)
     hw = tuple(meta["hw"])
-    df = pd.read_csv(tn_models.MODEL_ROOT / cat / "test_scores.csv")
+    df = pd.read_csv(inference.MODEL_ROOT / cat / "test_scores.csv")
     r = df[df.dtype == dtype].iloc[k]
-    img = D.load_imgs([str(tn_models.DATA_ROOT / r.path)], hw)
-    mask = D.load_masks([dict(mask=str(tn_models.DATA_ROOT / r["mask"]))], hw, thr=0 if meta["dataset"] == "visa" else 127)[0]
+    img = D.load_imgs([str(inference.DATA_ROOT / r.path)], hw)
+    mask = D.load_masks([dict(mask=str(inference.DATA_ROOT / r["mask"]))], hw, thr=0 if meta["dataset"] == "visa" else 127)[0]
     wide = hw[1] / hw[0] > 2
     fig, ax = plt.subplots(5 if wide else 1, 1 if wide else 5, figsize=(9, 6) if wide else (11, 2.6))
     ax = np.ravel(ax)
@@ -78,7 +78,7 @@ def figure(cat, dtype, k):
     ax[0].imshow(img[0]); ax[0].set_title("Ảnh" + ("" if wide else "\n"), fontsize=10)
     ax[1].imshow(mask, cmap="gray"); ax[1].set_title("Mặt nạ lỗi" + ("" if wide else "\n"), fontsize=10)
     for a, m in zip(ax[2:], METHODS):
-        amap = predict_method(tn_models.load_model(cat, m), img)[0]
+        amap = inference.load_model(cat, m).predict(img)[0]
         t = meta["thr"][m]
         norm = np.clip((amap - t["lo"]) / max(t["thr_pix"] - t["lo"], 1e-8), 0, 1)
         a.imshow(img[0]); a.imshow(norm, cmap="inferno", alpha=0.55, vmin=0, vmax=1)
