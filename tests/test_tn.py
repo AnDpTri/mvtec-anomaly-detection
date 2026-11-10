@@ -17,6 +17,7 @@ import torch.nn as nn
 
 from src.tn import methods
 from src.tn.config import METHODS, SQUARE
+from src.tn.results import Results
 from src.tn.metrics import aupro, compute_metrics, image_scores, metrics_full, thresholds_from_val
 from src.tn.shifts import apply_shift
 from src.tn.splits import contamination_pool, n_contam, split_fit_val, tn1_ratios_for, tn1_split, tn2_split
@@ -139,6 +140,21 @@ class Metrics(unittest.TestCase):
         self.assertEqual(met["img_tpr_thr"], 1.0)
         self.assertEqual(met["img_fpr_thr"], 0.0)
         self.assertAlmostEqual(met["pix_f1_thr"], 1.0)
+
+
+class ResultsStore(unittest.TestCase):
+    def test_load_dedups_per_method_and_key(self):
+        """TN1/TN2 dùng chung key giữa các phương pháp: load không được làm mất dòng của phương pháp khác."""
+        with tempfile.TemporaryDirectory() as d:
+            res = Results(Path(d))
+            self.assertTrue(res.load("tn2").empty)
+            res.append("tn2", "padim", dict(key="a", method="padim", v=1))
+            res.append("tn2", "padim", dict(key="a", method="padim", v=2))
+            res.append("tn2", "ae", dict(key="a", method="ae", v=3))
+            df = res.load("tn2")
+            self.assertEqual(sorted(df.method), ["ae", "padim"])
+            self.assertEqual(int(df[df.method == "padim"].v.iloc[0]), 2)     # giữ lần chạy cuối
+            self.assertEqual(len(res.load("tn2", dedup=False)), 3)
 
 
 class Shifts(unittest.TestCase):
