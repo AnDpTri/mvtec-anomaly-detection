@@ -20,7 +20,7 @@ DATA_ROOT = ROOT / "datasets"
 DATASET_NAME = {"mvtec": "MVTec AD", "ad2": "MVTec AD 2", "visa": "VisA"}
 
 
-def categories():
+def categories() -> list[tuple[str, str]]:
     """-> [(nhãn hiển thị, tên loại)] cho các loại đã có meta.json."""
     out = []
     for d in sorted(MODEL_ROOT.glob("*/meta.json")):
@@ -30,7 +30,8 @@ def categories():
 
 
 @lru_cache(maxsize=None)
-def load_meta(cat):
+def load_meta(cat: str) -> dict:
+    """meta.json của một loại: kích thước ảnh, ngưỡng, chỉ số trên tập test."""
     p = MODEL_ROOT / cat / "meta.json"
     if not p.exists():
         raise FileNotFoundError(f"Chưa có mô hình cho {cat}: {p}. Xem tools/build_tn_models.py.")
@@ -43,7 +44,7 @@ def load_model(cat: str, method: str) -> Detector:
     return load_detector(MODEL_ROOT / cat, method)
 
 
-def to_input(image, hw):
+def to_input(image, hw) -> np.ndarray:
     """Ảnh PIL/numpy -> uint8 (1, H, W, 3), resize như src.tn.data.read_image."""
     img = np.asarray(image.convert("RGB") if hasattr(image, "convert") else image, dtype=np.uint8)
     if img.ndim == 2:
@@ -51,7 +52,7 @@ def to_input(image, hw):
     return cv2.resize(img[..., :3], (hw[1], hw[0]), interpolation=cv2.INTER_AREA)[None]
 
 
-def predict(image, cat, method):
+def predict(image, cat: str, method: str) -> tuple[np.ndarray, np.ndarray, float, dict]:
     """-> (ảnh đã resize, anomaly map, điểm ảnh, meta)."""
     meta = load_meta(cat)
     x = to_input(image, tuple(meta["hw"]))
@@ -59,7 +60,7 @@ def predict(image, cat, method):
     return x[0], m, float(m.max()), meta
 
 
-def examples(per_cat=2):
+def examples(per_cat: int = 2) -> list[list[str]]:
     """Ảnh test có sẵn trên máy: mỗi loại 1 ảnh tốt + (per_cat - 1) ảnh lỗi, lấy từ test_scores.csv."""
     out = []
     for _, cat in categories():

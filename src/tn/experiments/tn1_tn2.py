@@ -20,6 +20,7 @@ def run_method(method, C, train_items, test_idx, seed):
 
 
 def run_once(res, cache, exp, method, cat, key, train_items, test_idx, seed, extra, maps_dir=None):
+    """Fit + chấm một run (một thiết lập train, một seed) và ghi một dòng CSV."""
     C = cache.get(cat)
     t0 = time.time()
     maps = run_method(method, C, train_items, test_idx, seed)

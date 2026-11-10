@@ -29,6 +29,8 @@ def greedy_coreset(feats_cpu: torch.Tensor, n_select: int, seed: int = 0, proj_d
 
 
 class PatchCoreDetector(FeatureDetector):
+    """Trạng thái PatchCore: kho patch (bank) sau coreset."""
+
     name = "patchcore"
     filename = "patchcore_bank.pt"
 

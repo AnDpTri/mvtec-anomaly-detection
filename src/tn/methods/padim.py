@@ -9,6 +9,8 @@ from src.tn.methods.ops import postprocess
 
 
 class PaDiMDetector(FeatureDetector):
+    """Trạng thái PaDiM: trung bình và nghịch đảo hiệp phương sai ở mỗi vị trí của lưới H/4×W/4."""
+
     name = "padim"
     filename = "padim.pt"
 

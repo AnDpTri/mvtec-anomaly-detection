@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 
-def apply_shift(imgs, masks, kind, level, seed=0):
+def apply_shift(imgs: np.ndarray, masks: np.ndarray, kind: str, level: float, seed: int = 0):
     """-> (ảnh, mask) đã biến đổi. Mask chỉ đổi theo các biến đổi hình học."""
     if kind == "none":
         return imgs, masks
@@ -30,14 +30,14 @@ def apply_shift(imgs, masks, kind, level, seed=0):
     return out, mout
 
 
-def shift_list(cat, shifts, overrides, kinds=None):
+def shift_list(cat: str, shifts: dict, overrides: dict, kinds=None) -> list[tuple]:
     """Danh sách (kiểu, mức) cho một category; `overrides` thay mức riêng (transistor chỉ xoay/dịch nhỏ)."""
     sh = {k: list(v) for k, v in shifts.items() if kinds is None or k in kinds}
     sh.update({k: v for k, v in overrides.get(cat, {}).items() if kinds is None or k in kinds})
     return [(k, l) for k, ls in sh.items() for l in ls]
 
 
-def geo_shift_fullres(items, kind, level, hw, erode=32):
+def geo_shift_fullres(items: list, kind: str, level: float, hw, erode: int = 32):
     """Xoay/dịch ở độ phân giải gốc rồi mới thu về `hw` (không mờ do nội suy).
 
     -> (ảnh, mask, vùng hợp lệ). Vùng được lấp viền bị loại, co thêm `erode` px vì trường tiếp nhận của CNN;
@@ -62,7 +62,7 @@ def geo_shift_fullres(items, kind, level, hw, erode=32):
     return np.stack(imgs), np.stack(masks), np.stack(valids)
 
 
-def suppress_invalid(maps, valid):
+def suppress_invalid(maps: np.ndarray, valid: np.ndarray) -> np.ndarray:
     """Vùng không hợp lệ nhận giá trị thấp nhất của vùng hợp lệ trong cùng ảnh -> không ảnh hưởng điểm max."""
     out = maps.copy()
     for i in range(len(out)):

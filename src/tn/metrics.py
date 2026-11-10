@@ -4,7 +4,7 @@ from scipy.ndimage import label as cc_label
 from sklearn.metrics import average_precision_score, precision_recall_curve, roc_auc_score
 
 
-def aupro(maps, masks, fpr_limit=0.3, n_steps=1000):
+def aupro(maps: np.ndarray, masks: np.ndarray, fpr_limit: float = 0.3, n_steps: int = 1000) -> float:
     """AUPRO tới FPR=fpr_limit, chuẩn hóa về [0,1]. Mỗi vùng lỗi liên thông (8-connectivity) có trọng số như nhau."""
     normal = np.sort(maps[~masks].ravel())
     regions = []
@@ -27,19 +27,21 @@ def aupro(maps, masks, fpr_limit=0.3, n_steps=1000):
     return float(trapz(y, x) / fpr_limit)
 
 
-def image_scores(maps):
+def image_scores(maps: np.ndarray) -> np.ndarray:
     """Điểm ảnh = giá trị lớn nhất của anomaly map. maps (N,H,W) -> (N,)."""
     return maps.reshape(len(maps), -1).max(1)
 
 
-def f1_max(y, s):
+def f1_max(y, s) -> tuple[float, float]:
+    """-> (F1 lớn nhất trên mọi ngưỡng, ngưỡng đạt F1 đó)."""
     p, r, t = precision_recall_curve(y, s)
     f1 = 2 * p * r / np.clip(p + r, 1e-12, None)
     i = int(np.nanargmax(f1[:-1])) if len(t) else 0
     return float(f1[i]), float(t[i]) if len(t) else float("nan")
 
 
-def compute_metrics(scores, maps, labels, masks):
+def compute_metrics(scores, maps, labels, masks) -> dict:
+    """Chỉ số không cần ngưỡng: I-AUROC, I-AP, I-F1max, P-AUROC, P-AP, AUPRO@0.3."""
     labels, scores = np.asarray(labels), np.asarray(scores)
     out = dict(i_auroc=roc_auc_score(labels, scores), i_ap=average_precision_score(labels, scores))
     out["i_f1max"], out["i_f1_thr"] = f1_max(labels, scores)
@@ -50,7 +52,7 @@ def compute_metrics(scores, maps, labels, masks):
     return out
 
 
-def per_defect_auroc(scores, labels, dtypes):
+def per_defect_auroc(scores, labels, dtypes) -> dict:
     """AUROC của từng loại lỗi: ảnh lỗi loại đó so với toàn bộ ảnh good."""
     scores, labels, dtypes = map(np.asarray, (scores, labels, dtypes))
     good = scores[labels == 0]
@@ -59,13 +61,13 @@ def per_defect_auroc(scores, labels, dtypes):
             for d in sorted(set(dtypes[labels == 1]))}
 
 
-def thresholds_from_val(val_maps):
+def thresholds_from_val(val_maps: np.ndarray) -> dict:
     """Ngưỡng = trung bình + 3 độ lệch chuẩn trên ảnh good validation (cách của paper MVTec AD 2)."""
     s = image_scores(val_maps)
     return dict(thr_img=float(s.mean() + 3 * s.std()), thr_pix=float(val_maps.mean() + 3 * val_maps.std()))
 
 
-def metrics_full(scores, maps, labels, masks, thr):
+def metrics_full(scores, maps, labels, masks, thr: dict) -> dict:
     """compute_metrics + AUPRO@0.05 + FPR/TPR/F1 tại ngưỡng cố định `thr` (mức ảnh và mức pixel)."""
     labels, scores = np.asarray(labels), np.asarray(scores)
     out = compute_metrics(scores, maps, labels, masks)

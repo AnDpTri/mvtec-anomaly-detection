@@ -8,6 +8,7 @@ from src.tn.metrics import f1_max
 
 
 def load_maps(maps_dir, cat):
+    """Anomaly map và điểm ảnh đã lưu ở TN2 (mức all), theo phương pháp."""
     out = {}
     for m in METHODS:
         p = maps_dir / f"{cat}_{m}.npz"

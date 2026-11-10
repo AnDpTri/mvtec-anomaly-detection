@@ -7,6 +7,8 @@ from src.tn.config import METHODS
 
 
 class Results:
+    """Thư mục kết quả: mỗi (thí nghiệm, phương pháp) một CSV, mỗi run một dòng có cột `key`."""
+
     def __init__(self, root):
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)

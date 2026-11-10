@@ -44,6 +44,8 @@ def _to_input_size(x: torch.Tensor) -> torch.Tensor:
 
 
 class AEDetector(Detector):
+    """Autoencoder tích chập đã train; ảnh kích thước khác 256×256 được resize khi vào mạng."""
+
     name = "ae"
     filename = "ae.pt"
 

@@ -14,12 +14,13 @@ from src.tn.config import SQUARE
 
 
 # ----------------------------------------------------------------- đọc ảnh
-def read_image(path, hw=SQUARE):
+def read_image(path: str, hw=SQUARE) -> np.ndarray:
+    """Ảnh RGB uint8 (H, W, 3), resize về `hw` = (cao, rộng) bằng INTER_AREA."""
     img = cv2.cvtColor(cv2.imread(path, cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB)   # ảnh xám tự thành 3 kênh
     return cv2.resize(img, (hw[1], hw[0]), interpolation=cv2.INTER_AREA)
 
 
-def read_mask(path, hw=SQUARE, thr=127):
+def read_mask(path: str | None, hw=SQUARE, thr: int = 127) -> np.ndarray:
     """Mask nhị phân. MVTec lưu 0/255 (thr=127); VisA lưu 0/1 nên dùng thr=0."""
     if path is None:
         return np.zeros(hw, bool)
@@ -27,16 +28,19 @@ def read_mask(path, hw=SQUARE, thr=127):
     return cv2.resize(m, (hw[1], hw[0]), interpolation=cv2.INTER_NEAREST) > thr
 
 
-def load_imgs(paths, hw=SQUARE):
+def load_imgs(paths, hw=SQUARE) -> np.ndarray:
+    """Danh sách đường dẫn -> uint8 (N, H, W, 3)."""
     return np.stack([read_image(p, hw) for p in paths])
 
 
-def load_masks(items, hw=SQUARE, thr=127):
+def load_masks(items, hw=SQUARE, thr: int = 127) -> np.ndarray:
+    """Mask bool (N, H, W) của các phần tử test (mask None = ảnh good, toàn False)."""
     return np.stack([read_mask(t["mask"], hw, thr) for t in items])
 
 
 # ----------------------------------------------------------------- danh sách ảnh
-def load_mvtec(root, cat):
+def load_mvtec(root, cat: str) -> dict:
+    """MVTec AD: train/good, test/<loại lỗi> kèm ground_truth."""
     root = Path(root) / cat
     train = sorted(str(p) for p in (root / "train" / "good").glob("*.png"))
     test = []
@@ -52,7 +56,7 @@ def load_mvtec(root, cat):
     return dict(train=train, test=test)
 
 
-def load_ad2(root, cat):
+def load_ad2(root, cat: str) -> dict:
     """MVTec AD 2: train/good, validation/good, test_public (tên file '<cảnh>_<điều kiện>.png')."""
     root = Path(root) / cat
     train = sorted(str(p) for p in (root / "train" / "good").glob("*.png"))
@@ -67,7 +71,7 @@ def load_ad2(root, cat):
     return dict(train=train, val=val, test=test)
 
 
-def load_visa(root, split, cat):
+def load_visa(root, split: pd.DataFrame, cat: str) -> dict:
     """VisA theo split 1cls chính thức (`split` = bảng split_csv/1cls.csv)."""
     root = Path(root)
     d = split[split.object == cat]

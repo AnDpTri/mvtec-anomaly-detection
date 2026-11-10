@@ -19,6 +19,8 @@ from src.tn.methods.backbone import extract_one
 
 
 class Detector:
+    """Giao diện chung: lớp con đặt `name`, `filename` và cài fit / predict / state / from_state."""
+
     name: str = ""            # khóa trong config.METHODS
     filename: str = ""        # tên file mô hình trong thư mục của một loại sản phẩm
 

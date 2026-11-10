@@ -6,6 +6,8 @@ trọng số. Mọi kiểm thử chạy trên CPU với dữ liệu nhỏ, khôn
 from pathlib import Path
 from unittest.mock import patch
 
+import warnings
+
 import cv2
 import matplotlib
 import numpy as np
@@ -13,6 +15,7 @@ import torch
 import torch.nn as nn
 
 matplotlib.use("Agg")
+warnings.filterwarnings("ignore", message="FigureCanvasAgg is non-interactive")   # plt.show() trong hàm vẽ
 torch.set_num_threads(2)
 
 

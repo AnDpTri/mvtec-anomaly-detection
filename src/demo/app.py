@@ -19,7 +19,7 @@ from src.demo import inference
 METHOD_NAME = {"ae": "Autoencoder", "padim": "PaDiM", "patchcore": "PatchCore"}
 
 
-def predict(image, category, method):
+def predict(image, category: str, method: str) -> tuple[Image.Image, float, str]:
     """Trả về (heatmap chồng ảnh, điểm bất thường, kết luận)."""
     if image is None:
         raise ValueError("Chọn ảnh sản phẩm trước khi chạy.")
@@ -42,7 +42,8 @@ def predict(image, category, method):
     return overlay, score, conclusion
 
 
-def main():
+def main() -> None:
+    """Dựng giao diện Gradio và chạy (--host, --port; mặc định 127.0.0.1:7864)."""
     import gradio as gr
 
     parser = argparse.ArgumentParser(description="Demo phát hiện bất thường từ mô hình đã lưu")

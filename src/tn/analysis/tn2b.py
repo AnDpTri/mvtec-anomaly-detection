@@ -8,6 +8,7 @@ from src.tn.analysis.common import COLORS, SHOT_ORDER
 
 
 def plot_rotation(rot, path):
+    """I-AUROC và AUPRO của screw theo số ảnh train, ảnh gốc so với ảnh đã căn góc."""
     fig, axes = plt.subplots(1, 2, figsize=(11, 3.8))
     for ax, mcol, mname in zip(axes, ["i_auroc", "aupro"], ["Image AUROC", "AUPRO@0.3"]):
         for (meth, var), g in rot.groupby(["method", "variant"]):
@@ -42,6 +43,7 @@ def rotation_correlation(sc, shots=("1", "2", "4", "8")):
 
 
 def plot_score_vs_angle(sc, path, method="patchcore", shots="4", seed=0):
+    """Điểm bất thường theo khoảng cách góc tới ảnh train gần nhất."""
     g = sc[(sc.variant == "goc") & (sc.method == method) & (sc.shots == shots) & (sc.seed == seed)]
     fig, ax = plt.subplots(figsize=(6, 4))
     for lab, col, name in [(0, "tab:green", "good"), (1, "tab:red", "lỗi")]:
