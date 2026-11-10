@@ -1,6 +1,6 @@
 # PaDiM · Phụ trách: Dưỡng
 
-Cài đặt: `padim_fit`, `padim_predict` trong `src/tn/methods.py`.
+Cài đặt: `PaDiMDetector.fit_features`, `predict_features` trong `src/tn/methods/padim.py`; trích đặc trưng ở `src/tn/methods/backbone.py`.
 Bài gốc: Defard et al., *PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization*, 2020.
 
 ## Mục tiêu

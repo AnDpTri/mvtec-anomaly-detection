@@ -32,4 +32,4 @@ tỷ lệ bắt được ảnh lỗi (`img_tpr_thr`), F1 mức ảnh và mức p
 - Tính **riêng từng loại**, không gộp ảnh của nhiều loại vào một lần tính.
 - Ngưỡng chỉ lấy từ ảnh good validation, không dùng ảnh fit và không dùng nhãn test.
 - Kiểm tra trên trường hợp biết trước kết quả: map trùng mask → AUROC = 1.0; map ngẫu nhiên → khoảng 0.5.
-  Các kiểm tra này nằm trong `tests/test_tn.py`.
+  Các kiểm tra này nằm trong `tests/test_metrics.py`.

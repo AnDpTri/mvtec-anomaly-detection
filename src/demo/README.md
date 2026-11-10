@@ -10,7 +10,7 @@ phải ghi rõ ở đây.
 | File | Nội dung |
 |---|---|
 | `app.py` | `predict(image, category, method)` và giao diện Gradio |
-| `tn_models.py` | Nạp `results/checkpoints_tn/<loại>/` (ae.pt, padim.pt, patchcore_bank.pt, meta.json) bằng `src.tn.methods.load_model` và chấm một ảnh bằng `predict_method` |
+| `inference.py` | Nạp `results/checkpoints_tn/<loại>/` (ae.pt, padim.pt, patchcore_bank.pt, meta.json) bằng `src.tn.methods.load_detector` và chấm một ảnh bằng `Detector.predict` |
 
 ## Cách chạy (từ thư mục gốc dự án)
 ```bash

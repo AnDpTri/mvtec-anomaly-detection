@@ -15,7 +15,7 @@ Bảng dưới ghi theo kế hoạch phân công gốc của nhóm; ai làm gì 
 ```
 src/
 ├── tn/            [Dưỡng]  config, data, splits, methods, metrics, shifts, screw, results, experiments, analysis
-└── demo/          [An]     app.py (Gradio), tn_models.py (nạp mô hình đã lưu)
+└── demo/          [An]     app.py (Gradio), inference.py (nạp mô hình đã lưu, suy luận)
 tools/             [Chung]  build_tn_models.py, make_colab_notebook.py, tn_report_figures.py, download_mvtec.py
 notebooks/tn/               notebook Colab chạy TN1–TN5
 goi_colab/                  notebook Colab fit mô hình cho demo (sinh bằng tools/make_colab_notebook.py)
@@ -27,7 +27,7 @@ tests/                      kiểm thử trên CPU
 src/tn/config ──> mọi module trong src/tn, src/demo
 src/tn/data, splits, metrics, methods ──> experiments, analysis (notebooks/tn)
                                       └─> tools/build_tn_models.py ──> results/checkpoints_tn/
-src/tn/methods ──> src/demo/tn_models.py ──> src/demo/app.py
+src/tn/methods ──> src/demo/inference.py ──> src/demo/app.py
 ```
 `src/demo` chỉ đọc mô hình trong `results/checkpoints_tn/` và gọi lại hàm của `src/tn`, nên sửa
-`src/tn/methods.py` (tiền xử lý, định dạng lưu) phải báo người phụ trách demo; xem [giao-dien-chung.md](giao-dien-chung.md).
+`src/tn/methods/` (tiền xử lý, định dạng lưu) phải báo người phụ trách demo; xem [giao-dien-chung.md](giao-dien-chung.md).
