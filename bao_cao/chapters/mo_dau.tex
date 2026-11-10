@@ -27,7 +27,8 @@ dựng mô hình cho cả 9 loại và đánh giá bằng image-AUROC cho nhiệ
 nhiệm vụ định vị vùng lỗi, cùng tỷ lệ báo nhầm và tỷ lệ bắt lỗi tại ngưỡng đặt trên ảnh tốt tách riêng. Kết quả cho
 thấy PatchCore tốt nhất ở cả ba bộ dữ liệu, với image-AUROC trung bình 0,937 và bắt được 75\% ảnh lỗi khi chỉ báo nhầm
 6\% ảnh tốt. PaDiM (0,828) và Autoencoder (0,820) gần bằng nhau: PaDiM hơn trên MVTec AD, Autoencoder hơn trên VisA.
-Cả ba phương pháp giảm mạnh trên MVTec AD 2, nơi ánh sáng lúc kiểm thử khác lúc huấn luyện. Ngoài ra, năm thí
+Cả ba phương pháp giảm mạnh trên MVTec AD 2: vial vì ánh sáng lúc kiểm thử khác lúc huấn luyện, sheet\_metal vì
+vết xước quá mảnh so với độ phân giải của đặc trưng. Ngoài ra, năm thí
 nghiệm chuyên sâu kiểm tra ba phương pháp khi tập huấn luyện lẫn ảnh lỗi, khi chỉ có vài ảnh tốt, khi đổi loại sản
 phẩm, khi điều kiện chụp thay đổi, và phân tích các ca thất bại theo từng kiểu lỗi.
 

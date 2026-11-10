@@ -95,8 +95,9 @@ giá trị lớn nhất của bản đồ và rất nhạy với vài patch, nh�
 Autoencoder trên grid còn tăng từ 0,660 lên 0,710 ở mức 10\%; nhóm chưa có thí nghiệm để giải thích hiện tượng này.
 
 Độ lệch chuẩn image-AUROC giữa 5 seed là 0,064 (screw) và 0,036 (grid) với Autoencoder, 0,028 và 0,031 với PaDiM,
-0,025 và 0,006 với PatchCore. Autoencoder dao động gấp 2 đến 3 lần hai phương pháp còn lại vì ngoài việc chọn ảnh lỗi
-nào được trộn vào, mạng còn được huấn luyện từ khởi tạo ngẫu nhiên. Trên screw, độ dao động này còn lớn hơn chính mức
+0,025 và 0,006 với PatchCore. Trên screw, Autoencoder dao động gấp 2 đến 3 lần hai phương pháp còn lại; trên grid
+nó chỉ ngang PaDiM nhưng gấp 6 lần PatchCore. Lý do là ngoài việc chọn ảnh lỗi nào được trộn vào, mạng còn được huấn
+luyện từ khởi tạo ngẫu nhiên. Trên screw, độ dao động này còn lớn hơn chính mức
 suy giảm do dữ liệu bẩn (0,056); với Autoencoder, seed ảnh hưởng tới kết quả nhiều hơn việc làm sạch dữ liệu.
 
 Như vậy cả ba phương pháp đều khá bền với 5--20\% dữ liệu bẩn. PatchCore suy giảm đều theo số ảnh lỗi nhưng vẫn tốt
@@ -158,15 +159,20 @@ chỉ có 1 ảnh, đúng dự đoán vì một ảnh không đủ để ước 
 Autoencoder với 1 ảnh chỉ còn 0,305, tức xếp hạng ngược: ảnh tốt bị chấm điểm cao hơn ảnh lỗi. Một mô hình dưới 0,5
 không chỉ yếu mà đang phản ứng với một tín hiệu khác với lỗi; Mục~\ref{sec:tn2b} tìm tín hiệu đó.
 
-Trên cả ba loại, AUPRO giảm chậm hơn image-AUROC. Rõ nhất trên screw: với 16 ảnh, PatchCore chỉ còn image-AUROC 0,634
-nhưng AUPRO vẫn 0,844. Mô hình vẫn thấy vùng lỗi sáng lên trong ảnh lỗi, nhưng ảnh tốt cũng có những vùng sáng khác do
-góc xoay chưa gặp, nên giá trị lớn nhất của ảnh không còn phân biệt được. Trên grid, PaDiM giữ AUPRO tốt hơn PatchCore
-rõ rệt khi có ít ảnh (0,717 so với 0,502 với 16 ảnh): cách học theo vị trí có lợi khi bề mặt đồng nhất. Autoencoder
-mất khả năng định vị nhanh nhất trên grid và transistor.
+Phát hiện và định vị không suy giảm cùng nhịp, và thứ tự phụ thuộc vào loại. Trên screw, AUPRO giảm chậm hơn
+image-AUROC ở cả ba phương pháp: với 16 ảnh, PatchCore chỉ còn image-AUROC 0,634 nhưng AUPRO vẫn 0,844. Mô hình vẫn
+thấy vùng lỗi sáng lên trong ảnh lỗi, nhưng ảnh tốt cũng có những vùng sáng khác do góc xoay chưa gặp, nên giá trị lớn
+nhất của ảnh không còn phân biệt được. Trên grid thì ngược lại: với 16 ảnh, AUPRO của PatchCore giảm từ 0,900 xuống
+0,502 và của Autoencoder từ 0,658 xuống 0,244, gấp đôi mức giảm image-AUROC, vì vài ảnh không bao phủ hết biến thể của
+lưới nên bản đồ sáng cả ở vùng tốt quanh vết lỗi. PaDiM giữ AUPRO trên grid tốt hơn PatchCore rõ rệt (0,717 so với
+0,502): cách học theo vị trí có lợi khi bề mặt đồng nhất. Trên transistor, cả hai chỉ số của PatchCore và PaDiM gần
+như không đổi tới 16 ảnh, còn Autoencoder mất khả năng định vị nhanh hơn khả năng phát hiện.
 
 Thứ hạng của ba phương pháp không nhất quán giữa các loại. Điều quyết định không phải bản thân số ảnh, mà là $k$ ảnh
-đó có bao phủ được biến thiên tự nhiên của ảnh tốt (góc, vị trí, ánh sáng) hay không. Với vật thể căn chỉnh tốt,
-PatchCore chỉ cần 4 ảnh; với vật thể xoay tự do, không phương pháp nào dùng được khi có dưới 16 ảnh.
+đó có bao phủ được biến thiên tự nhiên của ảnh tốt (góc, vị trí, ánh sáng) hay không. Với transistor, vật thể cố
+định và ảnh gần như giống hệt nhau, PatchCore chỉ cần 4 ảnh; grid tuy không xoay nhưng lưới thay đổi giữa các ảnh, nên
+16 ảnh vẫn chưa đủ (0,794); với screw xoay tự do, cả ba phương pháp vẫn dưới 0,64 ở 16 ảnh, tức không dùng được trong
+khoảng số ảnh đã thử.
 
 \subsubsection{Vì sao screw thất bại khi có ít ảnh}
 \label{sec:tn2b}
@@ -518,8 +524,8 @@ không trùng lỗi. Hai loại cần hai cách khắc phục khác nhau: chuẩ
     \midrule
     Autoencoder & Độ sáng; dịch, xoay (transistor) & Làm mờ, nhiễu & MSE trên cường độ điểm ảnh; cổ chai gắn vị trí \\
     PaDiM & Nhiễu; ánh sáng thật; dịch, xoay & Độ sáng tạo nhân tạo & Phân phối Gauss hẹp, theo từng vị trí \\
-    PatchCore & Làm mờ, nhiễu, ảnh quá tối & Độ sáng tạo nhân tạo; dịch, xoay & Dựa vào chi tiết kết cấu; so khớp không
-      theo vị trí \\
+    PatchCore & Làm mờ, nhiễu, ảnh quá tối & Độ sáng tạo nhân tạo; dịch, xoay (theo AUPRO; FPR vẫn tăng) & Dựa vào chi
+      tiết kết cấu; so khớp không theo vị trí \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -649,13 +655,14 @@ bị bỏ sót hoặc báo nhầm, để xác nhận vùng thiếu tìm được
     \midrule
     Dữ liệu chuẩn, đủ ảnh & Trung bình & Khá & Tốt nhất & \ref{sec:ket-qua-tong-hop} \\
     Dữ liệu huấn luyện lẫn lỗi & Dao động mạnh & Bền nhất & Giảm đều, vẫn cao nhất & \ref{sec:tn1} \\
-    Ít ảnh, vật thể căn chỉnh & Kém & Khá từ 16 ảnh & Tốt từ 4 ảnh & \ref{sec:tn2} \\
+    Ít ảnh, vật thể cố định (transistor) & Kém & Khá từ 16 ảnh & Tốt từ 4 ảnh & \ref{sec:tn2} \\
     Ít ảnh, vật thể xoay tự do & Thất bại & Thất bại & Thất bại, cần căn chỉnh & \ref{sec:tn2b} \\
     Chuyển sang sản phẩm khác & Thất bại & Thất bại, bị hại khi trộn nguồn & Thất bại, thích nghi nhanh & \ref{sec:tn3} \\
     Độ sáng thay đổi & Rất nhạy & Bền (nhân tạo), nhạy (thật) & Bền, trừ ảnh quá tối & \ref{sec:tn4} \\
     Làm mờ, nhiễu & Bền & Nhạy & Nhạy & \ref{sec:tn4} \\
-    Dịch, xoay nhỏ & Nhạy & Nhạy & Bền & \ref{sec:tn4} \\
-    Lỗi tối trên nền tối, lỗi nhỏ & Bỏ sót & Trung bình & Tốt & \ref{sec:tn5} \\
+    Dịch, xoay nhỏ & Nhạy & Nhạy & Bền theo AUPRO, FPR tăng & \ref{sec:tn4} \\
+    Lỗi tối trên nền tối, lỗi ren nhỏ & Bỏ sót & Trung bình & Tốt & \ref{sec:tn5} \\
+    Vết xước mảnh trên ảnh dài (sheet\_metal) & Kém & Kém & Kém & \ref{sec:tn4} \\
     Định vị lỗi thiếu linh kiện & Tốt & Tốt & Bản đồ lan rộng & \ref{sec:tn5} \\
     \bottomrule
   \end{tabular}
@@ -669,9 +676,9 @@ Thông tin vị trí là con dao hai lưỡi. PaDiM và Autoencoder gắn với 
 thất bại khi vật thể xoay hay lệch. PatchCore bỏ qua vị trí nên bền với dịch và xoay, nhưng không biết một vùng nền
 trơn lẽ ra phải có linh kiện.
 
-Phát hiện và định vị hỏng theo những cách khác nhau. Dữ liệu bẩn và ít dữ liệu làm hỏng phát hiện nhiều hơn định vị,
-vì điểm ảnh là giá trị lớn nhất của bản đồ và rất nhạy với vài patch sai. Ngược lại, thay đổi vị trí làm hỏng định vị
-trước. Báo cáo một chỉ số duy nhất sẽ bỏ lỡ một trong hai.
+Phát hiện và định vị hỏng theo những cách khác nhau. Dữ liệu bẩn làm hỏng phát hiện nhiều hơn định vị, vì điểm ảnh là
+giá trị lớn nhất của bản đồ và rất nhạy với vài patch sai; với ít ảnh, điều này đúng trên screw nhưng ngược lại trên
+grid, nơi định vị hỏng trước. Thay đổi vị trí cũng làm hỏng định vị trước. Báo cáo một chỉ số duy nhất sẽ bỏ lỡ một trong hai.
 
 AUROC không đủ để quyết định triển khai. Image-AUROC đo khả năng xếp hạng, còn FPR tại ngưỡng cố định đo điều nhà máy
 thực sự gặp. Các trường hợp AUROC giữ nguyên mà FPR lên 100\% ở Thí nghiệm 3 và 4 cho thấy việc đặt lại ngưỡng quan

@@ -15,7 +15,7 @@ mạch của VisA, nơi lỗi làm đổi màu cả một vùng.
 Năm thí nghiệm chuyên sâu cho thấy thứ hạng đó không còn đúng khi điều kiện thay đổi, nhưng cách mỗi phương pháp thất
 bại phần lớn đoán trước được từ cơ chế của nó. Với tập huấn luyện lẫn 5--20\% ảnh lỗi, cả ba đều bền; PatchCore giảm
 đều, PaDiM bền nhất, Autoencoder dao động theo seed nhiều hơn chính mức suy giảm. Khi chỉ có vài ảnh tốt, PatchCore
-chỉ cần 4 ảnh với vật thể căn chỉnh tốt, còn với screw, nguyên nhân thất bại là góc xoay và độ lệch độ sáng trong dữ
+chỉ cần 4 ảnh với vật thể cố định như transistor, nhưng grid cần hơn 16 ảnh; còn với screw, nguyên nhân thất bại là góc xoay và độ lệch độ sáng trong dữ
 liệu chứ không phải số ảnh. Không phương pháp nào dùng được cho loại sản phẩm khác, nhưng PatchCore thích nghi được
 với 4 ảnh của loại mới, còn PaDiM bị hại khi trộn dữ liệu nguồn. Khi điều kiện chụp thay đổi, Autoencoder thua độ
 sáng, PaDiM thua nhiễu và vị trí, PatchCore thua làm mờ và ảnh quá tối; nhiều trường hợp AUROC gần như không đổi trong

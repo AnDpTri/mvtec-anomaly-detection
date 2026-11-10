@@ -273,7 +273,9 @@ Bảng~\ref{tab:summary} cho kết quả trung bình theo bộ dữ liệu.
 PatchCore cao nhất ở cả ba chỉ số và cả ba bộ dữ liệu. Hai điểm khác với dự đoán ban đầu. Thứ nhất, PaDiM và
 Autoencoder gần bằng nhau ở image-AUROC trung bình (0,828 và 0,820), vì trên VisA Autoencoder đạt 0,925, cao hơn
 PaDiM 0,068. Thứ hai, cả ba phương pháp đều giảm mạnh trên MVTec AD 2: image-AUROC của PatchCore còn 0,806 và AUPRO
-chỉ 0,614. Đây là bộ duy nhất có tập test chụp ở điều kiện ánh sáng khác lúc huấn luyện (Mục~\ref{sec:nguong}).
+chỉ 0,614. Hai loại của bộ này giảm vì hai lý do khác nhau: vial bị ảnh hưởng bởi ánh sáng lúc kiểm thử khác lúc
+huấn luyện (Mục~\ref{sec:nguong}), còn sheet\_metal kém ở mọi điều kiện chụp vì vết xước quá mảnh so với độ phân giải
+của đặc trưng (Mục~\ref{sec:tn4}).
 
 \subsection{Kết quả theo từng loại}
 
@@ -335,7 +337,9 @@ Autoencoder tốt bất ngờ trên VisA (image-AUROC 0,874 đến 0,954), cao h
 tạo đủ lớn. Ngược lại, Autoencoder gần mức ngẫu nhiên ở sheet\_metal (0,601) và vial (0,686), và thấp nhất ở mọi loại
 MVTec AD trừ screw. Xét theo kiểu lỗi, AUROC của Autoencoder chỉ 0,563 với screw/thread\_side (ren bên thân, vùng
 lỗi vài chục điểm ảnh) và 0,550 với transistor/damaged\_case, nhưng đạt 0,965 với transistor/misplaced, kiểu lỗi mà
-cả linh kiện lệch khỏi chỗ.
+cả linh kiện lệch khỏi chỗ. Các số này lấy từ lần chạy ở mục này; Bảng~\ref{tab:tn5-screw} và
+Bảng~\ref{tab:tn5-khac} dùng mốc huấn luyện trên toàn bộ \texttt{train/good} (Mục~\ref{sec:tn-thiet-lap}) nên lệch
+nhẹ (0,643; 0,542; 0,978), nhưng thứ tự giữa các kiểu lỗi không đổi.
 
 Đối chiếu với ba giả thuyết đặt ra ở Mục~\ref{sec:chon-pp}, giả thuyết G1 đúng với PatchCore nhưng sai với PaDiM.
 PatchCore cao hơn Autoencoder ở cả 9 loại theo image-AUROC và pixel-AUROC, còn PaDiM chỉ cao hơn Autoencoder ở 4/9
