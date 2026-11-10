@@ -7,7 +7,9 @@ Toàn bộ mã nguồn và tài liệu nằm trong kho mã nguồn của nhóm~\
 \begin{center}
   \url{https://github.com/AnDpTri/mvtec-anomaly-detection}
 \end{center}
-Kết quả trong Chương 3 được tạo từ commit \texttt{d0216d1}.
+Kết quả trong Chương 3 được tạo từ commit \texttt{d0216d1}. Sau đó mã nguồn được tổ chức lại mà không đổi thuật toán,
+siêu tham số hay cách tính chỉ số; điểm của các mô hình đã lưu, chấm lại trên 48 lượt mẫu, trùng với trước khi tổ chức
+lại (sai khác không quá $10^{-7}$). Bảng dưới đây mô tả cấu trúc hiện tại.
 
 \begin{table}[htbp]
   \centering
@@ -17,13 +19,14 @@ Kết quả trong Chương 3 được tạo từ commit \texttt{d0216d1}.
     Thư mục, tệp & Nội dung \\
     \midrule
     \texttt{src/tn/data.py} & Đọc ảnh, mặt nạ và nhãn của MVTec AD, MVTec AD 2, VisA \\
+    \texttt{src/tn/download.py} & Tải và giải nén dữ liệu trên Colab \\
     \texttt{src/tn/splits.py} & Tách ảnh tốt thành phần fit và phần validation \\
-    \texttt{src/tn/methods.py} & Autoencoder, PaDiM, PatchCore: xây dựng mô hình và tính bản đồ bất thường \\
+    \texttt{src/tn/methods/} & Autoencoder, PaDiM, PatchCore, mỗi phương pháp một tệp cùng giao diện: xây dựng mô hình, tính bản đồ bất thường, lưu và nạp mô hình \\
     \texttt{src/tn/metrics.py} & AUROC, AUPRO, ngưỡng và các chỉ số tại ngưỡng \\
     \texttt{tools/build\_tn\_models.py} & Xây dựng, đánh giá và lưu mô hình cho 9 loại \\
     \texttt{tools/make\_colab\_notebook.py} & Sinh notebook Colab có nhúng sẵn mã nguồn \\
     \texttt{tools/tn\_report\_figures.py} & Đo thời gian suy luận, vẽ hình minh họa của Chương 3 \\
-    \texttt{src/demo/} & Ứng dụng minh họa Gradio \\
+    \texttt{src/demo/} & Ứng dụng minh họa Gradio (\texttt{app.py}) và phần nạp mô hình để suy luận (\texttt{inference.py}) \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -35,7 +38,7 @@ MVTec AD (grid, screw, transistor) tải từ bản sao trên Hugging Face bằn
 python tools/download_mvtec.py <thư mục>/MVTecAD grid screw transistor
 \end{verbatim}
 MVTec AD 2 (vial, sheet\_metal) tải từ trang
-của MVTec, VisA tải từ kho của Amazon; đường tải cụ thể nằm trong \texttt{src/tn/data.py}. Thư mục dữ liệu cần có
+của MVTec, VisA tải từ kho của Amazon; đường tải cụ thể nằm trong \texttt{src/tn/download.py}. Thư mục dữ liệu cần có
 \texttt{MVTecAD/}, \texttt{MVTecAD2/} và \texttt{VisA/}.
 
 \section*{Chạy lại thực nghiệm}

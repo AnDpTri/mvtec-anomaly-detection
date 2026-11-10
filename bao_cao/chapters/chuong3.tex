@@ -199,8 +199,9 @@ chạy thử và đo thời gian suy luận (Bảng~\ref{tab:thiet-lap} và Bả
 Mã nguồn viết bằng Python, nằm trong thư mục \texttt{src/tn} của kho mã nguồn, tổ chức theo nguyên tắc ``cố định cách
 đánh giá, tự do cách triển khai''. Module dữ liệu đọc cả ba bộ dữ liệu về cùng một dạng (danh sách ảnh fit, ảnh
 validation, ảnh test kèm nhãn và mặt nạ) và tiền xử lý như Mục~\ref{sec:preprocess}. Module đánh giá tính mọi chỉ số
-ở Mục~\ref{sec:danh-gia}. Ba phương pháp cùng một giao diện: một hàm xây dựng mô hình từ ảnh tốt và một hàm trả về
-bản đồ bất thường cùng kích thước ảnh. Nhờ vậy, đổi cách cài đặt một phương pháp không làm thay đổi cách đánh giá.
+ở Mục~\ref{sec:danh-gia}. Ba phương pháp nằm ở gói \texttt{methods}, mỗi phương pháp một tệp, cùng một giao diện: một
+phương thức xây dựng mô hình từ ảnh tốt và một phương thức trả về bản đồ bất thường cùng kích thước ảnh. Nhờ vậy,
+đổi cách cài đặt một phương pháp không làm thay đổi cách đánh giá.
 Cấu trúc thư mục chi tiết nằm ở Phụ lục.
 
 \subsection{Quy trình chạy một loại sản phẩm}
