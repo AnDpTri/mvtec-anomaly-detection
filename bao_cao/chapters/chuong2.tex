@@ -239,7 +239,7 @@ kết nối đầy đủ ở cổ chai chiếm khoảng 70\%.
 Hai lựa chọn thiết kế quyết định khả năng phát hiện lỗi. Thứ nhất, mạng không có kết nối tắt giữa bộ mã hóa và bộ
 giải mã như kiến trúc U-Net: kết nối tắt cho phép chép thẳng chi tiết từ đầu vào sang đầu ra, khi đó cả vùng lỗi
 cũng được dựng lại đúng và tín hiệu bất thường mất đi. Thứ hai, cổ chai là một vector chứ không phải bản đồ không
-gian. Cổ chai quá rộng thì mạng dựng lại được cả lỗi; quá hẹp thì ảnh tốt cũng bị dựng mờ và gây báo động giả.
+gian. Cổ chai quá rộng thì mạng dựng lại được cả lỗi; quá hẹp thì ảnh tốt cũng bị dựng mờ và gây báo nhầm.
 Vector 256 chiều là điểm cân bằng nhóm chọn và giữ cố định cho cả 9 loại.
 
 \subsection{Huấn luyện}
@@ -381,7 +381,7 @@ nhiên xuống 128 chiều, để tính khoảng cách nhanh hơn mà vẫn gi�
 được khởi tạo bằng một vector chọn ngẫu nhiên. Ở mỗi bước, thuật toán cập nhật khoảng cách từ mỗi vector trong
 $\mathcal{M}$ tới vector gần nhất của $\mathcal{M}_C$, rồi thêm vào $\mathcal{M}_C$ vector có khoảng cách đó lớn
 nhất, tức vector đang được đại diện kém nhất; việc này lặp lại đến khi $\mathcal{M}_C$ đủ kích thước mong muốn.
-Khác lấy mẫu ngẫu nhiên, cách chọn này giữ được cả những kiểu patch bình thường hiếm gặp, nhờ đó giảm báo động giả.
+Khác lấy mẫu ngẫu nhiên, cách chọn này giữ được cả những kiểu patch bình thường hiếm gặp, nhờ đó giảm báo nhầm.
 Bài báo gốc cho thấy giữ 1\% đến 10\% số vector vẫn cho kết quả gần như bộ nhớ đầy
 đủ~\cite{rothTotalRecallIndustrial2022}.
 

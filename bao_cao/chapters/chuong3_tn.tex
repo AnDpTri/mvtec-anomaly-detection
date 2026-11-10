@@ -76,7 +76,7 @@ với 0,722).
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{images/tn/tn1_nhiem_ban.jpg}
-  \caption[I-AUROC và AUPRO theo tỷ lệ ảnh lỗi trong tập huấn luyện]{I-AUROC và AUPRO theo tỷ lệ ảnh lỗi trong tập
+  \caption[Image-AUROC và AUPRO theo tỷ lệ ảnh lỗi trong tập huấn luyện]{Image-AUROC và AUPRO theo tỷ lệ ảnh lỗi trong tập
     huấn luyện trên screw và grid (trung bình 5 seed, thanh lỗi là độ lệch chuẩn)}
   \label{fig:tn1}
 \end{figure}
@@ -120,7 +120,7 @@ Với mỗi loại, nhóm chọn ngẫu nhiên $k \in \{1, 2, 4, 8, 16\}$ ảnh 
 
 \begin{table}[htbp]
   \centering
-  \caption[I-AUROC và AUPRO theo số ảnh huấn luyện $k$]{I-AUROC và AUPRO theo số ảnh huấn luyện $k$ (trung bình 3
+  \caption[Image-AUROC và AUPRO theo số ảnh huấn luyện $k$]{Image-AUROC và AUPRO theo số ảnh huấn luyện $k$ (trung bình 3
     seed; ``đủ'' là mốc dùng toàn bộ tập huấn luyện)}
   \label{tab:tn2}
   \small
@@ -148,7 +148,7 @@ Với mỗi loại, nhóm chọn ngẫu nhiên $k \in \{1, 2, 4, 8, 16\}$ ảnh 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{images/tn/tn2_few_shot.jpg}
-  \caption[I-AUROC và AUPRO theo số ảnh huấn luyện]{I-AUROC và AUPRO theo số ảnh huấn luyện $k$ cho grid, screw,
+  \caption[Image-AUROC và AUPRO theo số ảnh huấn luyện]{Image-AUROC và AUPRO theo số ảnh huấn luyện $k$ cho grid, screw,
     transistor (trung bình 3 seed; đường ngang là mốc dùng toàn bộ tập huấn luyện)}
   \label{fig:tn2}
 \end{figure}
@@ -278,7 +278,7 @@ pcb1--pcb4 của VisA và $3\times3$ cho grid, screw, transistor của MVTec AD;
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\linewidth]{images/tn/tn3_ma_tran_visa.jpg}
-  \caption[Ma trận I-AUROC nguồn và đích trên VisA]{Ma trận image-AUROC nguồn và đích trên VisA pcb1--pcb4 cho ba
+  \caption[Ma trận image-AUROC nguồn và đích trên VisA]{Ma trận image-AUROC nguồn và đích trên VisA pcb1--pcb4 cho ba
     phương pháp (hàng là nguồn, cột là đích)}
   \label{fig:tn3-visa}
 \end{figure}
@@ -310,8 +310,8 @@ pcb1--pcb4 của VisA và $3\times3$ cho grid, screw, transistor của MVTec AD;
 Ngoài đường chéo, cả ba phương pháp rơi về khoảng 0,43 đến 0,61, tương đương đoán ngẫu nhiên (Bảng~\ref{tab:tn3},
 Hình~\ref{fig:tn3-visa} và~\ref{fig:tn3-mvtec}). Tại ngưỡng lấy từ nguồn, mọi cặp ngoài đường chéo có FPR và TPR đều
 bằng 100\%: mô hình coi toàn bộ sản phẩm mới là bất thường. Đây là hành vi đúng của một bộ phát hiện bất thường, nhưng
-cũng có nghĩa là không dùng lại được mô hình. Sự ``gần'' về loại sản phẩm không giúp gì: pcb1 và pcb2 là hai mặt của
-cùng một bảng mạch, nhưng pcb1 sang pcb2 chỉ đạt 0,43--0,48. Với các phương pháp dựa trên đặc trưng cục bộ, ``gần''
+cũng có nghĩa là không dùng lại được mô hình. Sự ``gần'' về loại sản phẩm không giúp gì: dù cùng là bảng mạch, pcb1
+sang pcb2 chỉ đạt 0,43--0,48. Với các phương pháp dựa trên đặc trưng cục bộ, ``gần''
 phải là gần về bố cục điểm ảnh và kết cấu. Một vài cặp có kết quả cao bất thường, như PaDiM từ pcb3 sang pcb1 (0,837)
 và từ pcb2 sang pcb1 (0,733), nhưng không đối xứng, nên nhiều khả năng là trùng hợp về độ tương phản.
 
@@ -349,7 +349,7 @@ transistor dựng kém vùng nền sáng. Trên VisA, nơi không có lối tắ
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{images/tn/tn3_thich_nghi.jpg}
-  \caption[I-AUROC khi thích nghi từ pcb1 sang loại khác]{Image-AUROC khi thích nghi từ pcb1 sang pcb2, pcb3, pcb4 với
+  \caption[Image-AUROC khi thích nghi từ pcb1 sang loại khác]{Image-AUROC khi thích nghi từ pcb1 sang pcb2, pcb3, pcb4 với
     4 và 16 ảnh đích: chỉ ảnh đích so với nguồn cộng ảnh đích}
   \label{fig:tn3-thich-nghi}
 \end{figure}
@@ -417,14 +417,14 @@ thường, quá sáng, quá tối và bốn mức dịch ánh sáng.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\linewidth]{images/tn/tn4_shift_transistor.jpg}
-  \caption{I-AUROC, AUPRO và FPR theo cường độ từng loại thay đổi trên transistor}
+  \caption{Image-AUROC, AUPRO và FPR theo cường độ từng loại thay đổi trên transistor}
   \label{fig:tn4-transistor}
 \end{figure}
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\linewidth]{images/tn/tn4_shift_screw.jpg}
-  \caption{I-AUROC, AUPRO và FPR theo cường độ từng loại thay đổi trên screw}
+  \caption{Image-AUROC, AUPRO và FPR theo cường độ từng loại thay đổi trên screw}
   \label{fig:tn4-screw}
 \end{figure}
 
@@ -472,7 +472,7 @@ thay vì ở vùng lỗi.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{images/tn/tn4_vial_dieu_kien.jpg}
-  \caption{I-AUROC và AUPRO của ba phương pháp trên vial theo từng điều kiện chụp}
+  \caption{Image-AUROC và AUPRO của ba phương pháp trên vial theo từng điều kiện chụp}
   \label{fig:tn4-vial}
 \end{figure}
 
@@ -504,7 +504,7 @@ quá tối (0,657).
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{images/tn/tn4_sheet_metal.jpg}
-  \caption{I-AUROC và AUPRO trên sheet\_metal theo từng điều kiện chụp}
+  \caption{Image-AUROC và AUPRO trên sheet\_metal theo từng điều kiện chụp}
   \label{fig:tn4-sheet}
 \end{figure}
 
