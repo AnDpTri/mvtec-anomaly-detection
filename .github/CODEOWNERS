@@ -6,16 +6,13 @@
 *                   @AnDpTri @NeoFortran
 
 # Module của An
-/src/autoencoder/   @AnDpTri
 /src/demo/          @AnDpTri
 
 # Module của Dưỡng
-/src/data/          @NeoFortran
-/src/evaluation/    @NeoFortran
-/src/padim/         @NeoFortran
+/src/tn/            @NeoFortran
+/notebooks/tn/      @NeoFortran
 
 # Module chung
-/src/common/        @AnDpTri @NeoFortran
-/src/patchcore/     @AnDpTri @NeoFortran
-/configs/           @AnDpTri @NeoFortran
+/tools/             @AnDpTri @NeoFortran
+/tests/             @AnDpTri @NeoFortran
 /docs/              @AnDpTri @NeoFortran

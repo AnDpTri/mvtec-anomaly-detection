@@ -1,6 +1,6 @@
 # PaDiM · Phụ trách: Dưỡng
 
-Module: `src/padim/` · `model.py` (bản tự cài) · `run.py` (chạy đủ 15 loại; dùng Anomalib hoặc bản tự cài)
+Cài đặt: `padim_fit`, `padim_predict` trong `src/tn/methods.py`.
 Bài gốc: Defard et al., *PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization*, 2020.
 
 ## Mục tiêu
@@ -32,12 +32,7 @@ Cho thấy **"con mắt" học sẵn (CNN ImageNet) + thống kê đơn giản**
   lúc là ren, lúc là nền → phân phối bị nhòe. Bottle luôn thẳng hàng nên tốt.
 - Bộ nhớ lớn: một ma trận hiệp phương sai d×d cho mỗi vị trí.
 
-## Đối chiếu (nếu có cả hai bản)
-Nếu dùng cả bản tự cài và bản Anomalib với cùng cấu hình, hai bản nên ra số gần nhau; nếu lệch, kiểm tra
-backbone, tầng đặc trưng, số chiều, seed.
-
-## Triển khai: tự do
-Thư viện, kiến trúc, backbone, tầng, loss, siêu tham số, tăng cường dữ liệu đều **tự chọn**; chỉ cần giữ
-giao thức đánh giá chung và ghi cấu hình đã dùng vào CSV (xem [giao-dien-chung.md](../giao-dien-chung.md) mục 0).
-Các con số trong phần "Cách hoạt động" là **điểm xuất phát theo bài gốc**, không bắt buộc.
+## Cấu hình đang dùng
+WideResNet-50-2 pretrained ImageNet, layer1–3 ở lưới H/4×W/4, chọn ngẫu nhiên 100 chiều (seed 1234),
+Gaussian mỗi vị trí cộng 0,01·I, Mahalanobis, làm mượt Gauss σ = 4. Hằng số ở `src/tn/config.py`.
 

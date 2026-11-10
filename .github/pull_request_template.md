@@ -15,5 +15,5 @@
 
 ## Tự kiểm tra
 - [ ] Không đưa dữ liệu, checkpoint, memory bank lên git
-- [ ] Dùng cấu hình chung `configs/common.yaml`, không sửa riêng trong code
+- [ ] Siêu tham số chung chỉ đổi ở `src/tn/config.py`; `python -m unittest discover -s tests` chạy qua
 - [ ] Nếu đổi giao diện chung (docs/giao-dien-chung.md) thì đã báo người kia

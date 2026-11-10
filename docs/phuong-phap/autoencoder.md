@@ -1,6 +1,6 @@
 # Autoencoder (baseline) · Phụ trách: An
 
-Module: `src/autoencoder/` · `model.py`, `train.py` (bản chính) · `numpy_ae/` (bản tự viết bằng NumPy, phụ lục)
+Cài đặt: `ConvAE`, `ae_fit`, `ae_predict` trong `src/tn/methods.py`.
 
 ## Mục tiêu
 Tạo ra **phiên bản bình thường của chính ảnh đang kiểm tra**, rồi so với ảnh gốc: chỗ khác nhau là lỗi.
@@ -37,8 +37,8 @@ mạng neuron**.
 - Có xoay/lật ảnh khi tăng dữ liệu hay không, và vì sao (bài gốc có; xoay/lật có thể biến lỗi thành "bình thường").
 - Kiến trúc, loss, siêu tham số đã dùng. Không chỉnh siêu tham số dựa trên tập test.
 
-## Triển khai: tự do
-Thư viện, kiến trúc, backbone, tầng, loss, siêu tham số, tăng cường dữ liệu đều **tự chọn**; chỉ cần giữ
-giao thức đánh giá chung và ghi cấu hình đã dùng vào CSV (xem [giao-dien-chung.md](../giao-dien-chung.md) mục 0).
-Các con số trong phần "Cách hoạt động" là **điểm xuất phát theo bài gốc**, không bắt buộc.
+## Cấu hình đang dùng
+Conv AE, đầu vào cố định 256×256, 5 tầng conv stride 2 xuống 8×8, bottleneck fully-connected 256 chiều, MSE,
+1500 bước Adam (lr 5e-4, batch 16), anomaly map = sai số bình phương trung bình theo kênh rồi làm mượt Gauss.
+Hằng số ở `src/tn/config.py`. Không xoay/lật ảnh khi huấn luyện.
 

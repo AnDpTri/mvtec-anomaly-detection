@@ -37,7 +37,7 @@ Mỗi loại nằm trong `results/checkpoints_tn/<loại>/`, tổng khoảng 2,6
 
 | File | Nội dung |
 |---|---|
-| `ae.pt` | state_dict của `src.tn.methods.ConvAE` |
+| `ae.pt` | state_dict của `src.tn.methods.ConvAE` (ghi bằng `save_model`, nạp bằng `load_model`) |
 | `padim.pt` | `mu`, `inv` (nghịch đảo hiệp phương sai mỗi vị trí), `H`, `W` |
 | `patchcore_bank.pt` | memory bank fp16 sau coreset |
 | `meta.json` | kích thước ảnh, ngưỡng, chỉ số trên tập test |
@@ -54,7 +54,5 @@ Ngưỡng chặt: tỷ lệ báo nhầm ảnh tốt trên tập test 0–14%, đ
 ## Kiểm tra ngày 03/11/2026
 
 Fit trên Colab T4. I-AUROC, AUPRO, FPR tại ngưỡng của cả 27 mô hình khớp CSV thí nghiệm trong `Do_An_Deep_Learning/resuilts_6` (lệch I-AUROC tối đa 0,001). Điểm demo tính lại trên máy trùng điểm lúc fit trong `test_scores.csv`.
-
-`docs/demo_validation.json` và `results/demo_models/` thuộc demo cũ (checkpoint Anomalib 15 loại), giữ lại làm lịch sử.
 
 Kiểm thử: `python -m unittest discover -s tests -v`.
