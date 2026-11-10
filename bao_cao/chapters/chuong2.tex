@@ -94,22 +94,26 @@ chất mẫu, còn với bài toán tìm lỗi, nó có thể biến ảnh tốt
 
 \subsection{Ba bộ dữ liệu và chín loại sản phẩm}
 
-Đề tài dùng 9 loại sản phẩm từ ba bộ dữ liệu công khai (Bảng~\ref{tab:mvtec}). Các loại được chọn để mỗi loại thử
-một điều kiện khác nhau, thay vì chạy toàn bộ một bộ dữ liệu.
+Đề tài dùng 9 loại sản phẩm từ ba bộ dữ liệu công khai (Bảng~\ref{tab:mvtec}). Mỗi loại được chọn vì làm lộ một giả
+định của ba phương pháp hoặc phục vụ một thí nghiệm ở Mục~\ref{sec:tn}, thay vì chạy toàn bộ một bộ dữ liệu.
 
 MVTec AD~\cite{bergmannMVTecADComprehensive2019} là bộ dữ liệu chuẩn cho phát hiện bất thường không giám sát trên
 ảnh công nghiệp, gồm 15 loại. Đề tài lấy ba loại: grid là bề mặt lưới lặp lại, ảnh xám; screw là con vít nhỏ nằm
 xoay tự do giữa các ảnh, phá giả định ảnh đã căn chỉnh; transistor là vật thể ở vị trí cố định, có kiểu lỗi logic
-như thiếu hay lệch linh kiện. Đường tải chính thức không còn hoạt động khi thực hiện đề tài, nên nhóm dùng bản sao
+như thiếu hay lệch linh kiện. Transistor thỏa giả định căn chỉnh nên được dùng làm loại đối chứng: khác biệt ở các
+thí nghiệm có thể quy cho điều kiện thay đổi chứ không phải cho bản thân loại sản phẩm. Đường tải chính thức không còn hoạt động khi thực hiện đề tài, nên nhóm dùng bản sao
 trên Hugging Face, đã đối chiếu số ảnh và kiểu lỗi với bài báo gốc.
 
 MVTec AD 2~\cite{hecklerkramMVTecAD2Dataset2026} là bộ dữ liệu mới hơn, cũng của MVTec, có ảnh độ phân giải cao hơn
 và tập test chụp cùng cảnh ở nhiều điều kiện ánh sáng: bình thường, quá sáng, quá tối và các mức dịch ánh sáng. Bộ
 này có sẵn thư mục \texttt{validation/good}, dùng để đặt ngưỡng. Đề tài lấy vial (lọ thủy tinh trong suốt) và
-sheet\_metal (tấm kim loại dài, lỗi rất nhỏ), dùng tập \texttt{test\_public} có mặt nạ.
+sheet\_metal (tấm kim loại dài, lỗi rất nhỏ), dùng tập \texttt{test\_public} có mặt nạ. Đây là bộ duy nhất trong ba bộ có ảnh kiểm thử chụp ở điều kiện ánh sáng
+thật khác lúc huấn luyện, nên được dùng để thử ba phương pháp khi điều kiện chụp thay đổi (Mục~\ref{sec:tn4}).
 
 VisA~\cite{zouSPotDifferenceSelfsupervisedPretraining2022} gồm 12 loại vật thể có cấu trúc phức tạp. Đề tài lấy bốn
-loại bảng mạch in pcb1--pcb4, dùng cách chia một lớp chính thức (\texttt{split\_csv/1cls.csv}). Mặt nạ của VisA lưu
+loại bảng mạch in pcb1--pcb4, vì đây là nhiều mã sản phẩm gần giống nhau, giống tình huống một nhà máy sản xuất
+nhiều loại bảng mạch, nên dùng được để kiểm tra mô hình của sản phẩm này có dùng được cho sản phẩm khác hay không
+(Mục~\ref{sec:tn3}). Dữ liệu dùng cách chia một lớp chính thức (\texttt{split\_csv/1cls.csv}). Mặt nạ của VisA lưu
 giá trị 0/1 thay vì 0/255.
 
 \begin{table}[htbp]
@@ -239,6 +243,7 @@ gian. Cổ chai quá rộng thì mạng dựng lại được cả lỗi; quá h
 Vector 256 chiều là điểm cân bằng nhóm chọn và giữ cố định cho cả 9 loại.
 
 \subsection{Huấn luyện}
+\label{sec:ae-train}
 
 Hàm mất mát là sai số bình phương trung bình trên mọi điểm ảnh và kênh màu:
 \begin{equation}

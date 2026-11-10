@@ -7,9 +7,10 @@ PatchCore dùng chung backbone Wide-ResNet-50-2 nên chênh lệch giữa chúng
 ảnh tốt tách riêng và được đưa vào một ứng dụng minh họa chạy trên máy cá nhân.
 
 Trên dữ liệu chuẩn, PatchCore tốt nhất ở cả ba bộ dữ liệu (image-AUROC trung bình 0,937, pixel-AUROC 0,969, AUPRO
-0,848), và là phương pháp duy nhất dùng được tại ngưỡng: bắt được 75\% ảnh lỗi với 6\% báo nhầm. PaDiM kém hẳn ở screw,
-loại duy nhất xoay tự do, đúng như dự đoán từ việc nó gắn thống kê với vị trí. Autoencoder thấp nhất trên MVTec AD
-nhưng tốt hơn PaDiM trên các bảng mạch của VisA, nơi lỗi làm đổi màu cả một vùng.
+0,848), và là phương pháp duy nhất dùng được tại ngưỡng: bắt được 75\% ảnh lỗi với 6\% báo nhầm. PaDiM thấp nhất
+ở screw, vial và pcb1--pcb3; khoảng cách với PatchCore lớn nhất ở screw, loại duy nhất xoay tự do, đúng như dự đoán từ
+việc nó gắn thống kê với vị trí. Autoencoder thấp nhất trên MVTec AD nhưng tốt hơn PaDiM ở ba trong bốn loại bảng
+mạch của VisA, nơi lỗi làm đổi màu cả một vùng.
 
 Năm thí nghiệm chuyên sâu cho thấy thứ hạng đó không còn đúng khi điều kiện thay đổi, nhưng cách mỗi phương pháp thất
 bại phần lớn đoán trước được từ cơ chế của nó. Với tập huấn luyện lẫn 5--20\% ảnh lỗi, cả ba đều bền; PatchCore giảm

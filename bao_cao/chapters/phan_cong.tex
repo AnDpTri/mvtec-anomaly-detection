@@ -2,7 +2,7 @@
 \addcontentsline{toc}{chapter}{PHÂN CÔNG NHIỆM VỤ}
 
 Mã nguồn được chia thành các module, mỗi module có một người phụ trách chính để hai thành viên làm song song trên
-nhánh riêng mà không sửa đè lên nhau. Phần dùng chung (cấu hình, giao thức đánh giá, tiện ích chạy Anomalib) được thay đổi qua
+nhánh riêng mà không sửa đè lên nhau. Phần dùng chung (cấu hình, giao thức đánh giá) được thay đổi qua
 yêu cầu hợp nhất (pull request) để cả hai cùng xem trước khi đưa vào nhánh chính. Module dữ liệu và module đánh giá
 là nền cho mọi phương pháp nên được làm trước, trong hai tuần đầu.
 
@@ -15,15 +15,15 @@ là nền cho mọi phương pháp nên được làm trước, trong hai tuần
     Thành viên & Nhiệm vụ \\
     \midrule
     Đặng Hoàng An &
-      Xây dựng và huấn luyện Autoencoder; chạy PatchCore trên 8 loại (bottle, cable, capsule, carpet, grid, hazelnut,
-      leather, metal\_nut); demo; tài liệu hướng dẫn của kho mã nguồn. \\
+      Xây dựng và huấn luyện Autoencoder; chạy PatchCore trên 5 loại của MVTec AD và MVTec AD 2 (grid, screw,
+      transistor, vial, sheet\_metal); demo; tài liệu hướng dẫn của kho mã nguồn. \\
     \addlinespace
     Trần Văn Dưỡng &
-      Module đọc dữ liệu MVTec AD; module đánh giá (AUROC, hình minh họa, ghi kết quả); PaDiM; chạy PatchCore trên 7
-      loại (pill, screw, tile, toothbrush, transistor, wood, zipper). \\
+      Module đọc dữ liệu MVTec AD, MVTec AD 2 và VisA; module đánh giá (AUROC, AUPRO, ngưỡng, hình minh họa, ghi kết
+      quả); PaDiM; chạy PatchCore trên 4 loại của VisA (pcb1--pcb4); năm thí nghiệm chuyên sâu. \\
     \addlinespace
     Cả nhóm &
-      Cấu hình và giao thức đánh giá chung; tiện ích chạy Anomalib; tổng hợp kết quả; viết báo cáo. \\
+      Cấu hình và giao thức đánh giá chung; chạy đủ 9 loại trên Colab; tổng hợp kết quả; viết báo cáo. \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -43,10 +43,10 @@ là nền cho mọi phương pháp nên được làm trước, trong hai tuần
     Tuần 2 \newline 26/10--01/11 & Huấn luyện và đánh giá Autoencoder & Module đánh giá (hạn 26/10); PaDiM (hạn
       29/10) & Chạy thử trên Colab; viết Chương 1 \\
     \addlinespace
-    Tuần 3 \newline 02/11--08/11 & Chạy Autoencoder; PatchCore trên 8 loại & Chạy PaDiM; PatchCore trên 7 loại & Tổng
+    Tuần 3 \newline 02/11--08/11 & Chạy Autoencoder; PatchCore trên 5 loại MVTec AD, MVTec AD 2 & Chạy PaDiM; PatchCore trên 4 loại VisA & Tổng
       hợp kết quả; viết Chương 2 \\
     \addlinespace
-    Tuần 4 \newline 09/11--15/11 & Ứng dụng minh họa (hạn 15/11) & Tổng hợp kết quả, vẽ hình minh họa & Viết Chương 3,
+    Tuần 4 \newline 09/11--15/11 & Ứng dụng minh họa (hạn 15/11) & Năm thí nghiệm chuyên sâu, vẽ hình minh họa & Viết Chương 3,
       hoàn thiện báo cáo \\
     \bottomrule
   \end{tabular}

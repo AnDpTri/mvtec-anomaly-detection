@@ -1,8 +1,8 @@
 \chapter{KẾT QUẢ THỰC NGHIỆM VÀ ĐÁNH GIÁ}
 
-Chương này trình bày các chỉ số đánh giá, tiêu chí so sánh, môi trường và cách chạy thực nghiệm, rồi đến khảo sát sơ
-bộ dùng để chọn loại sản phẩm, kết quả của ba phương pháp trên 9 loại, năm thí nghiệm chuyên sâu kiểm tra ba phương
-pháp trong điều kiện khác với giả định của bộ dữ liệu, chi phí tính toán và ứng dụng minh họa.
+Chương này trình bày các chỉ số đánh giá, tiêu chí so sánh, môi trường và cách chạy thực nghiệm, rồi đến kết quả của
+ba phương pháp trên 9 loại, năm thí nghiệm chuyên sâu kiểm tra ba phương pháp trong điều kiện khác với giả định của
+bộ dữ liệu, chi phí tính toán và ứng dụng minh họa.
 
 \section{Chỉ số đánh giá}
 \label{sec:danh-gia}
@@ -21,8 +21,7 @@ nhầm lẫn: dương thật (TP), dương giả (FP), âm thật (TN), âm gi�
   \label{eq:prf}
 \end{equation}
 Accuracy là tỷ lệ dự đoán đúng; Precision cho biết trong các mẫu bị báo lỗi có bao nhiêu là lỗi thật; Recall cho
-biết bắt được bao nhiêu phần lỗi thật; $F_1$ cân bằng hai chỉ số sau. Với bài toán hồi quy, các chỉ số tương ứng là
-sai số tuyệt đối trung bình (MAE) và căn sai số bình phương trung bình (RMSE). Tất cả các chỉ số phân loại trên đều
+biết bắt được bao nhiêu phần lỗi thật; $F_1$ cân bằng hai chỉ số sau. Tất cả các chỉ số phân loại trên đều
 cần một ngưỡng quyết định cố định, và Accuracy còn bị lệch khi hai lớp chênh lệch số lượng, như ở mức điểm ảnh, nơi
 gần như mọi điểm ảnh đều bình thường.
 
@@ -130,8 +129,8 @@ Bảng~\ref{tab:lua-chon}.
 
 \subsection{Công cụ và thư viện}
 
-Cả ba phương pháp đều do nhóm tự cài đặt bằng PyTorch; thư viện phát hiện bất thường Anomalib chỉ được dùng ở khảo
-sát sơ bộ (Mục~\ref{sec:khao-sat}). Bảng~\ref{tab:tools} liệt kê các thư viện được dùng và vai trò của chúng.
+Cả ba phương pháp đều do nhóm tự cài đặt bằng PyTorch, không dùng thư viện phát hiện bất thường có sẵn.
+Bảng~\ref{tab:tools} liệt kê các thư viện được dùng và vai trò của chúng.
 
 \begin{table}[htbp]
   \centering
@@ -149,7 +148,6 @@ sát sơ bộ (Mục~\ref{sec:khao-sat}). Bảng~\ref{tab:tools} liệt kê các
     NumPy~\cite{numpyNumPy}, SciPy & Xử lý mảng bản đồ bất thường; tìm vùng lỗi liên thông khi tính AUPRO \\
     Matplotlib~\cite{matplotlibVisualizationPython} & Vẽ ảnh, mặt nạ và bản đồ bất thường minh họa \\
     pandas & Ghi và tổng hợp bảng kết quả \\
-    Anomalib~\cite{akcayAnomalibDeepLearning2022} & Chạy PaDiM và PatchCore ở khảo sát sơ bộ trên 15 loại MVTec AD \\
     Gradio & Giao diện web của ứng dụng minh họa \\
     Google Colab & Môi trường chạy thực nghiệm với GPU Tesla T4 \\
     \bottomrule
@@ -238,8 +236,6 @@ tính trước khi dừng đồng hồ. Thời gian gồm cả trích đặc tr�
 Hình minh họa gồm ảnh, mặt nạ lỗi và bản đồ của ba phương pháp trên cùng một ảnh lỗi (ảnh đầu tiên của kiểu lỗi đó).
 Thang màu của mỗi phương pháp đi từ giá trị trung bình của bản đồ trên ảnh tốt tách riêng (tối) tới ngưỡng điểm ảnh
 của bản đồ (sáng nhất), nên vùng sáng nhất là vùng vượt ngưỡng, và màu so sánh được giữa ba phương pháp.
-
-\input{chapters/chuong3_khao_sat}
 
 \section{Kết quả trên 9 loại sản phẩm}
 \label{sec:ket-qua-tong-hop}
@@ -528,8 +524,9 @@ screw, loại khó nhất của MVTec AD với hầu hết phương pháp, nên 
 nhóm khác bài gốc ở hai điểm: không cắt vùng giữa ảnh và không dùng bước hiệu chỉnh trọng số khi tính điểm ảnh.
 
 PaDiM được báo cáo đạt pixel-AUROC 0,975 với Wide-ResNet-50-2 trên MVTec AD~\cite{defardPaDiMPatchDistribution2021};
-nhóm đạt 0,962 trên ba loại. Kết quả của cả ba phương pháp cũng khớp với các thí nghiệm riêng của nhóm chạy bằng cùng
-mã nguồn trước đó: chênh lệch image-AUROC tối đa 0,001, cho thấy quy trình lặp lại được.
+nhóm đạt 0,962 trên ba loại. Kết quả của PaDiM và PatchCore cũng khớp với các thí nghiệm riêng của nhóm chạy bằng cùng
+mã nguồn trước đó: chênh lệch image-AUROC tối đa 0,001, cho thấy quy trình lặp lại được; Autoencoder dao động hơn vì
+được huấn luyện từ khởi tạo ngẫu nhiên (Mục~\ref{sec:han-che}).
 
 \section{Ứng dụng minh họa}
 \label{sec:demo}

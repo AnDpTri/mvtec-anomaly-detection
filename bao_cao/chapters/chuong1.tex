@@ -264,8 +264,8 @@ bằng 0, rồi cập nhật:
   \label{eq:adam}
 \end{equation}
 Tham số có gradient thường lớn được chia cho $\sqrt{\hat{v}_k}$ lớn nên bước đi nhỏ lại, và ngược lại; nhờ vậy Adam ít
-nhạy với việc chọn $\eta$ hơn SGD. Đề tài dùng các giá trị mặc định $\beta_1 = 0{,}9$, $\beta_2 = 0{,}999$, $\epsilon =
-10^{-8}$ và $\eta = 5\cdot10^{-4}$, lô 16 ảnh, 1500 bước cho mỗi loại sản phẩm.
+nhạy với việc chọn $\eta$ hơn SGD. Autoencoder của đề tài dùng các giá trị mặc định $\beta_1 = 0{,}9$, $\beta_2 =
+0{,}999$, $\epsilon = 10^{-8}$; tốc độ học, cỡ lô và số bước nằm ở Mục~\ref{sec:ae-train}.
 
 Để huấn luyện nhanh hơn trên GPU, Autoencoder được tính ở độ chính xác hỗn hợp~\cite{micikeviciusMixedPrecisionTraining2018}:
 phần lớn phép tính chạy ở số thực 16 bit, còn trọng số được giữ và cập nhật ở 32 bit. Số thực 16 bit biểu diễn được
@@ -590,6 +590,20 @@ nhãn tốn kém: khoanh vùng lỗi chính xác đến từng điểm ảnh c�
 nằm trên nền biến thiên: nhiều lỗi chỉ chiếm một phần rất nhỏ diện tích ảnh, trong khi ảnh tốt vẫn khác nhau tự
 nhiên về ánh sáng, tư thế và kết cấu bề mặt.
 
+Ngay cả khi mô hình đạt AUROC cao trên bộ dữ liệu chuẩn, việc đưa vào dây chuyền còn gặp bốn thách thức
+khác. Thứ nhất là thay đổi điều kiện: ánh sáng, độ nét của camera, vị trí đặt sản phẩm hay nguyên
+liệu đầu vào thay đổi dần theo thời gian, khiến ảnh tốt mới khác ảnh dùng để xây dựng mô hình. Một mô hình phát hiện
+bất thường, đúng với bản chất của nó, sẽ coi mọi thay đổi như vậy là bất thường. Thứ hai là ngưỡng: ngưỡng đặt lúc
+xây dựng mô hình chỉ đúng khi phân phối điểm của ảnh tốt giữ nguyên, nên cần được theo dõi và đặt lại; một hệ thống
+báo nhầm quá nhiều sẽ bị người vận hành bỏ qua. Thứ ba là tốc độ và tài nguyên: mỗi sản phẩm thường chỉ có vài chục
+đến vài trăm mili giây để kiểm tra, và mô hình phải chạy trên phần cứng đặt cạnh dây chuyền. Thứ tư là khả năng giải
+thích: người vận hành cần biết vì sao một sản phẩm bị loại, nên bản đồ bất thường chỉ đúng vùng lỗi có giá trị không
+kém một điểm số chính xác.
+
+Bốn thách thức này định hướng cách đề tài đánh giá ba phương pháp. Ngoài AUROC, đề tài đo tỷ lệ báo nhầm và bắt lỗi
+tại một ngưỡng chốt trước, thời gian suy luận và dung lượng mô hình, xem bản đồ bất thường trên từng ảnh, và thử ba
+phương pháp khi dữ liệu và điều kiện chụp thay đổi (Chương 3).
+
 \subsection{Phát hiện và định vị bất thường}
 
 Bài toán gồm hai nhiệm vụ trả lời hai câu hỏi khác nhau. Phát hiện trả lời ``sản phẩm này có lỗi không'': đầu ra là
@@ -764,22 +778,6 @@ CutPaste~\cite{liCutPasteSelfSupervisedLearning2021} cắt một mảnh của �
 giả, huấn luyện một bộ phân loại phân biệt ảnh gốc với ảnh đã cắt dán, rồi dùng đặc trưng của bộ phân loại đó để
 phát hiện lỗi thật. Hai hướng sau đều phải huấn luyện mạng trên dữ liệu của từng loại sản phẩm, nên không được chọn
 trong phạm vi đề tài.
-
-\subsection{Thách thức khi đưa vào sản xuất}
-
-Đạt AUROC cao trên một bộ dữ liệu chuẩn chưa đủ để một hệ thống dùng được trên dây chuyền. Có bốn thách thức thường
-gặp khi đưa vào sản xuất. Thứ nhất là thay đổi điều kiện: ánh sáng, độ nét của camera, vị trí đặt sản phẩm hay nguyên
-liệu đầu vào thay đổi dần theo thời gian, khiến ảnh tốt mới khác ảnh dùng để xây dựng mô hình. Một mô hình phát hiện
-bất thường, đúng với bản chất của nó, sẽ coi mọi thay đổi như vậy là bất thường. Thứ hai là ngưỡng: ngưỡng đặt lúc
-xây dựng mô hình chỉ đúng khi phân phối điểm của ảnh tốt giữ nguyên, nên cần được theo dõi và đặt lại; một hệ thống
-báo nhầm quá nhiều sẽ bị người vận hành bỏ qua. Thứ ba là tốc độ và tài nguyên: mỗi sản phẩm thường chỉ có vài chục
-đến vài trăm mili giây để kiểm tra, và mô hình phải chạy trên phần cứng đặt cạnh dây chuyền. Thứ tư là khả năng giải
-thích: người vận hành cần biết vì sao một sản phẩm bị loại, nên bản đồ bất thường chỉ đúng vùng lỗi có giá trị không
-kém một điểm số chính xác.
-
-Bốn thách thức này định hướng cách đề tài đánh giá ba phương pháp. Ngoài AUROC, đề tài đo tỷ lệ báo nhầm và bắt lỗi
-tại một ngưỡng chốt trước, thời gian suy luận và dung lượng mô hình, xem bản đồ bất thường trên từng ảnh, và thử ba
-phương pháp khi dữ liệu và điều kiện chụp thay đổi (Chương 3).
 
 \section*{Tiểu kết chương}  % không đánh số: to_do yêu cầu Chương 1 chỉ đến 1.6
 

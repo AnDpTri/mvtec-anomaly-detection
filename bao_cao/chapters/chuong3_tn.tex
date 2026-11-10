@@ -19,8 +19,8 @@ bại cụ thể có đoán trước được từ cơ chế hay không.
 Các thí nghiệm dùng grid, screw, transistor của MVTec AD, hai loại của MVTec AD 2 và bốn loại pcb của VisA, với đúng
 cấu hình ở Bảng~\ref{tab:hyper} và ngưỡng ở Mục~\ref{sec:dat-nguong}. Thí nghiệm 1, 2 và 5 so với một mốc huấn luyện
 trên toàn bộ \texttt{train/good} (Bảng~\ref{tab:tn-moc}), khác với mốc 9 loại ở Mục~\ref{sec:ket-qua-tong-hop} vốn tách
-15\% ảnh để đặt ngưỡng, nên các số liệu có chênh lệch nhỏ. Chênh lệch lớn nhất là ở Autoencoder (ví dụ grid 0,825 so
-với 0,836), cũng là phương pháp dao động nhiều nhất giữa các lần chạy (Mục~\ref{sec:tn1}). Thí nghiệm 1 lặp 5 seed,
+15\% ảnh để đặt ngưỡng, nên các số liệu có chênh lệch nhỏ. Chênh lệch lớn nhất là ở Autoencoder (ví dụ transistor 0,753
+so với 0,786), cũng là phương pháp dao động nhiều nhất giữa các lần chạy (Mục~\ref{sec:tn1}). Thí nghiệm 1 lặp 5 seed,
 Thí nghiệm 2 lặp 3 seed, các thí nghiệm còn lại chạy một lần. Tất cả chạy trên Google Colab; một phần của Thí nghiệm 4
 chạy trên CPU khi hết hạn mức GPU.
 
@@ -322,9 +322,9 @@ transistor dựng kém vùng nền sáng. Trên VisA, nơi không có lối tắ
     \cmidrule(lr){3-4}\cmidrule(lr){5-6}
     Đích & Phương pháp & 4 ảnh & 16 ảnh & 4 ảnh & 16 ảnh & Đích đầy đủ \\
     \midrule
-    pcb2 & PatchCore   & 0,88  & 0,86 & 0,91 & 0,92 & 0,955 \\
-    pcb3 & PatchCore   & 0,84  & 0,87 & 0,83 & 0,90 & 0,966 \\
-    pcb4 & PatchCore   & 0,975 & 0,97 & 0,97 & 0,97 & 0,994 \\
+    pcb2 & PatchCore   & 0,88  & 0,86 & 0,91 & 0,92 & 0,96 \\
+    pcb3 & PatchCore   & 0,84  & 0,87 & 0,83 & 0,90 & 0,97 \\
+    pcb4 & PatchCore   & 0,98  & 0,97 & 0,97 & 0,97 & 0,99 \\
     \midrule
     pcb2 & PaDiM       & 0,66  & 0,79 & 0,55 & 0,65 & -- \\
     pcb3 & PaDiM       & 0,53  & 0,70 & 0,47 & 0,62 & -- \\
@@ -346,8 +346,8 @@ transistor dựng kém vùng nền sáng. Trên VisA, nơi không có lối tắ
 \end{figure}
 
 Khả năng thích nghi khác nhau rõ rệt (Bảng~\ref{tab:tn3-thich-nghi}, Hình~\ref{fig:tn3-thich-nghi}). PatchCore thích
-nghi nhanh nhất: chỉ 4 ảnh đích đã đưa image-AUROC từ khoảng 0,5 lên 0,84--0,975, cách mô hình xây dựng đầy đủ trên
-loại đích 2 đến 12 điểm. Giữ lại bộ nhớ của nguồn không gây hại, vì patch nguồn chỉ là láng giềng thừa, và còn giúp
+nghi nhanh nhất: chỉ 4 ảnh đích đã đưa image-AUROC từ khoảng 0,5 lên 0,84--0,98, cách mô hình xây dựng đầy đủ trên
+loại đích 1 đến 13 điểm. Giữ lại bộ nhớ của nguồn không gây hại, vì patch nguồn chỉ là láng giềng thừa, và còn giúp
 nhẹ với pcb2, pcb3 khi có 16 ảnh. PaDiM bị hại khi trộn nguồn: dùng cả nguồn thấp hơn chỉ dùng ảnh đích ở mọi ô, ví dụ
 pcb4 với 16 ảnh là 0,84 so với 0,92, vì phân phối theo vị trí phải trộn hai bố cục khác nhau. Autoencoder nằm giữa và
 không hưởng lợi rõ từ nguồn. Khi đặt lại ngưỡng bằng ảnh tốt của loại đích, FPR quay về 0--5\%.
