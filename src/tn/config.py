@@ -7,6 +7,8 @@ ROOT = Path(__file__).resolve().parents[2]      # thư mục gốc dự án
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 IMG_SIZE = 256
+SQUARE = (IMG_SIZE, IMG_SIZE)      # (cao, rộng) mặc định của ảnh
+METHODS = ("ae", "padim", "patchcore")
 BLUR_SIGMA = 4                  # làm mượt anomaly map trước khi lấy max
 PADIM_DIM = 100                 # số chiều PaDiM chọn ngẫu nhiên từ 256 + 512 + 1024
 PADIM_IDX_SEED = 1234

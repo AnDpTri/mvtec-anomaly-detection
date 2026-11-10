@@ -8,10 +8,10 @@ import pandas as pd
 from scipy.stats import spearmanr
 
 from src.tn import data as D
+from src.tn.config import METHODS
 from src.tn.metrics import f1_max
 
 COLORS = dict(ae="tab:green", padim="tab:blue", patchcore="tab:red")
-ALL_METHODS = ["ae", "padim", "patchcore"]
 SHOT_ORDER = ["1", "2", "4", "8", "16", "all"]
 COND_ORDER = ["regular", "overexposed", "underexposed", "shift_1", "shift_2", "shift_3", "shift_4"]
 
@@ -122,7 +122,7 @@ def plot_alignment_check(R, path, n=8):
 # ----------------------------------------------------------------- TN5
 def load_maps(maps_dir, cat):
     out = {}
-    for m in ALL_METHODS:
+    for m in METHODS:
         p = maps_dir / f"{cat}_{m}.npz"
         if p.exists():
             z = np.load(p)
@@ -143,7 +143,7 @@ def failure_cases(scores, labels, n=3):
 
 def draw_grid(C, M, rows_idx, title, path):
     """Ảnh | ground truth | AE | PaDiM | PatchCore; thang màu mỗi phương pháp chung cho cả tập test."""
-    cols = ["Ảnh", "Ground truth"] + [m.upper() for m in ALL_METHODS]
+    cols = ["Ảnh", "Ground truth"] + [m.upper() for m in METHODS]
     rng = {m: np.percentile(d["maps"], [1, 99.5]) for m, d in M.items()}
     fig, axes = plt.subplots(len(rows_idx), len(cols), figsize=(2.6 * len(cols), 2.7 * len(rows_idx)), squeeze=False)
     for r, (i, note) in enumerate(rows_idx):
@@ -153,7 +153,7 @@ def draw_grid(C, M, rows_idx, title, path):
         g = img.copy()
         g[gt] = (0.5 * g[gt] + [127, 0, 0]).astype(np.uint8)
         axes[r, 1].imshow(g)
-        for c, m in enumerate(ALL_METHODS, start=2):
+        for c, m in enumerate(METHODS, start=2):
             if m in M:
                 axes[r, c].imshow(overlay(img, M[m]["maps"][i], *rng[m]))
                 axes[r, c].set_xlabel(f"score={M[m]['scores'][i]:.2f}", fontsize=8)
@@ -171,7 +171,7 @@ def draw_grid(C, M, rows_idx, title, path):
 # ----------------------------------------------------------------- TN3
 def plot_matrices(df, cats, title, path):
     """Hàng = nguồn (train), cột = đích (test). Đường chéo = train và test cùng category."""
-    meths = [m for m in ALL_METHODS if m in set(df.method)]
+    meths = [m for m in METHODS if m in set(df.method)]
     panels = [("i_auroc", "Image AUROC", "RdYlGn", 0.3, 1.0), ("aupro", "AUPRO@0.3", "RdYlGn", 0.0, 1.0),
               ("img_fpr_thr", "FPR @ ngưỡng nguồn", "Reds", 0.0, 1.0)]
     fig, axes = plt.subplots(len(panels), len(meths), figsize=(3.6 * len(meths), 3.3 * len(panels)), squeeze=False)
@@ -214,7 +214,7 @@ def plot_adapt(ad, mx, source, targets, ks, path):
     for c, tgt in enumerate(targets):
         for r, (col, name) in enumerate([("i_auroc", "Image AUROC"), ("aupro", "AUPRO@0.3")]):
             ax = axes[r, c]
-            for m in ALL_METHODS:
+            for m in METHODS:
                 if m not in set(ad.method):
                     continue
                 base = mx[(mx.source == source) & (mx.target == tgt) & (mx.method == m)][col]    # k=0: chỉ nguồn
@@ -293,7 +293,7 @@ def plot_score_shift(sc, cat, path):
 def plot_same_scene(ad2_root, cat, hw, maps_dir, thr, path):
     """TN4a: cùng một cảnh lỗi (vùng lỗi lớn nhất) dưới mọi điều kiện ánh sáng, heatmap của 3 phương pháp."""
     d = D.load_ad2(ad2_root, cat)
-    M = {m: np.load(maps_dir / f"ad2_{cat}_{m}.npz") for m in ALL_METHODS if (maps_dir / f"ad2_{cat}_{m}.npz").exists()}
+    M = {m: np.load(maps_dir / f"ad2_{cat}_{m}.npz") for m in METHODS if (maps_dir / f"ad2_{cat}_{m}.npz").exists()}
     if not M:
         return
     reg = [i for i, t in enumerate(d["test"]) if t["label"] == 1 and t["cond"] == "regular"]
@@ -302,7 +302,7 @@ def plot_same_scene(ad2_root, cat, hw, maps_dir, thr, path):
     rows = sorted([i for i, t in enumerate(d["test"]) if t["scene"] == scene],
                   key=lambda i: COND_ORDER.index(d["test"][i]["cond"]) if d["test"][i]["cond"] in COND_ORDER else 99)
     rng = {m: np.percentile(z["maps"].astype(np.float32), [1, 99.5]) for m, z in M.items()}
-    cols = ["Ảnh", "Ground truth"] + [m.upper() for m in ALL_METHODS]
+    cols = ["Ảnh", "Ground truth"] + [m.upper() for m in METHODS]
     fig, axes = plt.subplots(len(rows), len(cols), figsize=(2.4 * len(cols) * hw[1] / hw[0], 2.5 * len(rows)),
                              squeeze=False)
     for r, i in enumerate(rows):
@@ -313,7 +313,7 @@ def plot_same_scene(ad2_root, cat, hw, maps_dir, thr, path):
         g = img.copy()
         g[gt] = (0.5 * g[gt] + [127, 0, 0]).astype(np.uint8)
         axes[r, 1].imshow(g)
-        for c, m in enumerate(ALL_METHODS, start=2):
+        for c, m in enumerate(METHODS, start=2):
             if m in M:
                 s = float(M[m]["scores"][i])
                 axes[r, c].imshow(overlay(img, M[m]["maps"][i].astype(np.float32), *rng[m]))

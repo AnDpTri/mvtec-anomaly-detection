@@ -27,6 +27,11 @@ def aupro(maps, masks, fpr_limit=0.3, n_steps=1000):
     return float(trapz(y, x) / fpr_limit)
 
 
+def image_scores(maps):
+    """Điểm ảnh = giá trị lớn nhất của anomaly map. maps (N,H,W) -> (N,)."""
+    return maps.reshape(len(maps), -1).max(1)
+
+
 def f1_max(y, s):
     p, r, t = precision_recall_curve(y, s)
     f1 = 2 * p * r / np.clip(p + r, 1e-12, None)
@@ -56,7 +61,7 @@ def per_defect_auroc(scores, labels, dtypes):
 
 def thresholds_from_val(val_maps):
     """Ngưỡng = trung bình + 3 độ lệch chuẩn trên ảnh good validation (cách của paper MVTec AD 2)."""
-    s = val_maps.reshape(len(val_maps), -1).max(1)
+    s = image_scores(val_maps)
     return dict(thr_img=float(s.mean() + 3 * s.std()), thr_pix=float(val_maps.mean() + 3 * val_maps.std()))
 
 

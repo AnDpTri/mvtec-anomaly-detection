@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from src.tn.config import IMG_SIZE
+from src.tn.config import SQUARE
 
 MVTEC_URL = ("https://www.mydrive.ch/shares/38536/3830184030e49fe74747669442f0f282/download/"
              "420938113-1629952094/mvtec_anomaly_detection.tar.xz")
@@ -22,7 +22,6 @@ AD2_URLS = {
     "sheet_metal": "https://www.mydrive.ch/shares/163660/945bbe557279ee9cdc6728374fac93ca/download/466654829-1743167110/sheet_metal.tar.gz",
 }
 VISA_URL = "https://amazon-visual-anomaly.s3.us-west-2.amazonaws.com/VisA_20220922.tar"
-SQUARE = (IMG_SIZE, IMG_SIZE)
 
 
 # ----------------------------------------------------------------- đọc ảnh

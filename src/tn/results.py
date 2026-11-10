@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-METHOD_FILES = ("ae", "padim", "patchcore")
+from src.tn.config import METHODS
 
 
 class Results:
@@ -29,7 +29,7 @@ class Results:
 
     def load(self, exp, dedup=True):
         """Gộp CSV của cả 3 phương pháp; dedup giữ lần chạy cuối của mỗi key."""
-        dfs = [pd.read_csv(self.path(exp, m)) for m in METHOD_FILES if self.path(exp, m).exists()]
+        dfs = [pd.read_csv(self.path(exp, m)) for m in METHODS if self.path(exp, m).exists()]
         if not dfs:
             return pd.DataFrame()
         df = pd.concat(dfs, ignore_index=True)

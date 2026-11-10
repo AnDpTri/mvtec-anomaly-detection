@@ -9,15 +9,13 @@ import pandas as pd
 import torch
 
 from src.tn import data as D
-from src.tn.config import DEVICE, IMG_SIZE
+from src.tn.config import SQUARE, require_gpu
 from src.tn.methods import (extract_features, fit_method, free_gpu, predict_method, run_on_features, ae_fit,
                             ae_predict)
-from src.tn.metrics import compute_metrics, metrics_full, thresholds_from_val
+from src.tn.metrics import compute_metrics, image_scores, metrics_full, thresholds_from_val
 from src.tn.screw import align_screw, circ_dist, screw_pose
 from src.tn.shifts import apply_shift, geo_shift_fullres, shift_list, suppress_invalid
 from src.tn.splits import n_contam, split_fit_val, tn1_ratios_for, tn1_split, tn2_split
-
-SQUARE = (IMG_SIZE, IMG_SIZE)
 
 
 # ----------------------------------------------------------------- TN1, TN2: đặc trưng trích một lần
@@ -69,7 +67,7 @@ def _run_once(res, cache, exp, method, cat, key, train_items, test_idx, seed, ex
     maps = _run_method(method, C, train_items, test_idx, seed)
     elapsed = time.time() - t0
     labels = [C["data"]["test"][i]["label"] for i in test_idx]
-    scores = maps.reshape(len(maps), -1).max(1)
+    scores = image_scores(maps)
     met = compute_metrics(scores, maps, labels, C["masks"][test_idx])
     res.append(exp, method, dict(key=key, category=cat, method=method, seed=seed, n_train=len(train_items),
                                  n_test=len(test_idx), n_test_defect=int(sum(labels)), time_s=round(elapsed, 1),
@@ -156,7 +154,7 @@ def run_tn2b(res, R, shots, seeds, methods=("padim", "patchcore")):
                     tr_idx = [i for _, i in train_items]
                     t0 = time.time()
                     maps = run_on_features(method, tr_f[tr_idx], te_f[test_idx], seed=seed)
-                    scores = maps.reshape(len(maps), -1).max(1)
+                    scores = image_scores(maps)
                     met = compute_metrics(scores, maps, labels[test_idx], masks_v[test_idx])
                     dmin = circ_dist(R["ang_te"][test_idx][:, None], R["ang_tr"][tr_idx][None, :]).min(1)
                     res.append_rows("tn2rot_scores", pd.DataFrame(dict(
@@ -202,7 +200,7 @@ def run_matrix(res, exp, loader, cats, methods, hw=SQUARE, coreset=None):
             for tgt in todo:
                 T = tests.get(tgt)
                 maps = predict_method(model, T["imgs"])
-                scores = maps.reshape(len(maps), -1).max(1)
+                scores = image_scores(maps)
                 met = metrics_full(scores, maps, T["labels"], T["masks"], thr)
                 res.append(exp, method, dict(key=f"{src}->{tgt}|{method}", source=src, target=tgt, method=method,
                                              same=int(src == tgt), n_fit=len(fit_p), **thr, **met))
@@ -241,7 +239,7 @@ def run_adapt(res, loader, source, targets, ks, seeds, methods, hw, coreset=None
                         model = fit_method(method, train, seed=seed, coreset=coreset)
                         thr = thresholds_from_val(predict_method(model, imgs_tval))
                         maps = predict_method(model, T["imgs"])
-                        scores = maps.reshape(len(maps), -1).max(1)
+                        scores = image_scores(maps)
                         met = metrics_full(scores, maps, T["labels"], T["masks"], thr)
                         res.append(exp, method, dict(key=key, source=source, target=tgt, regime=regime, k=k,
                                                      seed=seed, method=method, n_train=len(train), **thr, **met))
@@ -273,7 +271,7 @@ def run_tn4a(res, ad2_root, cats_hw, methods, coreset, maps_dir):
             model = fit_method(method, imgs_tr, coreset=coreset)
             thr = thresholds_from_val(predict_method(model, imgs_val))
             maps = predict_method(model, imgs_te)
-            scores = maps.reshape(len(maps), -1).max(1)
+            scores = image_scores(maps)
             np.savez_compressed(maps_dir / f"ad2_{cat}_{method}.npz", maps=maps.astype(np.float16), scores=scores)
             res.append_rows("tn4_ad2_scores", pd.DataFrame(dict(
                 category=cat, method=method, cond=conds, scene=[t["scene"] for t in d["test"]],
@@ -319,7 +317,7 @@ def run_tn4b(res, data_root, cats, methods, shifts, overrides):
             for kind, level in todo:
                 te_s, m_s = apply_shift(imgs_te, masks, kind, level)
                 maps = predict_method(model, te_s)
-                scores = maps.reshape(len(maps), -1).max(1)
+                scores = image_scores(maps)
                 met = metrics_full(scores, maps, labels, m_s, thr)
                 res.append("tn4_syn", method, dict(key=f"{cat}|{method}|{kind}|{level}", category=cat, method=method,
                                                    kind=kind, level=level, **thr, **met))
@@ -333,7 +331,7 @@ def run_tn4b(res, data_root, cats, methods, shifts, overrides):
 def run_tn4b_geo(res, data_root, cats, methods, shifts, overrides, erode=32, min_visible=0.5,
                  exp="tn4_syn_geo2"):
     """Xoay/dịch ở độ phân giải gốc, loại vùng viền khỏi chấm điểm, bỏ ảnh lỗi mà vùng lỗi bị đẩy ra ngoài."""
-    assert DEVICE == "cuda", "Không có GPU (hết hạn mức Colab?) — dừng lại, chạy lại khi có GPU T4."
+    require_gpu()
     for cat in cats:
         geo = shift_list(cat, shifts, overrides, kinds=("rotate", "translate"))
         done = {m: res.done(exp, m) for m in methods}
@@ -359,7 +357,7 @@ def run_tn4b_geo(res, data_root, cats, methods, shifts, overrides, erode=32, min
                 if key in done[method]:
                     continue
                 maps = suppress_invalid(predict_method(models[method], te_s), valid)[keep]
-                scores = maps.reshape(len(maps), -1).max(1)
+                scores = image_scores(maps)
                 met = metrics_full(scores, maps, labels[keep], (m_s & valid)[keep], thrs[method])
                 res.append(exp, method, dict(key=key, category=cat, method=method, kind=kind, level=level,
                                              valid_frac=round(float(valid.mean()), 3), n_excluded=int((~keep).sum()),
