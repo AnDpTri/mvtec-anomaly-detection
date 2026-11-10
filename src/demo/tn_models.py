@@ -1,7 +1,7 @@
 """Nạp mô hình của tools/build_tn_models.py (results/checkpoints_tn/<loại>/) và chấm một ảnh.
 
 Mỗi loại có ae.pt, padim.pt, patchcore_bank.pt và meta.json (kích thước ảnh, ngưỡng mean + 3σ trên ảnh good
-validation, chỉ số trên tập test). Suy luận dùng lại đúng hàm của src/tn nên kết quả trùng với lúc fit.
+validation, chỉ số trên tập test). Suy luận dùng lại đúng lớp Detector của src/tn nên kết quả trùng với lúc fit.
 """
 import json
 import os
@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import pandas as pd
 
-from src.tn import methods
+from src.tn.methods import Detector, load_detector
 from src.tn.config import ROOT
 
 MODEL_ROOT = Path(os.environ.get("TN_CHECKPOINT_ROOT", ROOT / "results" / "checkpoints_tn"))
@@ -38,8 +38,9 @@ def load_meta(cat):
 
 
 @lru_cache(maxsize=1)                       # PaDiM sheet_metal chiếm ~650 MB, chỉ giữ một mô hình
-def load_model(cat, method):
-    return methods.load_model(MODEL_ROOT / cat, method)
+def load_model(cat: str, method: str) -> Detector:
+    """Mô hình `method` của loại `cat`, nạp từ MODEL_ROOT/<loại>/."""
+    return load_detector(MODEL_ROOT / cat, method)
 
 
 def to_input(image, hw):
@@ -54,7 +55,7 @@ def predict(image, cat, method):
     """-> (ảnh đã resize, anomaly map, điểm ảnh, meta)."""
     meta = load_meta(cat)
     x = to_input(image, tuple(meta["hw"]))
-    m = methods.predict_method(load_model(cat, method), x)[0]
+    m = load_model(cat, method).predict(x)[0]
     return x[0], m, float(m.max()), meta
 
 

@@ -28,9 +28,9 @@ sys.path.insert(0, str(ROOT))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.tn import data as D                                         # noqa: E402
-from src.tn.config import DEVICE, METHODS                            # noqa: E402
-from src.tn.methods import fit_method, free_gpu, predict_method, save_model   # noqa: E402
-from src.tn.metrics import metrics_full, thresholds_from_val         # noqa: E402
+from src.tn.config import DEVICE, METHODS, free_gpu                  # noqa: E402
+from src.tn.methods import fit_detector                              # noqa: E402
+from src.tn.metrics import image_scores, metrics_full, thresholds_from_val   # noqa: E402
 from src.tn.splits import split_fit_val                              # noqa: E402
 
 DATA = ROOT / "datasets"
@@ -90,20 +90,20 @@ def build(cat, data_dir=DATA, out_dir=OUT):
 
     for method in METHODS:
         t1 = time.time()
-        st = fit_method(method, imgs_fit, coreset=coreset)
-        val_maps = predict_method(st, imgs_val)
+        model = fit_detector(method, imgs_fit, coreset=coreset)
+        val_maps = model.predict(imgs_val)
         thr = thresholds_from_val(val_maps)
-        maps = predict_method(st, imgs_te)
-        scores = maps.reshape(len(maps), -1).max(1)
+        maps = model.predict(imgs_te)
+        scores = image_scores(maps)
         met = metrics_full(scores, maps, labels, masks, thr)
-        save_model(st, out)
+        model.save(out)
         meta["thr"][method] = dict(**thr, lo=float(val_maps.mean()))
         meta["metrics"][method] = {k: round(float(met[k]), 4) for k in
                                    ("i_auroc", "p_auroc", "aupro", "img_fpr_thr", "img_tpr_thr")}
         scores_df[f"score_{method}"] = scores
         print(f"  {method:9s} I-AUROC={met['i_auroc']:.3f} P-AUROC={met['p_auroc']:.3f} AUPRO={met['aupro']:.3f} "
               f"FPR@ngưỡng={met['img_fpr_thr']:.2f} TPR@ngưỡng={met['img_tpr_thr']:.2f} ({time.time() - t1:.0f}s)")
-        del st, val_maps, maps
+        del model, val_maps, maps
         free_gpu()
 
     meta["created"] = datetime.now().strftime("%Y-%m-%d %H:%M")

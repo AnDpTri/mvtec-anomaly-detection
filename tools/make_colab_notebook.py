@@ -1,6 +1,6 @@
 """Sinh goi_colab/build_tn_models_colab.ipynb: notebook Colab fit mô hình demo cho 9 loại.
 
-Code (src/tn, tools/build_tn_models.py, tools/download_mvtec.py) được nén và nhúng thẳng vào notebook,
+Code (src/tn và các gói con, tools/build_tn_models.py, tools/download_mvtec.py) được nén và nhúng thẳng vào notebook,
 nên chỉ cần tải một file .ipynb lên Colab. Sửa code thì chạy lại script này:  python tools/make_colab_notebook.py
 """
 import base64
@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "goi_colab" / "build_tn_models_colab.ipynb"
 FILES = [ROOT / "src" / "__init__.py", ROOT / "tools" / "build_tn_models.py", ROOT / "tools" / "download_mvtec.py",
-         *sorted((ROOT / "src" / "tn").glob("*.py"))]
+         *sorted((ROOT / "src" / "tn").rglob("*.py"))]
 
 
 def code_b64():

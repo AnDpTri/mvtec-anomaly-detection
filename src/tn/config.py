@@ -1,4 +1,5 @@
 """Siêu tham số chung cho mọi thí nghiệm TN (giữ đúng giá trị đã dùng để ra kết quả trong resuilts_6)."""
+import gc
 from pathlib import Path
 
 import torch
@@ -33,3 +34,10 @@ def check_gpu():
 
 def require_gpu():
     assert DEVICE == "cuda", "Không có GPU (hết hạn mức Colab?) — dừng lại, chạy lại khi có GPU T4."
+
+
+def free_gpu():
+    """Giải phóng bộ nhớ Python và cache CUDA giữa các lần fit."""
+    gc.collect()
+    if DEVICE == "cuda":
+        torch.cuda.empty_cache()

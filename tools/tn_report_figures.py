@@ -23,8 +23,8 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 from src.demo import tn_models  # noqa: E402
 from src.tn import data as D  # noqa: E402
-from src.tn.config import DEVICE, METHODS  # noqa: E402
-from src.tn.methods import MODEL_FILES, free_gpu, predict_method  # noqa: E402
+from src.tn.config import DEVICE, METHODS, free_gpu  # noqa: E402
+from src.tn.methods import DETECTORS  # noqa: E402
 
 N_TIME = 32                                      # số ảnh test dùng để đo thời gian suy luận
 NAME = {"ae": "Autoencoder", "padim": "PaDiM", "patchcore": "PatchCore"}
@@ -47,14 +47,14 @@ def cost():
         imgs = D.load_imgs([str(tn_models.DATA_ROOT / p) for p in df.path[:N_TIME]], tuple(meta["hw"]))
         for m in METHODS:
             model = tn_models.load_model(cat, m)
-            predict_method(model, imgs[:1])                           # khởi động GPU
+            model.predict(imgs[:1])                                   # khởi động GPU
             sync()
             t0 = time.perf_counter()
             for i in range(N_TIME):                                   # từng ảnh một, như khi dùng demo
-                predict_method(model, imgs[i:i + 1])
+                model.predict(imgs[i:i + 1])
             sync()
             ms = (time.perf_counter() - t0) / N_TIME * 1000
-            mb = (tn_models.MODEL_ROOT / cat / MODEL_FILES[m]).stat().st_size / 2**20
+            mb = (tn_models.MODEL_ROOT / cat / DETECTORS[m].filename).stat().st_size / 2**20
             rows.append(dict(loai=cat, pp=m, hw=f"{meta['hw'][0]}x{meta['hw'][1]}", ms_per_img=round(ms, 1),
                              mb=round(mb, 1)))
             print(f"{cat:11s} {m:9s} {ms:6.1f} ms/ảnh  {mb:6.1f} MB")
@@ -78,7 +78,7 @@ def figure(cat, dtype, k):
     ax[0].imshow(img[0]); ax[0].set_title("Ảnh" + ("" if wide else "\n"), fontsize=10)
     ax[1].imshow(mask, cmap="gray"); ax[1].set_title("Mặt nạ lỗi" + ("" if wide else "\n"), fontsize=10)
     for a, m in zip(ax[2:], METHODS):
-        amap = predict_method(tn_models.load_model(cat, m), img)[0]
+        amap = tn_models.load_model(cat, m).predict(img)[0]
         t = meta["thr"][m]
         norm = np.clip((amap - t["lo"]) / max(t["thr_pix"] - t["lo"], 1e-8), 0, 1)
         a.imshow(img[0]); a.imshow(norm, cmap="inferno", alpha=0.55, vmin=0, vmax=1)
