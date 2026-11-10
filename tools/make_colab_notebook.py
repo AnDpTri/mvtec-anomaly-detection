@@ -70,11 +70,11 @@ check_gpu(); require_gpu()
 Tải về ổ local của Colab: MVTec AD 3 loại từ bản sao Hugging Face (~760 MB; link tar.xz cũ của MVTec đã chết), MVTec AD 2 vial + sheet_metal từ trang MVTec (~2,5 GB), VisA từ AWS (~1,9 GB).
 """),
     code("""
-from src.tn import data as D
+from src.tn import download
 DATA = Path('/content/datasets')
 !python /content/repo/tools/download_mvtec.py {DATA}/MVTecAD grid screw transistor
-D.prepare_ad2(DATA / 'MVTecAD2', ['vial', 'sheet_metal'])
-D.prepare_visa(DATA / 'VisA', ['pcb1', 'pcb2', 'pcb3', 'pcb4'])
+download.prepare_ad2(DATA / 'MVTecAD2', ['vial', 'sheet_metal'])
+download.prepare_visa(DATA / 'VisA', ['pcb1', 'pcb2', 'pcb3', 'pcb4'])
 """),
     md("## 3. Fit 9 loại (~25 phút trên T4)"),
     code("""
