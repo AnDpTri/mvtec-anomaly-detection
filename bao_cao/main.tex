@@ -15,6 +15,10 @@
 \usetikzlibrary{calc}
 \usepackage[backend=biber,style=ieee,sorting=none,language=american]{biblatex}
 \addbibresource{references.bib}
+% chuỗi mặc định của biblatex là "visited on", "address"; đổi về cách ghi chuẩn IEEE
+% babel tiếng Việt làm biblatex nạp ngôn ngữ 'vietnamese' (dùng english.lbx), nên chuỗi của style ieee không áp vào
+\DeclareFieldFormat{url}{[Online]\adddot\addspace Available\addcolon\space\url{#1}\nopunct}
+\DeclareFieldFormat{urldate}{Accessed\addcolon\space#1}
 % Cho phép ngắt URL dài trong tài liệu tham khảo ở chữ thường, chữ hoa và chữ số
 \setcounter{biburllcpenalty}{7000}
 \setcounter{biburlucpenalty}{8000}
@@ -37,6 +41,7 @@
 \titleformat{\section}{\bfseries\large}{\thesection.}{0.5em}{}
 \titleformat{name=\section,numberless}{\bfseries\large}{}{0pt}{}
 \titleformat{\subsection}{\bfseries\normalsize}{\thesubsection.}{0.5em}{}
+\titleformat{\subsubsection}{\bfseries\itshape\normalsize}{\thesubsubsection.}{0.5em}{}
 
 % Mục lục
 \addto\captionsvietnamese{%  babel ghi đè nếu đặt trực tiếp
@@ -64,17 +69,32 @@
 \renewcommand{\cftchapleader}{\bfseries\cftdotfill{\cftdotsep}}
 \renewcommand{\cftchappagefont}{\bfseries}
 
+% cho hình lớn nằm chung trang với chữ thay vì đứng một mình giữa trang trống
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.8}
 \begin{document}
 
 \input{chapters/bia}
 
 \pagenumbering{roman}
+\input{chapters/loi_cam_on}
+\clearpage
+% Mục lục, danh mục hình, bảng giãn dòng 1,05 để không tràn sang một trang gần trống
+\begingroup
+\setstretch{1.05}
 \tableofcontents
 \clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{DANH MỤC HÌNH}
 \listoffigures
 \clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{DANH MỤC BẢNG}
 \listoftables
 \clearpage
+\endgroup
 \input{chapters/phan_cong}
 \clearpage
 \pagenumbering{arabic}

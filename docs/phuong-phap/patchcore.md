@@ -1,6 +1,6 @@
-# PatchCore · Phụ trách: cả hai (An 8 loại, Dưỡng 7 loại)
+# PatchCore
 
-Module: `src/patchcore/` · `run.py` (dùng Anomalib hoặc tự cài)
+Cài đặt: `greedy_coreset`, `patchcore_fit`, `patchcore_predict` trong `src/tn/methods.py`.
 Bài gốc: Roth et al., *Towards Total Recall in Industrial Anomaly Detection*, CVPR 2022.
 
 ## Mục tiêu
@@ -33,12 +33,8 @@ thấy **"ghi nhớ mẫu thật" đôi khi tốt hơn "tóm tắt bằng công 
 - Tốn RAM và chậm hơn PaDiM khi memory bank lớn → thí nghiệm phụ: coreset 1% vs 10%.
 - Lỗi logic (thiếu, lệch linh kiện ở transistor; đổi chỗ dây ở cable): từng mảnh nhìn vẫn bình thường.
 
-## Phối hợp hai người
-Hai người chia loại nên phải **dùng chung một cấu hình với nhau** (cùng cách triển khai, backbone, tầng,
-tỷ lệ coreset, seed); cấu hình đó là gì thì nhóm tự chọn và ghi vào cột `note`. Ghi chung một `results/results.csv`.
-
-## Triển khai: tự do
-Thư viện, kiến trúc, backbone, tầng, loss, siêu tham số, tăng cường dữ liệu đều **tự chọn**; chỉ cần giữ
-giao thức đánh giá chung và ghi cấu hình đã dùng vào CSV (xem [giao-dien-chung.md](../giao-dien-chung.md) mục 0).
-Các con số trong phần "Cách hoạt động" là **điểm xuất phát theo bài gốc**, không bắt buộc.
+## Cấu hình đang dùng
+WideResNet-50-2 pretrained ImageNet, layer2–3, gộp lân cận 3×3, đưa về 1024 chiều ở lưới H/8×W/8, greedy coreset
+(chiếu ngẫu nhiên xuống 128 chiều), khoảng cách tới patch gần nhất, làm mượt Gauss σ = 4. Coreset 10% cho MVTec AD,
+1% cho MVTec AD 2 và VisA; bank dưới 20.000 patch thì giữ nguyên. Hằng số ở `src/tn/config.py`.
 

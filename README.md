@@ -1,7 +1,7 @@
 # Phát hiện và định vị bất thường trên sản phẩm công nghiệp bằng học không giám sát
 
 Đề tài 22, môn Học sâu, lớp KHMT K22A.
-*Unsupervised Industrial Anomaly Detection and Localization on MVTec AD.*
+*Unsupervised Industrial Anomaly Detection and Localization on MVTec AD, MVTec AD 2 and VisA.*
 
 ## Mục tiêu
 Dạy máy nhận ra **cái khác thường** khi nó **chỉ được thấy cái bình thường**:
@@ -18,14 +18,11 @@ Dạy máy nhận ra **cái khác thường** khi nó **chỉ được thấy c�
 
 Mỗi phương pháp sau khắc phục điểm yếu của phương pháp trước: so pixel → so đặc trưng → bỏ ràng buộc vị trí.
 
-**Cố định cách đánh giá, tự do cách triển khai:** thư viện (Anomalib hay tự cài), kiến trúc, backbone,
-loss, siêu tham số đều tự chọn, miễn giữ giao thức đánh giá chung và ghi lại cấu hình
-([docs/giao-dien-chung.md](docs/giao-dien-chung.md) mục 0). File đề xuất gợi ý Anomalib cho PaDiM, PatchCore.
-
-## Cấu hình chung (để so sánh công bằng)
-Xem `configs/common.yaml`: ảnh 256×256, seed 42, cùng module `src/evaluation/`;
-AE dùng ảnh [0,1], PaDiM/PatchCore chuẩn hóa ImageNet theo backbone học trước.
-AUROC tính riêng từng loại rồi mới lấy trung bình. Chạy thử trên bottle, carpet, screw trước khi chạy đủ 15 loại.
+Cả ba phương pháp tự cài bằng PyTorch (`src/tn/methods.py`), cùng giao diện fit/predict, cùng hàm tính chỉ số
+(`src/tn/metrics.py`) và cùng siêu tham số chung (`src/tn/config.py`); backbone của PaDiM và PatchCore là
+WideResNet-50-2 học trước trên ImageNet. Đề tài dùng 9 loại: MVTec AD (grid, screw, transistor),
+MVTec AD 2 (vial, sheet_metal), VisA (pcb1–pcb4). Mỗi loại một mô hình, chỉ fit trên ảnh good,
+kết quả tính riêng từng loại. Giao diện giữa các phần: [docs/giao-dien-chung.md](docs/giao-dien-chung.md).
 
 ## Cài đặt
 ```bash
@@ -37,43 +34,40 @@ pip install -r requirements.txt  # PyTorch bản CUDA: cài theo hướng dẫn 
 ## Dữ liệu
 Không có trong repo. Xem [datasets/README.md](datasets/README.md):
 ```bash
-python tools/download_mvtec.py datasets/MVTecAD
+python tools/download_mvtec.py datasets/MVTecAD grid screw transistor
 ```
+MVTec AD 2 và VisA tải bằng notebook Colab (xem [datasets/README.md](datasets/README.md)).
 
-## Cấu trúc: mỗi module một người phụ trách
+## Cấu trúc
 ```
 src/
-├── common/        [Chung]  cấu hình, seed, quy trình chạy Anomalib dùng chung
-├── data/          [Dưỡng]  đọc MVTec AD (DataLoader)
-├── evaluation/    [Dưỡng]  image/pixel-AUROC, vẽ heatmap, ghi CSV
-├── autoencoder/   [An]     autoencoder + numpy_ae/ (bản tự viết bằng NumPy, tùy chọn)
-├── padim/         [Dưỡng]  PaDiM (Anomalib hoặc tự cài)
-├── patchcore/     [Chung]  PatchCore (Anomalib hoặc tự cài; An 8 loại, Dưỡng 7 loại)
-└── demo/          [An]     demo Gradio
-configs/common.yaml         cấu hình chung
-tools/                      tải dữ liệu, ghép ảnh mẫu
-results/                    kết quả (chỉ CSV được đưa lên git)
-docs/                       tài liệu: phân công, giao diện chung, dữ liệu, đánh giá, phương pháp
-.github/                    CODEOWNERS (ai duyệt module nào), mẫu Pull Request
+├── tn/            [Dưỡng]  config, data, splits, methods, metrics, shifts, screw, results, experiments, analysis
+└── demo/          [An]     demo Gradio: app.py, tn_models.py (nạp mô hình đã lưu)
+tools/                      fit mô hình demo, sinh notebook Colab, số liệu và hình cho báo cáo, tải MVTec AD
+notebooks/tn/               notebook Colab chạy TN1–TN5
+goi_colab/                  notebook Colab fit mô hình cho demo (sinh bằng tools/make_colab_notebook.py)
+tests/                      kiểm thử CPU: chia tập, chỉ số, fit/predict, demo
+results/                    kết quả (chỉ CSV được đưa lên git; mô hình trong results/checkpoints_tn/ không)
+docs/                       tài liệu: phân công, giao diện chung, dữ liệu, đánh giá, phương pháp, demo
+bao_cao/                    báo cáo LaTeX và bản Word
+.github/                    CODEOWNERS (ai duyệt module nào), mẫu Pull Request, kiểm thử tự động
 ```
-Mỗi module có `README.md` riêng: người phụ trách, mục tiêu, đầu vào/đầu ra, cách chạy.
 
 ## Cách chạy (từ thư mục gốc dự án)
 ```bash
-python -m src.autoencoder.train            # Autoencoder, đủ 15 loại
-python -m src.padim.run                    # PaDiM
-python -m src.patchcore.run               # PatchCore, đủ 15 loại
-python -m src.demo.app                     # Demo
+python tools/build_tn_models.py            # Fit mô hình cho demo (9 loại), ghi vào results/checkpoints_tn/
+python -m src.demo.app                     # Demo, cổng 7864
+python -m unittest discover -s tests -v    # Kiểm thử
+python tools/make_colab_notebook.py        # Sinh lại goi_colab/build_tn_models_colab.ipynb sau khi sửa src/tn
 ```
 
-Demo đã có phần suy luận từ checkpoint, điểm và heatmap. Xem [hướng dẫn demo](docs/demo.md) để tạo đủ 45 mô hình, tiếp tục sau gián đoạn và hiểu ngưỡng tham khảo. Kết quả Colab gốc nằm ở [results/results.csv](results/results.csv); [báo cáo kết quả](docs/ket-qua.md) nêu giới hạn so sánh thời gian. Chương 3 của [báo cáo LaTeX](bao_cao/main.tex) lấy bảng trực tiếp từ CSV.
+Demo kết luận lỗi/không lỗi theo ngưỡng đặt trên ảnh good validation. Cách tạo mô hình (trên máy hoặc Colab) và cách
+chọn ngưỡng: [hướng dẫn demo](docs/demo.md). Chỉ số của các mô hình: [docs/ket-qua.md](docs/ket-qua.md).
+Chương 3 của [báo cáo LaTeX](bao_cao/main.tex) lấy bảng trực tiếp từ CSV.
 
 ## Kết quả và báo cáo
 
-Đã có kết quả Colab cho cả 3 phương pháp trên đủ 15 loại, lưu tại
-[results/results.csv](results/results.csv). Image-AUROC/pixel-AUROC trung bình:
-AE 0,756/0,843; PaDiM 0,890/0,960; PatchCore 0,983/0,980.
-Chi tiết và giới hạn phép đo thời gian: [docs/ket-qua.md](docs/ket-qua.md).
+Chỉ số của 27 mô hình (9 loại × 3 phương pháp): [docs/ket-qua.md](docs/ket-qua.md). Thí nghiệm TN1–TN5: Chương 3 của báo cáo và `notebooks/tn/`.
 
 - Báo cáo chỉnh sửa bằng Word, có trường Zotero: [bao_cao/bao_cao.docx](bao_cao/bao_cao.docx).
 - Bản PDF biên dịch từ LaTeX: [bao_cao/main.pdf](bao_cao/main.pdf).
@@ -82,27 +76,23 @@ Chi tiết và giới hạn phép đo thời gian: [docs/ket-qua.md](docs/ket-qu
   Zotero cùng Word add-in dùng để làm mới trích dẫn. Cài `python-docx` riêng nếu cần xuất Word.
   Trước khi xuất lại phải giữ các chỉnh sửa trực tiếp của người dùng trong bản Word.
 
-Demo đọc checkpoint đã lưu; dataset và checkpoint không nằm trên GitHub.
-Xem [docs/demo.md](docs/demo.md) để tạo hoặc cấu hình thư mục checkpoint.
-Các mô hình hiện chưa có ngưỡng hiệu chuẩn độc lập, nên giao diện hiển thị điểm và heatmap,
-chưa kết luận tốt/lỗi. Bản PaDiM tự cài và Autoencoder NumPy là phần tùy chọn chưa triển khai;
-luồng thực nghiệm chính dùng PyTorch/Anomalib.
+Demo đọc mô hình đã lưu trong `results/checkpoints_tn/`; dataset và mô hình không nằm trên GitHub.
 
 ## Phân công
-- **An (Đặng Hoàng An, AnDpTri):** `src/autoencoder/`, `src/demo/`, README.
-- **Dưỡng (Trần Văn Dưỡng, NeoFortran):** `src/data/`, `src/evaluation/`, `src/padim/`, thí nghiệm phụ.
-- **Chung:** `src/common/`, `src/patchcore/` (An 8 loại, Dưỡng 7 loại).
+- **An (Đặng Hoàng An, AnDpTri):** `src/demo/`, README.
+- **Dưỡng (Trần Văn Dưỡng, NeoFortran):** `src/tn/`, `notebooks/tn/`.
+- **Chung:** `tools/`, `tests/`, `docs/`, báo cáo.
 
-Mọi phương pháp chạy trên **đủ 15 loại**. Chi tiết: [docs/phan-cong.md](docs/phan-cong.md).
-Kế hoạch theo ngày và checklist: board Trello của nhóm. Hạn nộp: 27/11/2026.
+Chi tiết: [docs/phan-cong.md](docs/phan-cong.md). Kế hoạch theo ngày và checklist: board Trello của nhóm. Hạn nộp: 27/11/2026.
 
 ## Tài liệu
 | | |
 |---|---|
-| [docs/giao-dien-chung.md](docs/giao-dien-chung.md) | Định dạng dữ liệu trao đổi giữa các phần (đọc trước khi viết code) |
-| [docs/du-lieu.md](docs/du-lieu.md) | Thống kê và lưu ý xử lý 15 loại MVTec AD |
-| [docs/danh-gia.md](docs/danh-gia.md) | Image-AUROC, pixel-AUROC |
+| [docs/giao-dien-chung.md](docs/giao-dien-chung.md) | Hàm và file trao đổi giữa các phần (đọc trước khi viết code) |
+| [docs/du-lieu.md](docs/du-lieu.md) | Ba bộ dữ liệu, 9 loại đang dùng, lưu ý xử lý |
+| [docs/danh-gia.md](docs/danh-gia.md) | AUROC, AUPRO, ngưỡng |
 | [docs/phuong-phap/](docs/phuong-phap/) | Autoencoder, PaDiM, PatchCore: mục tiêu, cách hoạt động, điểm yếu |
+| [docs/demo.md](docs/demo.md), [docs/ket-qua.md](docs/ket-qua.md) | Chạy demo, chỉ số các mô hình |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Quy trình nhánh, commit, Pull Request |
 
 ## Quy ước
@@ -113,6 +103,6 @@ Kế hoạch theo ngày và checklist: board Trello của nhóm. Hạn nộp: 27
 - Bergmann et al., *MVTec AD — A Comprehensive Real-World Dataset for Unsupervised Anomaly Detection*, CVPR 2019.
 - Defard et al., *PaDiM: a Patch Distribution Modeling Framework for Anomaly Detection and Localization*, 2020.
 - Roth et al., *Towards Total Recall in Industrial Anomaly Detection* (PatchCore), CVPR 2022.
-- Anomalib: <https://github.com/open-edge-platform/anomalib>
+- Heckler-Kram et al., *The MVTec AD 2 Dataset*; Zou et al., *SPot-the-Difference ... (VisA)*, ECCV 2022.
 
-Dữ liệu MVTec AD theo giấy phép CC BY-NC-SA 4.0 (chỉ dùng phi thương mại).
+Dữ liệu MVTec AD theo giấy phép CC BY-NC-SA 4.0 (chỉ dùng phi thương mại); xem giấy phép của MVTec AD 2 và VisA trong thư mục dữ liệu.

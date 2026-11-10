@@ -8,11 +8,14 @@ Dùng bản sao trên Hugging Face: <https://huggingface.co/datasets/foersben/mv
 (giữ nguyên cấu trúc gốc, số ảnh khớp bộ gốc).
 
 ```bash
-python tools/download_mvtec.py datasets/MVTecAD              # cả 15 loại (~4,9 GB)
-python tools/download_mvtec.py datasets/MVTecAD bottle screw # chỉ một vài loại
+python tools/download_mvtec.py datasets/MVTecAD grid screw transistor   # 3 loại của đề tài
+python tools/download_mvtec.py datasets/MVTecAD                         # cả 15 loại (~4,9 GB), không cần cho đề tài
 ```
 
-## Cấu trúc sau khi tải
+MVTec AD 2 (vial, sheet_metal) và VisA (pcb1–pcb4) tải bằng `prepare_ad2` và `prepare_visa` trong `src/tn/data.py`
+(đã gọi sẵn trong `goi_colab/build_tn_models_colab.ipynb`); đặt vào `datasets/MVTecAD2/` và `datasets/VisA/`.
+
+## Cấu trúc MVTec AD sau khi tải
 ```
 datasets/MVTecAD/
 ├── license.txt, readme.txt

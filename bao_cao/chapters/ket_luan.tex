@@ -1,21 +1,35 @@
 \chapter*{KẾT LUẬN}
 \addcontentsline{toc}{chapter}{KẾT LUẬN}
 
-Đề tài đã xây dựng và đánh giá ba phương pháp phát hiện và định vị bất thường không giám sát trên đủ 15 loại của
-MVTec AD theo cùng một giao thức. Autoencoder do nhóm tự thiết kế và huấn luyện; PaDiM và PatchCore dùng đặc trưng
-học trước qua thư viện Anomalib.
+Đề tài đã cài đặt và đánh giá ba phương pháp phát hiện và định vị bất thường không giám sát trên 9 loại sản phẩm của
+MVTec AD, MVTec AD 2 và VisA theo cùng một giao thức. Autoencoder, PaDiM và PatchCore đều do nhóm tự cài đặt; PaDiM và
+PatchCore dùng chung backbone Wide-ResNet-50-2 nên chênh lệch giữa chúng chỉ do cơ chế. Mỗi mô hình có ngưỡng đặt trên
+ảnh tốt tách riêng và được đưa vào một ứng dụng minh họa chạy trên máy cá nhân.
 
-Kết quả cho thấy PatchCore tốt nhất (image-AUROC 0,983, pixel-AUROC 0,980), sát số liệu của bài báo gốc. PaDiM đứng
-thứ hai (0,890 và 0,960), nhanh nhất, nhưng điểm ảnh kém tin cậy ở các loại vật thể xoay. Autoencoder thấp nhất
-(0,756 và 0,843): bản tái tạo mờ làm sai số xuất hiện ở viền và nền thay vì ở vùng lỗi, dù phương pháp vẫn tốt ở các
-loại có lỗi lớn như toothbrush. Trong phạm vi thực nghiệm này, dùng lại đặc trưng ImageNet hiệu quả hơn nhiều so
-với học tái tạo ảnh từ đầu trên vài trăm ảnh tốt.
+Trên dữ liệu chuẩn, PatchCore tốt nhất ở cả ba bộ dữ liệu (image-AUROC trung bình 0,937, pixel-AUROC 0,969, AUPRO
+0,848), và là phương pháp duy nhất dùng được tại ngưỡng: bắt được 75\% ảnh lỗi với 6\% báo nhầm. PaDiM thấp nhất
+ở screw, vial và pcb1--pcb3; khoảng cách với PatchCore lớn nhất ở screw, loại duy nhất xoay tự do, đúng như dự đoán từ
+việc nó gắn thống kê với vị trí. Autoencoder thấp nhất trên MVTec AD nhưng tốt hơn PaDiM ở ba trong bốn loại bảng
+mạch của VisA, nơi lỗi làm đổi màu cả một vùng.
 
-Các hướng phát triển xuất phát trực tiếp từ hạn chế ở Chương 3:
-\begin{itemize}
-  \item Chạy Autoencoder với nhiều seed và thử hàm mất mát SSIM~\cite{bergmannImprovingUnsupervisedDefect2019} để
-        biết phần nào của khoảng cách là do cấu hình.
-  \item Chạy PaDiM và PatchCore với cùng backbone để tách ảnh hưởng của cơ chế khỏi ảnh hưởng của backbone.
-  \item Chọn ngưỡng quyết định từ một tập ảnh tốt tách riêng và đo tỷ lệ báo động giả, làm cơ sở cho việc dùng mô
-        hình trong một hệ thống kiểm tra thực tế.
-\end{itemize}
+Năm thí nghiệm chuyên sâu cho thấy thứ hạng đó không còn đúng khi điều kiện thay đổi, nhưng cách mỗi phương pháp thất
+bại phần lớn đoán trước được từ cơ chế của nó. Với tập huấn luyện lẫn 5--20\% ảnh lỗi, cả ba đều bền; PatchCore giảm
+đều, PaDiM bền nhất, Autoencoder dao động theo seed nhiều hơn chính mức suy giảm. Khi chỉ có vài ảnh tốt, PatchCore
+chỉ cần 4 ảnh với vật thể cố định như transistor, nhưng grid cần hơn 16 ảnh; còn với screw, nguyên nhân thất bại là góc xoay và độ lệch độ sáng trong dữ
+liệu chứ không phải số ảnh. Không phương pháp nào dùng được cho loại sản phẩm khác, nhưng PatchCore thích nghi được
+với 4 ảnh của loại mới, còn PaDiM bị hại khi trộn dữ liệu nguồn. Khi điều kiện chụp thay đổi, Autoencoder thua độ
+sáng, PaDiM thua nhiễu và vị trí, PatchCore thua làm mờ và ảnh quá tối; nhiều trường hợp AUROC gần như không đổi trong
+khi tỷ lệ báo nhầm lên 100\%. Mỗi kiểu thất bại cũng để lại một dấu hiệu nhận biết được trên bản đồ bất thường.
+
+Từ các kết quả này, nhóm khuyến nghị dùng PatchCore làm phương pháp mặc định nhưng phải kiểm soát độ nét của camera và
+nhiễu cảm biến; căn chỉnh vật thể khi có ít dữ liệu; luôn đặt lại ngưỡng khi đổi sản phẩm hoặc điều kiện chụp, và
+theo dõi tỷ lệ báo nhầm trên ảnh tốt theo thời gian thay vì chỉ nhìn AUROC; và kiểm tra các thống kê đơn giản của dữ
+liệu như độ sáng, góc xoay trước khi tin vào một kết quả quá tốt hoặc quá tệ.
+
+Các hướng phát triển xuất phát trực tiếp từ hạn chế ở Chương 3. Autoencoder cần được chạy với nhiều seed và thử
+hàm mất mát SSIM~\cite{bergmannImprovingUnsupervisedDefect2019} để biết phần nào của kết quả là do cấu hình. Ba kiểm
+tra cơ chế ở Mục~\ref{sec:tn5} cần được thực hiện để khẳng định các giải thích dựa trên bản đồ bất thường. Các biện
+pháp khắc phục đã gợi ý cần được thử trực tiếp: căn chỉnh góc tự động cho vật thể xoay, chuẩn hóa độ sáng hoặc tăng
+cường dữ liệu cho Autoencoder và PaDiM, cắt ảnh lớn như sheet\_metal thành nhiều mảnh, và đặt lại ngưỡng tự động khi
+phát hiện điều kiện chụp thay đổi. Cuối cùng, thực nghiệm có thể mở rộng ra toàn bộ các loại của ba bộ dữ liệu và
+sang các bộ dữ liệu gần với điều kiện sản xuất thật hơn, như Real-IAD với nhiều góc chụp cho mỗi sản phẩm.

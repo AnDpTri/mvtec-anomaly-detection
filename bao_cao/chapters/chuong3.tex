@@ -1,11 +1,163 @@
 \chapter{KẾT QUẢ THỰC NGHIỆM VÀ ĐÁNH GIÁ}
 
-\section{Thiết lập thực nghiệm}
+Chương này trình bày các chỉ số đánh giá, tiêu chí so sánh, môi trường và cách chạy thực nghiệm, rồi đến kết quả của
+ba phương pháp trên 9 loại, năm thí nghiệm chuyên sâu kiểm tra ba phương pháp trong điều kiện khác với giả định của
+bộ dữ liệu, chi phí tính toán và ứng dụng minh họa.
+
+\section{Chỉ số đánh giá}
+\label{sec:danh-gia}
+
+\subsection{Các chỉ số phân loại thông thường}
+
+Với bài toán phân loại hai lớp (lỗi là lớp dương, tốt là lớp âm), mỗi dự đoán rơi vào một trong bốn ô của ma trận
+nhầm lẫn: dương thật (TP), dương giả (FP), âm thật (TN), âm giả (FN). Từ đó có các chỉ số thường dùng:
+\begin{equation}
+  \begin{aligned}
+    \text{Accuracy} &= \frac{\text{TP}+\text{TN}}{\text{TP}+\text{TN}+\text{FP}+\text{FN}}, &\qquad
+    \text{Precision} &= \frac{\text{TP}}{\text{TP}+\text{FP}}, \\
+    \text{Recall} &= \frac{\text{TP}}{\text{TP}+\text{FN}}, &\qquad
+    F_1 &= \frac{2\,\text{Precision}\cdot\text{Recall}}{\text{Precision}+\text{Recall}} .
+  \end{aligned}
+  \label{eq:prf}
+\end{equation}
+Accuracy là tỷ lệ dự đoán đúng; Precision cho biết trong các mẫu bị báo lỗi có bao nhiêu là lỗi thật; Recall cho
+biết bắt được bao nhiêu phần lỗi thật; $F_1$ cân bằng hai chỉ số sau. Tất cả các chỉ số phân loại trên đều
+cần một ngưỡng quyết định cố định, và Accuracy còn bị lệch khi hai lớp chênh lệch số lượng, như ở mức điểm ảnh, nơi
+gần như mọi điểm ảnh đều bình thường.
+
+\subsection{Đường cong ROC và AUROC}
+
+Để quyết định tốt hay lỗi, cần một ngưỡng $t$: ảnh có $s(x) \ge t$ bị coi là lỗi. Với mỗi ngưỡng, tỷ lệ phát hiện
+đúng (TPR, chính là Recall) và tỷ lệ báo nhầm (FPR) là
+\begin{equation}
+  \text{TPR}(t) = \frac{\text{TP}(t)}{\text{TP}(t) + \text{FN}(t)}, \qquad
+  \text{FPR}(t) = \frac{\text{FP}(t)}{\text{FP}(t) + \text{TN}(t)} .
+  \label{eq:tpr-fpr}
+\end{equation}
+Đường cong ROC vẽ TPR theo FPR khi $t$ chạy qua mọi giá trị; AUROC là diện tích dưới đường cong
+đó~\cite{fawcettIntroductionROCAnalysis2006}. AUROC bằng xác suất một mẫu lỗi chọn ngẫu nhiên có điểm cao hơn một
+mẫu bình thường chọn ngẫu nhiên. AUROC bằng 1 nghĩa là có ngưỡng tách hoàn toàn hai nhóm; bằng 0,5 nghĩa là
+không hơn đoán ngẫu nhiên (Hình~\ref{fig:roc}).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.7225\linewidth]{images/duong_roc.png}
+  \caption[Đường cong ROC và AUROC]{Đường cong ROC và AUROC (hình minh họa khái niệm, không phải kết quả thực nghiệm)}
+  \label{fig:roc}
+\end{figure}
+
+Đề tài dùng AUROC để so sánh khả năng xếp hạng của các phương pháp mà không phụ thuộc ngưỡng, và để đối chiếu với kết
+quả đã công bố. Khác với Accuracy, AUROC không phụ thuộc tỷ lệ mẫu tốt/lỗi khi phân phối điểm của từng lớp giữ
+nguyên. Image-AUROC tính trên điểm $s(x)$ và nhãn tốt/lỗi của các ảnh test; pixel-AUROC tính trên giá trị
+$A_x(u,v)$ và mặt nạ vùng lỗi của mọi điểm ảnh test. Cả hai được tính riêng cho từng loại sản phẩm rồi lấy trung
+bình, vì điểm của các mô hình khác loại không cùng thang đo.
+
+\subsection{AUPRO}
+
+Pixel-AUROC tính trên từng điểm ảnh nên vùng lỗi lớn đóng góp nhiều hơn vùng lỗi nhỏ: một mô hình khoanh trúng một
+vết lớn mà bỏ sót mọi vết nhỏ vẫn có pixel-AUROC cao. AUPRO~\cite{bergmannMVTecADComprehensive2019} khắc phục điều
+đó. Với mỗi ngưỡng, chỉ số tính tỷ lệ phủ của từng vùng lỗi liên thông rồi lấy trung bình, sao cho mọi vùng lỗi có
+trọng số như nhau; AUPRO là diện tích dưới đường cong tỷ lệ phủ theo tỷ lệ điểm ảnh tốt bị báo nhầm, tính tới mức báo
+nhầm 30\% và chuẩn hóa về $[0,1]$.
+
+\subsection{Đặt ngưỡng quyết định}
+\label{sec:dat-nguong}
+
+AUROC và AUPRO không cần ngưỡng, nhưng khi dùng thật, mỗi ảnh phải được kết luận tốt hay lỗi. Ngưỡng của mỗi loại và
+mỗi phương pháp được đặt từ điểm $s_1,\dots,s_n$ của các ảnh tốt tách riêng, không dùng ảnh test:
+\begin{equation}
+  t = \bar{s} + 3\,\sigma_s ,
+  \label{eq:threshold}
+\end{equation}
+với $\bar{s}$ và $\sigma_s$ là trung bình và độ lệch chuẩn của $s_i$. Nếu điểm ảnh tốt có phân phối gần chuẩn thì
+ngưỡng này để lọt khoảng 0,1\% ảnh tốt. Đây là cách đặt ngưỡng của bài báo MVTec AD
+2~\cite{hecklerkramMVTecAD2Dataset2026}. Ngưỡng điểm ảnh của bản đồ tính cùng cách trên mọi điểm ảnh của ảnh tốt tách
+riêng, dùng làm mốc thang màu khi vẽ bản đồ. Tại ngưỡng này, đề tài báo cáo FPR và TPR trên tập test theo
+công thức~\eqref{eq:tpr-fpr}.
+
+\section{Tiêu chí so sánh và cấu hình thực nghiệm}
+\label{sec:tieu-chi}
+
+Độ chính xác chưa đủ để chọn phương pháp cho ứng dụng thực tế, nên ba phương pháp được so sánh trên năm nhóm tiêu chí
+(Bảng~\ref{tab:criteria}). Bảng~\ref{tab:hyper} tóm tắt cấu hình đã chạy của ba phương pháp; lý do từng lựa chọn ở
+Bảng~\ref{tab:lua-chon}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiêu chí so sánh và cách đo}
+  \label{tab:criteria}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{7.3cm} >{\raggedright\arraybackslash}p{4.6cm}@{}}
+    \toprule
+    Tiêu chí & Đại lượng đo & Trả lời câu hỏi \\
+    \midrule
+    Phát hiện & Image-AUROC theo từng loại và trung bình & Phân biệt ảnh lỗi với ảnh tốt tốt đến đâu \\
+    Định vị & Pixel-AUROC và AUPRO theo từng loại và trung bình & Khoanh đúng vùng lỗi đến đâu \\
+    Tại ngưỡng & Tỷ lệ ảnh tốt bị báo lỗi (FPR) và tỷ lệ ảnh lỗi bị bắt (TPR) tại ngưỡng đặt trên ảnh tốt tách riêng &
+      Dùng thật thì báo nhầm và bỏ sót bao nhiêu \\
+    Chi phí & Thời gian suy luận mỗi ảnh; dung lượng mô hình lưu lại & Có theo kịp tốc độ dây chuyền, cần bao nhiêu bộ nhớ \\
+    Định tính & Bản đồ bất thường trên cùng một ảnh lỗi, cùng thang màu theo ngưỡng & Vì sao phương pháp đúng hoặc sai \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Cấu hình đã chạy của ba phương pháp}
+  \label{tab:hyper}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{12cm}@{}}
+    \toprule
+    Phương pháp & Cấu hình \\
+    \midrule
+    Autoencoder & Đầu vào $256\times256$ trong $[0,1]$; cổ chai vector 256 chiều; MSE; Adam, tốc độ học $5\cdot10^{-4}$,
+                  lô 16, 1500 bước; làm mượt $\sigma = 4$; điểm ảnh là giá trị lớn nhất \\
+    PaDiM       & Wide-ResNet-50-2 học trước; \texttt{layer1}--\texttt{layer3}, giữ ngẫu nhiên $d = 100$ chiều (seed 1234);
+                  $\varepsilon = 0{,}01$; làm mượt $\sigma = 4$; điểm ảnh là giá trị lớn nhất \\
+    PatchCore   & Wide-ResNet-50-2 học trước; \texttt{layer2}--\texttt{layer3}, lân cận $3\times3$, 1024 chiều; coreset
+                  10\% (MVTec AD) hoặc 1\% (VisA, MVTec AD 2), chiếu ngẫu nhiên 128 chiều; làm mượt $\sigma = 4$;
+                  điểm ảnh là giá trị lớn nhất \\
+    Chung       & Ngưỡng $\bar{s} + 3\sigma_s$ trên ảnh tốt tách riêng; tách 15\% \texttt{train/good} với seed 0
+                  (MVTec AD, VisA) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Công cụ, môi trường và cách chạy thực nghiệm}
+\label{sec:cai-dat}
 \label{sec:thiet-lap}
 
-Bảng~\ref{tab:thiet-lap} và Bảng~\ref{tab:thiet-lap-chung} tổng hợp mọi thông tin cần để chạy lại thực nghiệm. Kết quả trong chương này lấy từ lần
-chạy đầy đủ trên Google Colab ngày 25/10/2026; máy cá nhân chỉ dùng để chạy thử trên loại bottle trước đó và để
-kiểm tra độ lặp lại (Mục~\ref{sec:han-che}).
+\subsection{Công cụ và thư viện}
+
+Cả ba phương pháp đều do nhóm tự cài đặt bằng PyTorch, không dùng thư viện phát hiện bất thường có sẵn.
+Bảng~\ref{tab:tools} liệt kê các thư viện được dùng và vai trò của chúng.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Công cụ và thư viện sử dụng trong đề tài}
+  \label{tab:tools}
+  \small
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{11.3cm}@{}}
+    \toprule
+    Thư viện & Vai trò trong đề tài \\
+    \midrule
+    PyTorch, torchvision~\cite{paszkePyTorchImperativeStyle2019} & Cài đặt cả ba phương pháp; huấn luyện Autoencoder; nạp
+      Wide-ResNet-50-2 học trước; làm mượt bản đồ \\
+    OpenCV & Đọc và thu nhỏ ảnh, mặt nạ \\
+    scikit-learn~\cite{scikit-learnMachineLearning} & Tính image-AUROC và pixel-AUROC \\
+    NumPy~\cite{numpyNumPy}, SciPy & Xử lý mảng bản đồ bất thường; tìm vùng lỗi liên thông khi tính AUPRO \\
+    Matplotlib~\cite{matplotlibVisualizationPython} & Vẽ ảnh, mặt nạ và bản đồ bất thường minh họa \\
+    pandas & Ghi và tổng hợp bảng kết quả \\
+    Gradio & Giao diện web của ứng dụng minh họa \\
+    Google Colab & Môi trường chạy thực nghiệm với GPU Tesla T4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Môi trường và thiết lập chung}
+
+Kết quả độ chính xác trong chương này lấy từ lần chạy đầy đủ trên Google Colab ngày 03/11/2026; máy cá nhân dùng để
+chạy thử và đo thời gian suy luận (Bảng~\ref{tab:thiet-lap} và Bảng~\ref{tab:thiet-lap-chung}).
 
 \begin{table}[htbp]
   \centering
@@ -14,14 +166,12 @@ kiểm tra độ lặp lại (Mục~\ref{sec:han-che}).
   \small
   \begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}p{6.2cm} >{\raggedright\arraybackslash}p{5.5cm}@{}}
     \toprule
-    Hạng mục & Chạy chính thức (Google Colab) & Chạy thử (máy cá nhân) \\
+    Hạng mục & Xây dựng mô hình và đánh giá (Google Colab) & Đo thời gian suy luận (máy cá nhân) \\
     \midrule
-    Phần cứng & GPU NVIDIA Tesla T4 16 GB; RAM 12,7 GB & GPU NVIDIA RTX 3050 Laptop 4 GB; RAM 16 GB \\
-    Python & 3.13 & 3.11.9 \\
-    PyTorch & Bản cài sẵn của Colab (dựng cho CUDA 13); phiên bản cụ thể không được ghi lại & 2.11.0 (CUDA 12.8),
-      torchvision 0.26.0 \\
-    Anomalib & 2.7.0 (cố định trong \texttt{requirements.txt}) & 2.7.0 \\
-    Thư viện khác & scikit-learn, SciPy, NumPy bản mới nhất khi cài & scikit-learn 1.9.1, SciPy 1.17.1, NumPy 2.4.6 \\
+    Phần cứng & GPU NVIDIA Tesla T4 16 GB & GPU NVIDIA RTX 3050 Laptop 4 GB; RAM 16 GB \\
+    PyTorch & 2.11.0 (CUDA 13), bản cài sẵn của Colab & 2.11.0 (CUDA 12.8), torchvision 0.26.0 \\
+    Thư viện khác & OpenCV, scikit-learn, SciPy, NumPy, pandas bản cài sẵn của Colab & Như bên trái, cài từ
+      \texttt{requirements.txt} \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -35,196 +185,385 @@ kiểm tra độ lặp lại (Mục~\ref{sec:han-che}).
     \toprule
     Hạng mục & Thiết lập \\
     \midrule
-    Dữ liệu & MVTec AD, đủ 15 loại, chia train/test gốc (Bảng~\ref{tab:mvtec}); ảnh và mặt nạ đổi về $256\times256$
-      (Mục~\ref{sec:preprocess}) \\
+    Dữ liệu & 9 loại của MVTec AD, MVTec AD 2 và VisA (Bảng~\ref{tab:mvtec}); kích thước ảnh theo
+      Mục~\ref{sec:preprocess} \\
     Cấu hình & Bảng~\ref{tab:hyper}; lý do từng lựa chọn ở Bảng~\ref{tab:lua-chon} \\
-    Seed & 42, đặt lại trước mỗi loại; mỗi phương pháp chạy một lần \\
-    Đo thời gian & Xây dựng mô hình: Autoencoder chỉ tính vòng huấn luyện, không gồm bước nạp ảnh ban đầu; PaDiM và PatchCore tính cả đọc ảnh, trích đặc trưng và fit mô hình. Suy luận: trung bình trên
-      mỗi ảnh test; với PaDiM và PatchCore chỉ tính lượt chạy mô hình, với Autoencoder có tính cả đọc ảnh
-      (Mục~\ref{sec:cai-dat}) \\
-    Mã nguồn & Commit \texttt{a839dd0} (PaDiM, PatchCore) và \texttt{37fb3e5} (Autoencoder); lệnh chạy ở Phụ lục \\
+    Seed & Tách validation: 0; chọn chiều PaDiM: 1234; Autoencoder và coreset: 0. Mỗi phương pháp chạy một lần \\
+    Mã nguồn & Commit \texttt{d0216d1}; lệnh chạy ở Phụ lục \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\section{Kết quả tổng hợp}
+\subsection{Tổ chức mã nguồn}
 
-Bảng~\ref{tab:summary} cho kết quả trung bình theo nhóm loại.
+Mã nguồn viết bằng Python, nằm trong thư mục \texttt{src/tn} của kho mã nguồn, tổ chức theo nguyên tắc ``cố định cách
+đánh giá, tự do cách triển khai''. Module dữ liệu đọc cả ba bộ dữ liệu về cùng một dạng (danh sách ảnh fit, ảnh
+validation, ảnh test kèm nhãn và mặt nạ) và tiền xử lý như Mục~\ref{sec:preprocess}. Module đánh giá tính mọi chỉ số
+ở Mục~\ref{sec:danh-gia}. Ba phương pháp cùng một giao diện: một hàm xây dựng mô hình từ ảnh tốt và một hàm trả về
+bản đồ bất thường cùng kích thước ảnh. Nhờ vậy, đổi cách cài đặt một phương pháp không làm thay đổi cách đánh giá.
+Cấu trúc thư mục chi tiết nằm ở Phụ lục.
+
+\subsection{Quy trình chạy một loại sản phẩm}
+
+Chương trình \texttt{tools/build\_tn\_models.py} xử lý lần lượt từng loại. Với mỗi loại, chương trình đọc danh sách
+ảnh fit, ảnh validation và tập test, nạp ảnh và mặt nạ ở kích thước của loại đó. Sau đó, với từng phương pháp, nó
+xây dựng mô hình từ ảnh fit, chạy trên ảnh validation để đặt ngưỡng và chạy trên tập test để lấy bản đồ và điểm của
+từng ảnh. Cuối cùng, chương trình tính các chỉ số và lưu mô hình, ngưỡng, chỉ số cùng điểm của từng ảnh test vào thư
+mục riêng của loại đó. Ứng dụng minh họa (Mục~\ref{sec:demo}) nạp lại đúng các mô hình và ngưỡng đã lưu này.
+
+\subsection{Cách chạy trên Colab}
+
+Thực nghiệm đầy đủ chạy trên Google Colab với GPU Tesla T4. Mã nguồn được nhúng sẵn trong một notebook, nên chỉ cần
+tải một tệp lên Colab. Dữ liệu được tải về ổ cục bộ của máy Colab, còn kết quả ghi thẳng lên Google Drive, nên khi
+phiên Colab bị ngắt thì không mất gì. Mỗi loại chạy xong được lưu ngay; khi chạy lại, chương trình bỏ qua các loại đã
+có kết quả và chạy tiếp từ loại còn thiếu.
+
+\subsection{Các vấn đề kỹ thuật đã xử lý}
+
+Ba vấn đề phát sinh khi chạy trên Colab. Phép nghịch đảo đồng thời hàng nghìn ma trận hiệp phương sai của PaDiM trên
+GPU Tesla T4 gây lỗi truy cập bộ nhớ trong thư viện CUDA đi kèm PyTorch trên Colab; nhóm tính nghịch đảo trên CPU ở độ
+chính xác 64 bit, theo từng khối vị trí, rồi mới chuyển kết quả lên GPU. Bộ nhớ đầy đủ của PatchCore cho một loại
+pcb lên tới khoảng 2 GB; nhóm giữ đặc trưng trên RAM ở dạng số thực 16 bit và chỉ đưa bản chiếu 128 chiều lên GPU khi
+chọn coreset, thuật toán không đổi. Cuối cùng, đường tải bản nén đầy đủ của MVTec AD trả về lỗi ``không tồn tại'',
+nên nhóm tải ba loại cần dùng từ bản sao trên Hugging Face.
+
+\subsection{Đo thời gian và vẽ hình minh họa}
+
+Thời gian suy luận được đo lại trên máy cá nhân (GPU RTX 3050 Laptop, 4 GB) bằng đúng mã của ứng dụng minh họa:
+mỗi mô hình chạy lần lượt từng ảnh trên 32 ảnh test đầu tiên, sau một lượt chạy khởi động, và chờ GPU làm xong mọi phép
+tính trước khi dừng đồng hồ. Thời gian gồm cả trích đặc trưng và làm mượt bản đồ, không gồm đọc ảnh từ đĩa.
+
+Hình minh họa gồm ảnh, mặt nạ lỗi và bản đồ của ba phương pháp trên cùng một ảnh lỗi (ảnh đầu tiên của kiểu lỗi đó).
+Thang màu của mỗi phương pháp đi từ giá trị trung bình của bản đồ trên ảnh tốt tách riêng (tối) tới ngưỡng điểm ảnh
+của bản đồ (sáng nhất), nên vùng sáng nhất là vùng vượt ngưỡng, và màu so sánh được giữa ba phương pháp.
+
+\section{Kết quả trên 9 loại sản phẩm}
+\label{sec:ket-qua-tong-hop}
+
+\subsection{Kết quả tổng hợp}
+
+Bảng~\ref{tab:summary} cho kết quả trung bình theo bộ dữ liệu.
 
 \begin{table}[htbp]
   \centering
-  \caption{AUROC trung bình theo nhóm loại (cao nhất in đậm)}
+  \caption{Kết quả trung bình theo bộ dữ liệu (cao nhất in đậm)}
   \label{tab:summary}
   \begin{tabular}{@{}llccc@{}}
     \toprule
-    Chỉ số & Nhóm & Autoencoder & PaDiM & PatchCore \\
+    Chỉ số & Bộ dữ liệu & Autoencoder & PaDiM & PatchCore \\
     \midrule
-    Image-AUROC & Texture (5 loại)  & 0,784 & 0,945 & \textbf{0,993} \\
-                & Object (10 loại)  & 0,741 & 0,863 & \textbf{0,977} \\
-                & Cả 15 loại        & 0,756 & 0,890 & \textbf{0,983} \\
+    Image-AUROC & MVTec AD (3 loại)   & 0,796 & 0,870 & \textbf{0,977} \\
+                & MVTec AD 2 (2 loại) & 0,644 & 0,705 & \textbf{0,806} \\
+                & VisA (4 loại)       & 0,925 & 0,857 & \textbf{0,972} \\
+                & Cả 9 loại           & 0,820 & 0,828 & \textbf{0,937} \\
     \midrule
-    Pixel-AUROC & Texture           & 0,781 & 0,944 & \textbf{0,970} \\
-                & Object            & 0,875 & 0,968 & \textbf{0,985} \\
-                & Cả 15 loại        & 0,843 & 0,960 & \textbf{0,980} \\
+    Pixel-AUROC & MVTec AD            & 0,904 & 0,962 & \textbf{0,984} \\
+                & MVTec AD 2          & 0,789 & 0,862 & \textbf{0,908} \\
+                & VisA                & 0,959 & 0,980 & \textbf{0,989} \\
+                & Cả 9 loại           & 0,903 & 0,948 & \textbf{0,969} \\
+    \midrule
+    AUPRO       & MVTec AD            & 0,744 & 0,896 & \textbf{0,935} \\
+                & MVTec AD 2          & 0,510 & 0,573 & \textbf{0,614} \\
+                & VisA                & 0,794 & 0,849 & \textbf{0,900} \\
+                & Cả 9 loại           & 0,714 & 0,803 & \textbf{0,848} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Thứ tự PatchCore, PaDiM, Autoencoder giữ nguyên ở cả hai chỉ số và cả hai nhóm loại. Khoảng cách lớn nhất là giữa
-Autoencoder và hai phương pháp dùng đặc trưng học trước: 0,756 so với 0,890 và 0,983 ở image-AUROC. Với cấu hình
-đã chạy, một mạng tái tạo tự học trên vài trăm ảnh tốt phát hiện lỗi kém hơn rõ rệt so với việc dùng lại đặc trưng
-ImageNet.
+PatchCore cao nhất ở cả ba chỉ số và cả ba bộ dữ liệu. Hai điểm khác với dự đoán ban đầu. Thứ nhất, PaDiM và
+Autoencoder gần bằng nhau ở image-AUROC trung bình (0,828 và 0,820), vì trên VisA Autoencoder đạt 0,925, cao hơn
+PaDiM 0,068. Thứ hai, cả ba phương pháp đều giảm mạnh trên MVTec AD 2: image-AUROC của PatchCore còn 0,806 và AUPRO
+chỉ 0,614. Hai loại của bộ này giảm vì hai lý do khác nhau: vial bị ảnh hưởng bởi ánh sáng lúc kiểm thử khác lúc
+huấn luyện (Mục~\ref{sec:nguong}), còn sheet\_metal kém ở mọi điều kiện chụp vì vết xước quá mảnh so với độ phân giải
+của đặc trưng (Mục~\ref{sec:tn4}).
 
-\section{Kết quả theo từng loại}
+\subsection{Kết quả theo từng loại}
 
 \begin{table}[htbp]
   \centering
-  \caption{AUROC theo từng loại (AE: Autoencoder; cao nhất mỗi chỉ số in đậm)}
+  \caption[Image-AUROC và pixel-AUROC theo từng loại]{Image-AUROC và pixel-AUROC theo từng loại (AE: Autoencoder; cao nhất mỗi chỉ số in đậm)}
   \label{tab:per-category}
   \small
-  \begin{tabular}{@{}lccccccc@{}}
+  \begin{tabular}{@{}llccccccc@{}}
     \toprule
-    & \multicolumn{3}{c}{Image-AUROC} && \multicolumn{3}{c}{Pixel-AUROC} \\
-    \cmidrule{2-4}\cmidrule{6-8}
-    Loại & AE & PaDiM & PatchCore && AE & PaDiM & PatchCore \\
+    & & \multicolumn{3}{c}{Image-AUROC} && \multicolumn{3}{c}{Pixel-AUROC} \\
+    \cmidrule{3-5}\cmidrule{7-9}
+    Bộ & Loại & AE & PaDiM & PatchCore && AE & PaDiM & PatchCore \\
     \midrule
-    carpet     & 0,553 & \textbf{0,988} & 0,988 && 0,805 & 0,989 & \textbf{0,991} \\
-    grid       & 0,857 & 0,829 & \textbf{0,990} && 0,844 & 0,916 & \textbf{0,981} \\
-    leather    & 0,807 & 0,999 & \textbf{1,000} && 0,916 & 0,987 & \textbf{0,992} \\
-    tile       & 0,766 & 0,943 & \textbf{1,000} && 0,559 & 0,906 & \textbf{0,955} \\
-    wood       & 0,938 & 0,966 & \textbf{0,987} && 0,780 & 0,922 & \textbf{0,930} \\
+    MVTec AD   & grid        & 0,836 & 0,935 & \textbf{0,988} && 0,834 & 0,946 & \textbf{0,981} \\
+               & screw       & 0,766 & 0,708 & \textbf{0,943} && 0,978 & 0,970 & \textbf{0,991} \\
+               & transistor  & 0,786 & 0,967 & \textbf{0,999} && 0,900 & 0,970 & \textbf{0,979} \\
     \midrule
-    bottle     & 0,926 & 0,998 & \textbf{1,000} && 0,935 & 0,978 & \textbf{0,986} \\
-    cable      & 0,579 & 0,838 & \textbf{0,988} && 0,877 & 0,953 & \textbf{0,985} \\
-    capsule    & 0,689 & 0,903 & \textbf{0,994} && 0,531 & 0,983 & \textbf{0,990} \\
-    hazelnut   & 0,923 & 0,720 & \textbf{1,000} && 0,968 & 0,972 & \textbf{0,988} \\
-    metal\_nut & 0,574 & 0,957 & \textbf{0,997} && 0,887 & 0,941 & \textbf{0,987} \\
-    pill       & 0,603 & 0,824 & \textbf{0,942} && 0,887 & 0,944 & \textbf{0,981} \\
-    screw      & 0,579 & 0,752 & \textbf{0,964} && 0,965 & 0,974 & \textbf{0,989} \\
-    toothbrush & \textbf{0,958} & 0,772 & 0,917 && 0,932 & 0,985 & \textbf{0,989} \\
-    transistor & 0,807 & 0,943 & \textbf{0,995} && 0,899 & \textbf{0,976} & 0,973 \\
-    zipper     & 0,776 & 0,927 & \textbf{0,977} && 0,865 & 0,970 & \textbf{0,981} \\
+    MVTec AD 2 & vial        & 0,686 & 0,633 & \textbf{0,842} && 0,887 & 0,882 & \textbf{0,923} \\
+               & sheet\_metal & 0,601 & \textbf{0,778} & 0,771 && 0,692 & 0,842 & \textbf{0,893} \\
+    \midrule
+    VisA       & pcb1        & 0,945 & 0,865 & \textbf{0,974} && 0,957 & 0,988 & \textbf{0,998} \\
+               & pcb2        & 0,928 & 0,836 & \textbf{0,955} && 0,985 & 0,981 & \textbf{0,987} \\
+               & pcb3        & 0,874 & 0,764 & \textbf{0,966} && 0,974 & 0,986 & \textbf{0,989} \\
+               & pcb4        & 0,954 & 0,963 & \textbf{0,994} && 0,919 & 0,966 & \textbf{0,984} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Bảng~\ref{tab:per-category} cho thấy trung bình che đi nhiều khác biệt giữa các loại.
+\begin{table}[htbp]
+  \centering
+  \caption{AUPRO theo từng loại (cao nhất in đậm)}
+  \label{tab:aupro}
+  \small
+  \begin{tabular}{@{}lccccccccc@{}}
+    \toprule
+    & grid & screw & transistor & vial & sheet\_metal & pcb1 & pcb2 & pcb3 & pcb4 \\
+    \midrule
+    AE        & 0,607 & 0,908 & 0,718 & 0,775 & 0,245 & 0,866 & 0,883 & 0,838 & 0,586 \\
+    PaDiM     & 0,870 & 0,889 & 0,929 & 0,754 & 0,393 & 0,897 & 0,840 & 0,824 & 0,835 \\
+    PatchCore & \textbf{0,902} & \textbf{0,949} & \textbf{0,952} & \textbf{0,797} & \textbf{0,431} & \textbf{0,940}
+              & \textbf{0,901} & \textbf{0,866} & \textbf{0,892} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-\textbf{PatchCore} cao nhất ở 13/15 loại theo image-AUROC và 14/15 loại theo pixel-AUROC. Hai loại thấp nhất là
-toothbrush (0,917) và pill (0,942). Toothbrush chỉ có 60 ảnh huấn luyện, ít nhất trong bộ dữ liệu, nên bộ nhớ ít
-mẫu bình thường hơn các loại khác.
+PatchCore cao nhất ở 8/9 loại theo image-AUROC và đủ 9/9 loại theo pixel-AUROC và AUPRO. Ngoại lệ duy nhất
+là sheet\_metal, nơi PaDiM nhỉnh hơn 0,007. Trên MVTec AD và VisA, image-AUROC của PatchCore từ 0,943 (screw) đến
+0,999 (transistor).
 
-\textbf{PaDiM} có pixel-AUROC cao (trên 0,9 ở mọi loại) nhưng image-AUROC thấp ở hazelnut (0,720), screw (0,752),
-toothbrush (0,772), pill (0,824), grid (0,829) và cable (0,838). Hazelnut là trường hợp rõ nhất: pixel-AUROC 0,972
-cho thấy bản đồ vẫn khoanh đúng vùng lỗi, nhưng điểm ảnh lấy giá trị lớn nhất của bản đồ, nên chỉ cần vài vị trí
-phản hồi mạnh trên ảnh tốt là điểm của ảnh tốt bị đẩy lên. Hazelnut và screw cũng là hai loại vật thể xoay giữa các
-ảnh, phù hợp với nhận xét ở Chương 2 rằng thống kê theo vị trí bị ảnh hưởng khi vật thể không cố định. Tuy vậy,
-PaDiM và PatchCore khác nhau cả về cơ chế lẫn backbone (ResNet-18 so với Wide-ResNet-50-2), nên thực nghiệm này
-không tách được phần chênh lệch do từng yếu tố.
+PaDiM thấp nhất trong ba phương pháp ở screw (0,708), vial (0,633) và pcb1--pcb3. Pixel-AUROC
+của nó vẫn từ 0,946 trở lên ở MVTec AD và VisA, tức bản đồ vẫn khoanh đúng vùng lỗi, nhưng điểm ảnh lấy giá trị lớn
+nhất của bản đồ nên chỉ cần vài vị trí phản hồi mạnh trên ảnh tốt là điểm của ảnh tốt bị đẩy lên. Với screw, đó là
+hệ quả của việc con vít xoay: tại một vị trí cố định, ảnh tốt lúc là thân vít, lúc là nền, nên phân phối Gauss tại
+vị trí đó rất rộng và kém phân biệt.
 
-\textbf{Autoencoder} có image-AUROC gần mức đoán ngẫu nhiên ở carpet (0,553), metal\_nut (0,574), cable và screw
-(0,579), và pixel-AUROC gần ngẫu nhiên ở tile (0,559) và capsule (0,531). Ngược lại, nó đạt 0,958 ở toothbrush,
-cao nhất trong ba phương pháp, và trên 0,92 ở bottle, hazelnut, wood. Đây là các loại có nền đơn giản và lỗi lớn,
-dễ thấy.
+Autoencoder tốt bất ngờ trên VisA (image-AUROC 0,874 đến 0,954), cao hơn PaDiM ở pcb1, pcb2, pcb3. Bảng mạch
+được chụp trên nền phẳng, lỗi thường là vết cháy, xước hay thiếu linh kiện làm đổi màu cả một vùng, nên sai số tái
+tạo đủ lớn. Ngược lại, Autoencoder gần mức ngẫu nhiên ở sheet\_metal (0,601) và vial (0,686), và thấp nhất ở mọi loại
+MVTec AD trừ screw. Xét theo kiểu lỗi, AUROC của Autoencoder chỉ 0,563 với screw/thread\_side (ren bên thân, vùng
+lỗi vài chục điểm ảnh) và 0,550 với transistor/damaged\_case, nhưng đạt 0,965 với transistor/misplaced, kiểu lỗi mà
+cả linh kiện lệch khỏi chỗ. Các số này lấy từ lần chạy ở mục này; Bảng~\ref{tab:tn5-screw} và
+Bảng~\ref{tab:tn5-khac} dùng mốc huấn luyện trên toàn bộ \texttt{train/good} (Mục~\ref{sec:tn-thiet-lap}) nên lệch
+nhẹ (0,643; 0,542; 0,978), nhưng thứ tự giữa các kiểu lỗi không đổi.
 
-Đối chiếu với ba giả thuyết đặt ra ở Mục~\ref{sec:chon-pp}:
-\begin{itemize}
-  \item[(G1)] \textbf{Đúng.} Theo image-AUROC, PatchCore cao hơn Autoencoder ở 14/15 loại và PaDiM ở 12/15 loại; theo
-        pixel-AUROC, cả hai cao hơn Autoencoder ở đủ 15 loại.
-  \item[(G2)] \textbf{Đúng một phần.} Hai khoảng cách image-AUROC lớn nhất giữa PatchCore và PaDiM đúng là ở hai loại
-        vật thể xoay: hazelnut (0,280) và screw (0,212). Nhưng metal\_nut, cũng xoay, chỉ chênh 0,041, trong khi grid
-        là bề mặt không xoay lại chênh 0,161. Như vậy ràng buộc vị trí giải thích được một phần; phần còn lại có thể
-        do khác biệt backbone.
-  \item[(G3)] \textbf{Đúng.} Autoencoder tốt ở toothbrush, wood, bottle, hazelnut, nơi nền đơn giản và lỗi lớn; kém ở
-        capsule và screw (lỗi nhỏ) và ở carpet, cable, metal\_nut (nhiều chi tiết khó tái tạo).
-\end{itemize}
+Đối chiếu với ba giả thuyết đặt ra ở Mục~\ref{sec:chon-pp}, giả thuyết G1 đúng với PatchCore nhưng sai với PaDiM.
+PatchCore cao hơn Autoencoder ở cả 9 loại theo image-AUROC và pixel-AUROC, còn PaDiM chỉ cao hơn Autoencoder ở 4/9
+loại theo image-AUROC và 6/9 loại theo pixel-AUROC; trên VisA, đặc trưng học trước không đủ bù cho ràng buộc theo vị
+trí.
 
-\section{Phân tích định tính}
+Giả thuyết G2 đúng. Khoảng cách image-AUROC lớn nhất giữa PatchCore và PaDiM là ở screw (0,235), tiếp theo là vial
+(0,209) và pcb3 (0,202). Vì hai phương pháp dùng cùng backbone và cùng cách tính điểm ảnh, chênh lệch này đến từ cơ
+chế: PatchCore so mỗi patch với mọi patch bình thường, không phụ thuộc vị trí.
 
-Hình~\ref{fig:hazelnut} và Hình~\ref{fig:capsule} so sánh bản đồ của ba phương pháp trên cùng một ảnh lỗi. Mỗi
-hàng gồm ảnh, mặt nạ lỗi và bản đồ bất thường; thang màu của mỗi phương pháp cố định cho cả loại đó (phân vị 1\% và
-99,5\% của mọi bản đồ test), nên màu so sánh được giữa các ảnh cùng phương pháp nhưng không so sánh được giữa các
-phương pháp.
+Giả thuyết G3 đúng một phần. Autoencoder tốt ở VisA và transistor/misplaced, nơi lỗi lớn hoặc đổi màu rõ, và kém ở
+các lỗi nhỏ (screw/thread\_side, sheet\_metal). Nhưng screw lại là loại MVTec AD duy nhất Autoencoder hơn PaDiM, vì
+nền trắng đơn giản và Autoencoder không bị ảnh hưởng bởi việc vít xoay.
+
+\subsection{Kết quả tại ngưỡng}
+\label{sec:nguong}
+
+AUROC chỉ cho biết khả năng xếp hạng. Khi dùng thật, mỗi ảnh phải được kết luận tốt hay lỗi theo một ngưỡng chốt
+trước. Bảng~\ref{tab:threshold} cho tỷ lệ báo nhầm (FPR, ảnh tốt bị báo lỗi) và tỷ lệ bắt lỗi (TPR, ảnh lỗi bị phát
+hiện) trên tập test, tại ngưỡng $\bar{s} + 3\sigma_s$ đặt trên ảnh tốt tách riêng (Mục~\ref{sec:dat-nguong}).
+
+\begin{table}[htbp]
+  \centering
+  \caption[FPR và TPR tại ngưỡng đặt trên ảnh tốt tách riêng]{Tỷ lệ báo nhầm (FPR) và tỷ lệ bắt lỗi (TPR) tại ngưỡng đặt trên ảnh tốt tách riêng}
+  \label{tab:threshold}
+  \small
+  \begin{tabular}{@{}lccccccc@{}}
+    \toprule
+    & \multicolumn{3}{c}{FPR} && \multicolumn{3}{c}{TPR} \\
+    \cmidrule{2-4}\cmidrule{6-8}
+    Loại & AE & PaDiM & PatchCore && AE & PaDiM & PatchCore \\
+    \midrule
+    grid        & 0,00 & 0,05 & 0,05 && 0,00 & 0,56 & 0,96 \\
+    screw       & 0,00 & 0,02 & 0,05 && 0,08 & 0,08 & 0,72 \\
+    transistor  & 0,02 & 0,00 & 0,03 && 0,15 & 0,68 & 1,00 \\
+    vial        & 0,00 & 0,00 & 0,14 && 0,04 & 0,00 & 0,52 \\
+    sheet\_metal & 0,00 & 0,00 & 0,13 && 0,21 & 0,00 & 0,41 \\
+    pcb1        & 0,04 & 0,03 & 0,04 && 0,43 & 0,13 & 0,73 \\
+    pcb2        & 0,00 & 0,03 & 0,04 && 0,40 & 0,17 & 0,77 \\
+    pcb3        & 0,08 & 0,01 & 0,00 && 0,41 & 0,17 & 0,67 \\
+    pcb4        & 0,03 & 0,02 & 0,03 && 0,49 & 0,52 & 0,96 \\
+    \midrule
+    Trung bình  & 0,02 & 0,02 & 0,06 && 0,25 & 0,26 & 0,75 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Ngưỡng $\bar{s} + 3\sigma_s$ giữ được tỷ lệ báo nhầm thấp: trung bình 2\% với Autoencoder và PaDiM, 6\% với PatchCore.
+Cái giá là bỏ sót: Autoencoder và PaDiM chỉ bắt được khoảng một phần tư ảnh lỗi, PatchCore bắt được 75\%. Ở grid,
+transistor và pcb4, PatchCore bắt được từ 96\% ảnh lỗi trở lên với không quá 5\% báo nhầm. Bảng này cho thấy rõ hơn
+AUROC khoảng cách giữa các phương pháp khi dùng thật: PaDiM có image-AUROC 0,935 ở grid nhưng tại ngưỡng chỉ bắt
+được 56\% ảnh lỗi, vì điểm của ảnh lỗi và ảnh tốt nằm sát nhau ở vùng ngưỡng.
+
+\begin{table}[htbp]
+  \centering
+  \caption[PatchCore trên vial theo điều kiện chụp]{PatchCore trên vial theo điều kiện chụp (mỗi điều kiện 5 ảnh tốt, 15 ảnh lỗi)}
+  \label{tab:vial-cond}
+  \small
+  \begin{tabular}{@{}lccccccc@{}}
+    \toprule
+    & bình thường & quá sáng & quá tối & dịch 1 & dịch 2 & dịch 3 & dịch 4 \\
+    \midrule
+    Image-AUROC & 0,907 & 0,920 & 0,667 & 0,907 & 0,920 & 0,920 & 0,907 \\
+    FPR         & 0,00  & 0,00  & 1,00  & 0,00  & 0,00  & 0,00  & 0,00 \\
+    TPR         & 0,40  & 0,47  & 0,93  & 0,53  & 0,33  & 0,47  & 0,53 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Tỷ lệ báo nhầm 14\% của PatchCore trên vial đến hoàn toàn từ một điều kiện (Bảng~\ref{tab:vial-cond}): khi ảnh quá
+tối, cả 5 ảnh tốt đều vượt ngưỡng, nên ``bắt lỗi'' 93\% ở điều kiện này không có ý nghĩa. Ở các điều kiện còn lại,
+PatchCore không báo nhầm ảnh nào và image-AUROC giữ quanh 0,91. Như vậy, đặc trưng học trước chịu được phần lớn thay
+đổi ánh sáng, nhưng ngưỡng đặt trên ảnh chụp ở điều kiện bình thường thì không: ảnh quá tối làm điểm của mọi ảnh tăng
+lên. Trên sheet\_metal, báo nhầm 13\% của PatchCore rải đều ở ba mức dịch ánh sáng (mỗi mức 1/4 ảnh tốt). Autoencoder
+và PaDiM có FPR bằng 0 ở cả hai loại, nhưng ngưỡng của chúng cao hơn điểm của hầu hết ảnh lỗi, nên chỉ bắt được
+0--21\% ảnh lỗi.
+
+\subsection{Phân tích định tính}
+
+Các hình dưới đây so sánh bản đồ của ba phương pháp trên cùng một ảnh lỗi. Thang màu của mỗi phương pháp đi từ mức
+trung bình trên ảnh tốt tách riêng (tối) tới ngưỡng điểm ảnh (sáng nhất), nên vùng sáng là vùng vượt ngưỡng và màu so
+sánh được giữa ba phương pháp. Tiêu đề mỗi bản đồ ghi điểm của ảnh chia cho ngưỡng ảnh và kết luận tương ứng.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\linewidth]{images/ket_qua/hazelnut_crack_ae.png}\\
-  \includegraphics[width=0.82\linewidth]{images/ket_qua/hazelnut_crack_padim.png}\\
-  \includegraphics[width=0.82\linewidth]{images/ket_qua/hazelnut_crack_patchcore.png}
-  \caption{Hazelnut, lỗi nứt. Từ trên xuống: Autoencoder, PaDiM, PatchCore}
-  \label{fig:hazelnut}
+  \includegraphics[width=\linewidth]{images/ket_qua/tn_grid_bent.png}
+  \caption{Grid, lỗi cong lưới}
+  \label{fig:grid}
 \end{figure}
 
-Với hạt dẻ nứt (Hình~\ref{fig:hazelnut}), Autoencoder chỉ sáng ở viền vết nứt, phần bên trong gần như không có phản
-hồi. Mạng dựng lại ảnh mờ, nên sai số tập trung ở nơi có biên sắc nét chứ không phủ hết vùng lỗi. PaDiM phủ được
-vùng nứt nhưng có thêm một vùng sáng ở đáy hạt, nơi không có lỗi; đây là kiểu phản hồi sai làm điểm ảnh tốt tăng lên
-như đã nêu ở mục trước. PatchCore phủ vùng nứt rõ nhất và nền gần như không có phản hồi.
+Với lưới bị cong ở ba chỗ (Hình~\ref{fig:grid}), PaDiM và PatchCore sáng đúng cả ba vết, nền gần như tối. Autoencoder
+chỉ hơi sáng ở viền vết cong: lưới lặp lại được dựng lại khá tốt ở mọi nơi, kể cả chỗ cong, nên sai số tại vùng lỗi
+không nổi hơn nền và điểm ảnh chỉ bằng 0,27 lần ngưỡng.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.82\linewidth]{images/ket_qua/capsule_crack_ae.png}\\
-  \includegraphics[width=0.82\linewidth]{images/ket_qua/capsule_crack_padim.png}\\
-  \includegraphics[width=0.82\linewidth]{images/ket_qua/capsule_crack_patchcore.png}
-  \caption{Capsule, lỗi nứt nhỏ. Từ trên xuống: Autoencoder, PaDiM, PatchCore}
-  \label{fig:capsule}
+  \includegraphics[width=\linewidth]{images/ket_qua/tn_screw_thread_side.png}
+  \caption{Screw, lỗi ren bên thân}
+  \label{fig:screw}
 \end{figure}
 
-Với viên nang có vết nứt nhỏ (Hình~\ref{fig:capsule}), Autoencoder phản hồi trên nền và dọc mép viên nang, không
-chạm vào vết nứt; điều này khớp với pixel-AUROC 0,531 của loại capsule. PaDiM và PatchCore đều có điểm sáng tại vết
-nứt. Cả hai còn phản hồi mạnh tại một vết nhỏ trên nền phía trên viên nang, có thể thấy trong ảnh gốc nhưng không
-được đánh dấu trong mặt nạ. Ví dụ này cho thấy một phần ``báo động giả'' của các phương pháp đặc trưng là những bất
-thường có thật nhưng nằm ngoài định nghĩa lỗi của bộ dữ liệu.
+Với con vít lỗi ren bên thân (Hình~\ref{fig:screw}), vùng lỗi chỉ là ba chấm nhỏ. Autoencoder sáng dọc cả thân vít,
+nơi ren có nhiều cạnh sắc khó tái tạo. PaDiM có nhiều đốm sáng rải rác trên nền, đúng kiểu phản hồi sai do vít xoay
+đã nêu ở mục trước. PatchCore vượt ngưỡng nhưng vùng sáng nhất nằm trên nền bên trái con vít chứ không ở vết ren; ảnh
+này được kết luận đúng là lỗi nhưng vì lý do sai. Đây là giới hạn của việc chỉ nhìn điểm ảnh: cần xem cả bản đồ.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{images/ket_qua/tn_transistor_misplaced.png}
+  \caption{Transistor, lỗi lệch vị trí (cả linh kiện bị đặt lệch khỏi chỗ)}
+  \label{fig:transistor}
+\end{figure}
+
+Với transistor bị đặt lệch (Hình~\ref{fig:transistor}), mặt nạ đánh dấu cả vùng linh kiện lẽ ra phải nằm.
+PatchCore và PaDiM phủ gần trọn vùng đó. Autoencoder sáng ở viền chân và viền thân linh kiện, nơi ảnh dựng lại khác
+ảnh thật nhiều nhất, nhưng vẫn dưới ngưỡng (0,91 lần).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{images/ket_qua/tn_pcb3_bent.png}
+  \caption{Pcb3, chân linh kiện bị cong}
+  \label{fig:pcb3}
+\end{figure}
+
+Với bảng mạch có chân linh kiện bị cong (Hình~\ref{fig:pcb3}), Autoencoder cho điểm cao nhất (2,73 lần ngưỡng) và
+vùng sáng nằm đúng quanh chân cong ở mép trái bảng mạch. PatchCore cũng sáng đúng vùng đó. PaDiM có phản hồi ở vùng
+lỗi nhưng cả nền xanh phía trên và dưới bảng mạch cũng sáng, nên điểm ảnh không vượt ngưỡng. Ví dụ này minh họa vì sao
+Autoencoder hơn PaDiM trên VisA.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{images/ket_qua/tn_vial_bad.png}
+  \caption{Vial, ảnh lỗi chụp ở điều kiện quá sáng}
+  \label{fig:vial}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{images/ket_qua/tn_sheet_metal_bad.png}
+  \caption{Sheet\_metal, ba vết xước mảnh, ảnh chụp ở điều kiện quá sáng}
+  \label{fig:sheet}
+\end{figure}
+
+Hai loại của MVTec AD 2 cho thấy giới hạn chung (Hình~\ref{fig:vial} và~\ref{fig:sheet}). Với vial chụp quá sáng,
+PaDiM sáng mạnh ở hai bên nền, nơi ánh sáng khác lúc huấn luyện, và không thấy cục lắng ở đáy lọ. PatchCore vượt
+ngưỡng (1,10 lần) nhưng vùng sáng cũng nằm chủ yếu ở nền. Với sheet\_metal, các vết xước mảnh vài điểm ảnh sau khi thu nhỏ, trên một
+bề mặt vốn lấm tấm; cả ba bản đồ đều lốm đốm trên toàn tấm, không phương pháp nào khoanh rõ vết xước. Điều này khớp
+với AUPRO chỉ 0,25--0,43 ở loại này.
+
+\input{chapters/chuong3_tn}
 
 \section{Chi phí tính toán}
 
 \begin{table}[htbp]
   \centering
-  \caption{Chi phí tính toán trên Tesla T4}
+  \caption[Thời gian suy luận và dung lượng mô hình]{Thời gian suy luận một ảnh trên RTX 3050 Laptop và dung lượng mô hình mỗi loại}
   \label{tab:cost}
   \begin{tabular}{@{}lccc@{}}
     \toprule
     & Autoencoder & PaDiM & PatchCore \\
     \midrule
-    Thời gian xây dựng mô hình, cả 15 loại & 22 phút & 6 phút & 30 phút \\
-    Thời gian suy luận trung bình (ms/ảnh) & 44,8$^{*}$ & 5,5 & 35,5 \\
-    Dung lượng mô hình mỗi loại (MB) & 45 & 158 & 36--235 (TB 145) \\
+    Suy luận, ảnh $256\times256$ (ms/ảnh)          & 3,9--4,2 & 13--16 & 32--40 \\
+    Suy luận, ảnh $256\times320$, VisA (ms/ảnh)    & 4,3--4,9 & 16--17 & 25--26 \\
+    Suy luận, sheet\_metal $256\times1024$ (ms/ảnh) & 10,5 & 37 & 54 \\
+    Dung lượng mô hình mỗi loại (MB)               & 45 & 118--631 & 4--54 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-PaDiM nhanh nhất ở cả hai giai đoạn vì chỉ cần một lượt trích đặc trưng bằng ResNet-18 và phép nhân ma trận nhỏ
-tại mỗi vị trí. PatchCore chậm hơn PaDiM khoảng 5 lần khi xây dựng: thuật toán chọn coreset phải chọn tuần tự từng
-vector, và số vector tăng theo số ảnh, nên hazelnut (391 ảnh) mất 299 giây trong khi toothbrush (60 ảnh) mất 10
-giây. Khi suy luận, PatchCore phải tìm láng giềng gần nhất trong bộ nhớ cho từng patch nên cũng chậm hơn PaDiM.
+Autoencoder nhanh nhất vì chỉ chạy một mạng nhỏ. PaDiM và PatchCore đều phải chạy Wide-ResNet-50-2 để trích đặc trưng;
+riêng bước này mất khoảng 6--8 ms mỗi ảnh. PatchCore chậm nhất với MVTec AD vì coreset 10\% có 18--28 nghìn vector,
+mỗi patch kiểm thử phải so với tất cả; với VisA, coreset 1\% chỉ khoảng 9,8 nghìn vector nên PatchCore còn
+nhanh hơn trên ảnh lớn hơn. Ngay cả trường hợp chậm nhất, sheet\_metal với PatchCore, vẫn dưới 0,1 giây mỗi ảnh trên
+GPU máy tính xách tay.
 
-Có hai giới hạn khi đọc Bảng~\ref{tab:cost}. Thứ nhất, $^{*}$thời gian suy luận của Autoencoder có tính cả thời gian
-đọc ảnh từ Google Drive, còn của PaDiM và PatchCore chỉ tính lượt chạy mô hình, nên không so sánh trực tiếp được.
-Thứ hai, dung lượng của PaDiM và PatchCore chưa tính backbone học trước dùng chung (ResNet-18 khoảng 45 MB,
-Wide-ResNet-50-2 khoảng 265 MB).
+Dung lượng thì ngược lại: PaDiM lớn nhất vì lưu một ma trận $100\times100$ cho mỗi vị trí, nên tăng theo kích thước
+ảnh, tới 631 MB với sheet\_metal. Coreset của PatchCore chỉ 4--54 MB. Hai con số này chưa tính backbone dùng chung
+(Wide-ResNet-50-2, khoảng 132 MB). Trên Colab, ở 6 loại có ghi lại thời gian, cả ba phương pháp của một loại, gồm xây dựng mô
+hình, đặt ngưỡng và đánh giá, mất từ 84 giây (vial) đến 215 giây (sheet\_metal).
 
 \section{So sánh với kết quả đã công bố}
 
-PatchCore với coreset 10\% được báo cáo đạt image-AUROC 0,990 và pixel-AUROC 0,981 trên
-MVTec AD~\cite{rothTotalRecallIndustrial2022}; kết quả của nhóm là 0,983 và 0,980. Chênh lệch ở image-AUROC có thể
-do khác biệt tiền xử lý: bài gốc cắt vùng giữa $224\times224$ sau khi đổi kích thước, còn giao thức của nhóm giữ
-nguyên ảnh $256\times256$ để bản đồ khớp toàn bộ mặt nạ.
+PatchCore với coreset 10\% được báo cáo đạt image-AUROC 0,990 và pixel-AUROC 0,981 trung bình trên 15 loại MVTec
+AD~\cite{rothTotalRecallIndustrial2022}; trên ba loại MVTec AD của đề tài, nhóm đạt 0,977 và 0,984. Ba loại này gồm
+screw, loại khó nhất của MVTec AD với hầu hết phương pháp, nên trung bình thấp hơn là hợp lý. Ngoài ra, cách làm của
+nhóm khác bài gốc ở hai điểm: không cắt vùng giữa ảnh và không dùng bước hiệu chỉnh trọng số khi tính điểm ảnh.
 
-PaDiM được báo cáo đạt pixel-AUROC 0,975 với Wide-ResNet-50-2~\cite{defardPaDiMPatchDistribution2021}; nhóm dùng
-ResNet-18 và đạt 0,960. Với Autoencoder, bài báo PaDiM trích lại pixel-AUROC 0,82 cho Autoencoder dùng sai số
-bình phương~\cite{defardPaDiMPatchDistribution2021}; Autoencoder của nhóm đạt 0,843. Kết quả của cả ba phương pháp
-nằm trong khoảng hợp lý so với các số đã công bố.
+PaDiM được báo cáo đạt pixel-AUROC 0,975 với Wide-ResNet-50-2 trên MVTec AD~\cite{defardPaDiMPatchDistribution2021};
+nhóm đạt 0,962 trên ba loại. Kết quả ở Bảng~\ref{tab:per-category} cũng khớp với những lần chạy cùng cấu hình
+trong các thí nghiệm chuyên sâu, chạy riêng trước đó trên cùng loại GPU: đường chéo của ma trận nguồn và đích ở Thí
+nghiệm 3 (pcb1--pcb4) và mốc không thay đổi ở Thí nghiệm 4 (screw, transistor) chênh image-AUROC tối đa 0,001 với cả
+ba phương pháp, cho thấy quy trình lặp lại được. Khi đổi sang GPU khác, Autoencoder dao động hơn vì được huấn luyện từ
+khởi tạo ngẫu nhiên (Mục~\ref{sec:han-che}).
+
+\section{Ứng dụng minh họa}
+\label{sec:demo}
+
+Nhóm xây dựng một giao diện web bằng Gradio để dùng thử các mô hình đã lưu. Người dùng chọn loại sản phẩm, phương pháp
+và tải ảnh lên; giao diện trả về bản đồ bất thường chồng lên ảnh (cùng thang màu như các hình ở trên), điểm của ảnh,
+kết luận lỗi hay không lỗi theo ngưỡng đã lưu, kèm image-AUROC, tỷ lệ báo nhầm và tỷ lệ bắt lỗi của mô hình đó trên
+tập test. Ứng dụng chỉ suy luận, không huấn luyện lại, và chạy được hoàn toàn trên máy cá nhân. Điểm tính lại trong
+ứng dụng sai khác điểm lúc đánh giá dưới 0,1\%.
 
 \section{Hạn chế}
 \label{sec:han-che}
 
-\begin{itemize}
-  \item \textbf{Một lần chạy.} Chưa có độ lệch chuẩn qua nhiều seed. PaDiM và PatchCore gần như tất định: chạy lại
-        loại bottle trên một GPU khác (RTX 3050) cho PaDiM cùng kết quả 0,9976/0,9776 và PatchCore lệch ở chữ số thứ
-        tư. Autoencoder thì dao động: cùng mã nguồn, bottle đạt 0,926 trên T4 và 0,902 trên RTX 3050.
-  \item \textbf{So sánh PaDiM và PatchCore không cùng backbone}, nên không tách được ảnh hưởng của cơ chế và của
-        backbone.
-  \item \textbf{Autoencoder chỉ thử một cấu hình} (sai số bình phương, latent 256). Khi chạy thử, mất mát có lúc
-        tăng vọt (epoch 80 trên bottle) rồi hồi lại, cho thấy tốc độ học $10^{-3}$ có thể hơi cao.
-  \item \textbf{Chưa chọn ngưỡng quyết định.} AUROC đánh giá khả năng xếp hạng; để dùng thực tế cần chọn ngưỡng từ
-        ảnh tốt không tham gia huấn luyện và đo tỷ lệ báo động giả tại ngưỡng đó.
-\end{itemize}
+Kết quả trên 9 loại và các Thí nghiệm 3, 4, 5 chỉ chạy một lần; Thí nghiệm 1 lặp 5 seed và Thí nghiệm 2 lặp 3 seed,
+nên các khác biệt dưới khoảng 0,02 AUROC không nên coi là có ý nghĩa. PaDiM và PatchCore gần như tất định, còn
+Autoencoder thì dao động: cùng mã nguồn, grid đạt image-AUROC 0,836 trên T4 và 0,804 trên RTX 3050. Autoencoder
+cũng chỉ được thử một cấu hình (sai số bình phương, cổ chai 256, 1500 bước); hàm mất mát SSIM và các kích thước cổ
+chai khác chưa được thử; các biến thể mạnh hơn có thể thay đổi kết luận về độ nhạy với độ sáng và lỗi nhỏ.
+Autoencoder còn nhận mọi ảnh ở kích thước 256 $\times$ 256, nên ảnh không vuông bị ép tỷ lệ trước khi vào mạng:
+sheet\_metal (256 $\times$ 1024) bị nén 4 lần theo chiều ngang, làm vết xước vốn đã mảnh càng mảnh hơn. Đây có thể là
+một phần lý do Autoencoder chỉ đạt 0,601 ở loại này, và so sánh với PaDiM, PatchCore trên sheet\_metal vì vậy chưa
+hoàn toàn công bằng. Với PaDiM và PatchCore, ảnh VisA được đưa về cùng 256 $\times$ 320, nên pcb3 (tỷ lệ gốc khoảng
+1,63) cũng bị ép khoảng 23\% theo chiều ngang.
+
+Kết quả trên 9 loại chưa đại diện cho toàn bộ ba bộ dữ liệu. Tập test của MVTec AD 2 theo từng điều kiện chụp chỉ có
+4--5 ảnh tốt, nên FPR theo điều kiện có sai số lớn. Grid chỉ có 57 ảnh lỗi nên Thí nghiệm 1 trên grid dừng ở 10\%.
+Kết quả dịch ảnh trên screw và grid ở Thí nghiệm 4 có thể còn bị ảnh hưởng bởi vùng biên nên không dùng để kết luận,
+và ba kiểm tra cơ chế ở cuối Mục~\ref{sec:tn5} chưa được thực hiện, nên một số giải thích vẫn là giả thuyết được bản
+đồ bất thường ủng hộ chứ chưa được chứng minh trực tiếp.
+
+Ngưỡng được đặt trên ảnh chụp ở điều kiện bình thường, nên khi ánh sáng thay đổi mạnh như ảnh quá tối của vial, ngưỡng
+không còn đúng. Ngưỡng $\bar{s} + 3\sigma_s$ cũng chặt nên Autoencoder và PaDiM bỏ sót phần lớn ảnh lỗi; ngưỡng khác
+chưa được so sánh. Cuối cùng, thời gian suy luận được đo trên máy cá nhân chứ không phải trên phần cứng triển khai,
+và thời gian xây dựng mô hình trên Colab chỉ ghi được tổng theo loại, không tách theo phương pháp.

@@ -1,16 +1,13 @@
-# Thư viện cho Autoencoder, PaDiM, PatchCore.
+# Thư viện cho Autoencoder, PaDiM, PatchCore (tự cài, không dùng Anomalib).
 # PyTorch bản CUDA cài theo hướng dẫn tại https://pytorch.org (chọn đúng phiên bản CUDA của máy).
 # Trên Colab, torch/torchvision đã có sẵn bản CUDA nên pip sẽ giữ nguyên.
-#
-# Khóa phiên bản Anomalib vì API thay đổi giữa các bản lớn; các thư viện khác để mở.
 torch
 torchvision
-anomalib==2.7.0
 scikit-learn
 scipy
 numpy
 pillow
 matplotlib
-pyyaml
 pandas
 gradio
+opencv-python-headless   # src/tn (thí nghiệm TN1–TN5)

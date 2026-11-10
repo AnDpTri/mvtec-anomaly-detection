@@ -1,35 +1,35 @@
-% Lề riêng cho bìa: đối xứng để chữ nằm giữa khung, đủ xa hoa văn ở các góc
-\newgeometry{left=3cm,right=3cm,top=3.6cm,bottom=3.6cm}
+% Bìa theo phong cách bìa của Nhóm 01: khung viền đôi, cỡ chữ, độ đậm và vị trí từng dòng đo trên PDF của họ
+% (đơn vị bp tính từ góc dưới trái trang A4); giữ phông của báo cáo này, chỉ hai dòng tên báo cáo màu đỏ.
+% Nhóm này có 2 thành viên nên dòng giáo viên hướng dẫn cách tên cuối cùng một khoảng như bìa gốc.
 \begin{titlepage}
-% Viền hoa văn theo mẫu bìa của trường (ảnh lấy từ bìa báo cáo mẫu), giữ tỷ lệ, đặt giữa trang.
-% vien_bia_xanh.png: như vien_bia.jpg nhưng khung ngoài tô màu xanhbien, hoa văn giữ màu đen
-\definecolor{xanhbien}{RGB}{0,51,153}
-\begin{tikzpicture}[remember picture, overlay]
-  \node at (current page.center)
-    {\includegraphics[width=17.2cm,height=26.5cm,keepaspectratio]{images/vien_bia_xanh.png}};
-\end{tikzpicture}\par
-\centering
-{\bfseries ĐẠI HỌC THÁI NGUYÊN\par
-TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG\par
-KHOA CÔNG NGHỆ THÔNG TIN\par}
-\vspace{1cm}
-\includegraphics[width=3.5cm]{images/img01.png}\par
-\vspace{1.5cm}
-{\bfseries\Large BÁO CÁO DỰ ÁN\par}
-{\bfseries\large HỌC PHẦN HỌC SÂU (DEEP LEARNING)\par}
-\vspace{1.5cm}
-{\bfseries Đề tài:\par}
-\vspace{0.3cm}
-{\bfseries\Large PHÁT HIỆN VÀ ĐỊNH VỊ BẤT THƯỜNG\\ TRÊN SẢN PHẨM CÔNG NGHIỆP\\ BẰNG HỌC KHÔNG GIÁM SÁT\par}
-\vspace{1.5cm}
-\begin{tabular}{@{}l l@{}}
-\bfseries Tên nhóm: & \color{xanhbien}\bfseries NHÓM 13 \\[0.4cm]
-\bfseries Sinh viên thực hiện: & \color{xanhbien}\bfseries Đặng Hoàng An \\
- & \color{xanhbien}\bfseries Trần Văn Dưỡng \\
- & \color{xanhbien}\bfseries Lớp KHMT K22A \\[0.4cm]
-\bfseries Giáo viên hướng dẫn: & TS. Ngô Hữu Huy \\
-\end{tabular}
-\vfill
-{\bfseries THÁI NGUYÊN, NĂM 2026\par}
+\newcommand{\coChu}[1]{\fontsize{#1}{1.2\dimexpr #1pt\relax}\selectfont}
+% xdvipdfmx nhân mọi kích thước với 0,998792 nên đơn vị được bù 1/0,998792;
+% gốc trang của tikz lệch 0,553 bp theo chiều dọc so với mép giấy nên dịch xuống bù lại
+\begin{tikzpicture}[remember picture, overlay, x=1.0012095bp, y=1.0012095bp,
+  shift={([yshift=-0.553bp]current page.south west)}, every node/.style={inner sep=0pt, outer sep=0pt}]
+  \draw[line width=2.59032bp] (92.016,88.324) rectangle (545.016,767.824);
+  \draw[line width=0.79701bp] (96.828,93.136) rectangle (540.203,763.011);
+  % đầu trang
+  \node[anchor=base] at (318.513,735.865) {\coChu{13}TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG};
+  \node[anchor=base] at (318.513,718.949) {\coChu{13}\bfseries KHOA CÔNG NGHỆ THÔNG TIN};
+  \draw[line width=0.4981bp] (219.420,700.292) -- (417.605,700.292);
+  \node[anchor=south west] at (261.887,577.518) {\includegraphics[width=4cm]{images/img01.png}};
+  % tên báo cáo
+  \node[anchor=base] at (318.513,523.319) {\coChu{24}\bfseries\color{red}BÁO CÁO DỰ ÁN};
+  \node[anchor=base] at (318.513,498.443) {\coChu{19}\bfseries\color{red}HỌC PHẦN HỌC SÂU (DEEP LEARNING)};
+  % đề tài
+  \node[anchor=base west] at (127.405,444.249) {\coChu{13}\bfseries Đề tài:};
+  \node[anchor=base] at (318.513,397.196) {\coChu{16}\bfseries PHÁT HIỆN VÀ ĐỊNH VỊ BẤT THƯỜNG TRÊN SẢN};
+  \node[anchor=base] at (318.513,373.314) {\coChu{16}\bfseries PHẨM CÔNG NGHIỆP BẰNG HỌC KHÔNG GIÁM SÁT};
+  % thông tin nhóm
+  \node[anchor=base west] at (184.029,335.817) {\coChu{14}\bfseries Tên nhóm:};
+  \node[anchor=base west] at (318.513,335.817) {\coChu{14}\bfseries NHÓM 13};
+  \node[anchor=base west] at (184.029,310.172) {\coChu{14}\bfseries Sinh viên thực hiện:};
+  \node[anchor=base west] at (318.513,310.172) {\coChu{14}\bfseries Trần Văn Dưỡng};
+  \node[anchor=base west] at (318.513,289.273) {\coChu{14}\bfseries Đặng Hoàng An};
+  \node[anchor=base west] at (184.029,257.997) {\coChu{14}\bfseries Giáo viên hướng dẫn:\hspace{5pt} TS. Ngô Hữu Huy};
+  % nơi và năm
+  \node[anchor=base] at (318.513,110.593) {\coChu{14}\bfseries THÁI NGUYÊN, NĂM 2026};
+\end{tikzpicture}
+\null
 \end{titlepage}
-\restoregeometry

@@ -5,12 +5,12 @@
 ## 1. Ai làm phần nào
 Xem [docs/phan-cong.md](docs/phan-cong.md). Mỗi module trong `src/` có một người chịu trách nhiệm chính
 (ghi trong README của module và trong `.github/CODEOWNERS`). **Làm trong module của mình.** Muốn sửa module
-của người kia thì báo trước hoặc mở PR để người đó duyệt. Module `[Chung]` (`common/`, `patchcore/`) sửa
+của người kia thì báo trước hoặc mở PR để người đó duyệt. Phần dùng chung (`tools/`, `tests/`, `docs/`) sửa
 xong phải báo người kia.
 
 ## 2. Ranh giới giữa hai người: giao diện chung
 Hai người chỉ "gặp nhau" ở một số điểm cố định, ghi trong [docs/giao-dien-chung.md](docs/giao-dien-chung.md):
-dữ liệu trả về từ DataLoader, định dạng anomaly map, điểm ảnh, các cột CSV kết quả.
+hàm đọc dữ liệu, giao diện fit/predict, định dạng anomaly map, file mô hình đã lưu, các cột CSV kết quả.
 Giữ đúng giao diện này thì mỗi người làm phần mình mà không cần chờ người kia.
 **Đổi giao diện chung phải báo người kia trước.**
 
@@ -41,7 +41,7 @@ Viết tiếng Việt, ngắn, nói rõ làm gì: `Thêm encoder cho conv AE`, `
 Commit và đẩy nhánh của mình thường xuyên (`git push`), để người kia thấy tiến độ và không mất code.
 
 ## 5. Pull Request
-Xong một phần dùng được (ví dụ DataLoader chạy được, AE chạy thử được 3 loại):
+Xong một phần dùng được (ví dụ một thí nghiệm chạy được, demo nạp được mô hình mới):
 1. `git push` nhánh của mình.
 2. Mở PR **từ `an/dev` (hoặc `duong/dev`) vào `main`**, điền mẫu (mục tiêu, lý do, cách kiểm tra, thẻ Trello).
 3. Người kia đọc và duyệt. Đọc PR cũng là cách hiểu phần của nhau để trả lời hội đồng.
@@ -53,7 +53,7 @@ PR nhỏ, gộp thường xuyên (vài ngày một lần) thì ít xung đột h
 Dữ liệu (`datasets/`), checkpoint (`*.pt`, `*.ckpt`), memory bank, ảnh kết quả. Chỉ đưa file CSV số liệu
 trong `results/`. `.gitignore` đã chặn sẵn.
 
-## 7. Trước khi chạy lấy số cho báo cáo
-- Chạy thử 3 loại (bottle, carpet, screw) để kiểm tra code, rồi mới chạy **đủ 15 loại**.
-- Dùng đúng `configs/common.yaml`, cùng phiên bản thư viện (xem `requirements.txt`).
-- Ghi kết quả vào `results/results.csv` theo đúng các cột trong giao diện chung.
+## 7. Trước khi đẩy code và trước khi chạy lấy số cho báo cáo
+- Chạy kiểm thử: `python -m unittest discover -s tests -v` (CPU, không cần dữ liệu; phần demo tự bỏ qua nếu chưa có mô hình).
+- Siêu tham số chung chỉ đổi ở `src/tn/config.py`; đổi thì phải chạy lại mọi thí nghiệm bị ảnh hưởng và sinh lại notebook Colab (`python tools/make_colab_notebook.py`).
+- Cùng phiên bản thư viện (xem `requirements.txt`). Không đổi định dạng mô hình lưu trong `results/checkpoints_tn/` khi chưa fit lại cả 9 loại.
