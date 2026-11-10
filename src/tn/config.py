@@ -1,6 +1,9 @@
 """Siêu tham số chung cho mọi thí nghiệm TN (giữ đúng giá trị đã dùng để ra kết quả trong resuilts_6)."""
+from pathlib import Path
+
 import torch
 
+ROOT = Path(__file__).resolve().parents[2]      # thư mục gốc dự án
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 IMG_SIZE = 256

@@ -13,8 +13,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from src.common.config import ROOT
-from src.tn.config import DEVICE
+from src.tn.config import DEVICE, ROOT
 from src.tn.methods import ConvAE, predict_method
 
 MODEL_ROOT = Path(os.environ.get("TN_CHECKPOINT_ROOT", ROOT / "results" / "checkpoints_tn"))
