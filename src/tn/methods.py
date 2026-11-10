@@ -9,6 +9,7 @@
 Anomaly map của mọi phương pháp được nội suy về kích thước ảnh rồi làm mượt Gauss σ = BLUR_SIGMA.
 """
 import math
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -17,13 +18,12 @@ import torch.nn.functional as F
 import torchvision.transforms.functional as TF
 from torchvision.models import Wide_ResNet50_2_Weights, wide_resnet50_2
 
-from src.tn.config import (AE_BATCH, AE_LR, AE_STEPS, BLUR_SIGMA, DEVICE, IMG_SIZE, PADIM_DIM, PADIM_IDX_SEED,
-                           PC_CORESET, PC_CORESET_MIN_BANK, PC_DIM)
+from src.tn.config import (AE_BATCH, AE_LR, AE_STEPS, BLUR_SIGMA, DEVICE, PADIM_DIM, PADIM_IDX_SEED, PC_CORESET,
+                           PC_CORESET_MIN_BANK, PC_DIM, SQUARE)
 
 MEAN = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
 STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
 KSIZE = 2 * int(4 * BLUR_SIGMA + 0.5) + 1
-SQUARE = (IMG_SIZE, IMG_SIZE)
 PADIM_IDX = torch.from_numpy(np.random.default_rng(PADIM_IDX_SEED).choice(256 + 512 + 1024, PADIM_DIM, replace=False))
 
 
@@ -237,6 +237,33 @@ def predict_method(model, imgs):
     pad, pc = extract_features(imgs, which=(kind,))
     hw = imgs.shape[1:3]
     return padim_predict(st, pad, hw) if kind == "padim" else patchcore_predict(st, pc, hw)
+
+
+# ----------------------------------------------------------------- lưu / nạp mô hình đã fit
+MODEL_FILES = {"ae": "ae.pt", "padim": "padim.pt", "patchcore": "patchcore_bank.pt"}
+
+
+def save_model(model, folder):
+    """Ghi trạng thái đã fit vào folder/<tên file> (định dạng mà demo nạp lại, xem MODEL_FILES)."""
+    kind, st = model
+    if kind == "ae":
+        torch.save(st.state_dict(), Path(folder) / MODEL_FILES[kind])
+    elif kind == "padim":
+        torch.save(dict(mu=st["mu"].cpu(), inv=st["inv"].cpu(), H=st["H"], W=st["W"]), Path(folder) / MODEL_FILES[kind])
+    else:
+        torch.save(st.half().cpu(), Path(folder) / MODEL_FILES[kind])
+
+
+def load_model(folder, kind):
+    """Nạp mô hình đã lưu bằng save_model -> (tên phương pháp, trạng thái) dùng được với predict_method."""
+    st = torch.load(Path(folder) / MODEL_FILES[kind], map_location="cpu", weights_only=True)
+    if kind == "ae":
+        net = ConvAE()
+        net.load_state_dict(st)
+        return "ae", net.to(DEVICE).eval()
+    if kind == "padim":
+        return "padim", dict(mu=st["mu"].to(DEVICE), inv=st["inv"].to(DEVICE), H=st["H"], W=st["W"])
+    return "patchcore", st.to(DEVICE).float()
 
 
 def run_on_features(method, feat_train, feat_test, seed=0):

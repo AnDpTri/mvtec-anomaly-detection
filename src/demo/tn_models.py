@@ -11,15 +11,13 @@ from pathlib import Path
 import cv2
 import numpy as np
 import pandas as pd
-import torch
 
-from src.tn.config import DEVICE, ROOT
-from src.tn.methods import ConvAE, predict_method
+from src.tn import methods
+from src.tn.config import ROOT
 
 MODEL_ROOT = Path(os.environ.get("TN_CHECKPOINT_ROOT", ROOT / "results" / "checkpoints_tn"))
 DATA_ROOT = ROOT / "datasets"
 DATASET_NAME = {"mvtec": "MVTec AD", "ad2": "MVTec AD 2", "visa": "VisA"}
-FILES = {"ae": "ae.pt", "padim": "padim.pt", "patchcore": "patchcore_bank.pt"}
 
 
 def categories():
@@ -41,15 +39,7 @@ def load_meta(cat):
 
 @lru_cache(maxsize=1)                       # PaDiM sheet_metal chiếm ~650 MB, chỉ giữ một mô hình
 def load_model(cat, method):
-    f = MODEL_ROOT / cat / FILES[method]
-    st = torch.load(f, map_location="cpu", weights_only=True)
-    if method == "ae":
-        net = ConvAE()
-        net.load_state_dict(st)
-        return "ae", net.to(DEVICE).eval()
-    if method == "padim":
-        return "padim", dict(mu=st["mu"].to(DEVICE), inv=st["inv"].to(DEVICE), H=st["H"], W=st["W"])
-    return "patchcore", st.to(DEVICE).float()
+    return methods.load_model(MODEL_ROOT / cat, method)
 
 
 def to_input(image, hw):
@@ -64,7 +54,7 @@ def predict(image, cat, method):
     """-> (ảnh đã resize, anomaly map, điểm ảnh, meta)."""
     meta = load_meta(cat)
     x = to_input(image, tuple(meta["hw"]))
-    m = predict_method(load_model(cat, method), x)[0]
+    m = methods.predict_method(load_model(cat, method), x)[0]
     return x[0], m, float(m.max()), meta
 
 

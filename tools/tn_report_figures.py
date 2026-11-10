@@ -6,7 +6,6 @@
 
 Chạy:  python tools/tn_report_figures.py
 """
-import json
 import sys
 import time
 from pathlib import Path
@@ -24,10 +23,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 from src.demo import tn_models  # noqa: E402
 from src.tn import data as D  # noqa: E402
-from src.tn.config import DEVICE  # noqa: E402
-from src.tn.methods import free_gpu, predict_method  # noqa: E402
+from src.tn.config import DEVICE, METHODS  # noqa: E402
+from src.tn.methods import MODEL_FILES, free_gpu, predict_method  # noqa: E402
 
-METHODS = ["ae", "padim", "patchcore"]
 N_TIME = 32                                      # số ảnh test dùng để đo thời gian suy luận
 NAME = {"ae": "Autoencoder", "padim": "PaDiM", "patchcore": "PatchCore"}
 FIG_DIR = ROOT / "bao_cao" / "images" / "ket_qua"
@@ -56,7 +54,7 @@ def cost():
                 predict_method(model, imgs[i:i + 1])
             sync()
             ms = (time.perf_counter() - t0) / N_TIME * 1000
-            mb = (tn_models.MODEL_ROOT / cat / tn_models.FILES[m]).stat().st_size / 2**20
+            mb = (tn_models.MODEL_ROOT / cat / MODEL_FILES[m]).stat().st_size / 2**20
             rows.append(dict(loai=cat, pp=m, hw=f"{meta['hw'][0]}x{meta['hw'][1]}", ms_per_img=round(ms, 1),
                              mb=round(mb, 1)))
             print(f"{cat:11s} {m:9s} {ms:6.1f} ms/ảnh  {mb:6.1f} MB")

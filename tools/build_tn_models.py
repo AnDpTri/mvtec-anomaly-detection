@@ -28,14 +28,13 @@ sys.path.insert(0, str(ROOT))
 sys.stdout.reconfigure(encoding="utf-8")
 
 from src.tn import data as D                                         # noqa: E402
-from src.tn.config import DEVICE                                     # noqa: E402
-from src.tn.methods import fit_method, free_gpu, predict_method      # noqa: E402
+from src.tn.config import DEVICE, METHODS                            # noqa: E402
+from src.tn.methods import fit_method, free_gpu, predict_method, save_model   # noqa: E402
 from src.tn.metrics import metrics_full, thresholds_from_val         # noqa: E402
 from src.tn.splits import split_fit_val                              # noqa: E402
 
 DATA = ROOT / "datasets"
 OUT = ROOT / "results" / "checkpoints_tn"
-METHODS = ["ae", "padim", "patchcore"]
 
 CATS = {
     "grid": ("mvtec", (256, 256), 0.10),
@@ -50,40 +49,30 @@ CATS = {
 }
 
 
-def load_split(cat, source):
+def load_split(cat, source, data_dir):
     """-> (ảnh fit, ảnh val, danh sách test, mask thr). Đường dẫn giữ dạng tương đối với datasets/."""
     if source == "mvtec":
-        d = D.load_mvtec(DATA / "MVTecAD", cat)
+        d = D.load_mvtec(data_dir / "MVTecAD", cat)
         fit_p, val_p = split_fit_val(d["train"])
         return fit_p, val_p, d["test"], 127
     if source == "ad2":
-        d = D.load_ad2(DATA / "MVTecAD2", cat)
+        d = D.load_ad2(data_dir / "MVTecAD2", cat)
         return d["train"], d["val"], d["test"], 127
-    root = DATA / "VisA"
+    root = data_dir / "VisA"
     d = D.load_visa(root, pd.read_csv(root / "split_csv" / "1cls.csv"), cat)
     fit_p, val_p = split_fit_val(d["train"])
     return fit_p, val_p, d["test"], 0
 
 
-def save_state(method, st, out):
-    kind, s = st
-    if kind == "ae":
-        torch.save(s.state_dict(), out / "ae.pt")
-    elif kind == "padim":
-        torch.save(dict(mu=s["mu"].cpu(), inv=s["inv"].cpu(), H=s["H"], W=s["W"]), out / "padim.pt")
-    else:
-        torch.save(s.half().cpu(), out / "patchcore_bank.pt")
-
-
-def build(cat):
+def build(cat, data_dir=DATA, out_dir=OUT):
     source, hw, coreset = CATS[cat]
-    out = OUT / cat
+    out = out_dir / cat
     if (out / "meta.json").exists():
         print(f"[{cat}] đã có, bỏ qua")
         return
     out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
-    fit_p, val_p, test, mthr = load_split(cat, source)
+    fit_p, val_p, test, mthr = load_split(cat, source, data_dir)
     imgs_fit, imgs_val = D.load_imgs(fit_p, hw), D.load_imgs(val_p, hw)
     imgs_te = D.load_imgs([t["path"] for t in test], hw)
     masks = D.load_masks(test, hw, thr=mthr)
@@ -91,7 +80,7 @@ def build(cat):
     print(f"[{cat}] {hw[0]}x{hw[1]} fit={len(fit_p)} val={len(val_p)} test={len(test)} "
           f"({int(labels.sum())} lỗi) nạp trong {time.time() - t0:.0f}s")
 
-    rel = lambda p: Path(p).relative_to(DATA).as_posix() if p else ""
+    rel = lambda p: Path(p).relative_to(data_dir).as_posix() if p else ""
     scores_df = pd.DataFrame(dict(path=[rel(t["path"]) for t in test], dtype=[t["dtype"] for t in test],
                                   label=labels, mask=[rel(t["mask"]) for t in test]))
     if source == "ad2":
@@ -107,7 +96,7 @@ def build(cat):
         maps = predict_method(st, imgs_te)
         scores = maps.reshape(len(maps), -1).max(1)
         met = metrics_full(scores, maps, labels, masks, thr)
-        save_state(method, st, out)
+        save_model(st, out)
         meta["thr"][method] = dict(**thr, lo=float(val_maps.mean()))
         meta["metrics"][method] = {k: round(float(met[k]), 4) for k in
                                    ("i_auroc", "p_auroc", "aupro", "img_fpr_thr", "img_tpr_thr")}
@@ -131,7 +120,6 @@ if __name__ == "__main__":
     a = ap.parse_args()
     if set(a.cats) - set(CATS):
         ap.error(f"loại không hợp lệ: {sorted(set(a.cats) - set(CATS))}")
-    DATA, OUT = a.data, a.out
     print("thiết bị:", DEVICE, torch.cuda.get_device_name(0) if DEVICE == "cuda" else "")
     for c in a.cats or list(CATS):
-        build(c)
+        build(c, a.data, a.out)
