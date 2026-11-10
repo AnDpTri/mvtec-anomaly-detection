@@ -1,10 +1,13 @@
-% Bìa theo mẫu bản Word của nhóm: khung viền dày cách mép giấy 24pt, tiêu đề đỏ
-\newgeometry{left=3cm,right=2.5cm,top=2.8cm,bottom=2.8cm}
+% Bìa: khung viền đôi lấy đúng tọa độ và nét từ bìa của Nhóm 01 (đo trên PDF, đơn vị bp tính từ góc dưới trái trang A4)
+\newgeometry{left=3.7cm,right=2.2cm,top=3.4cm,bottom=3.8cm}
 \begin{titlepage}
 \definecolor{xanhbien}{RGB}{0,112,192}
-\begin{tikzpicture}[remember picture, overlay]
-  \draw[line width=4.5pt]
-    ([xshift=24pt,yshift=24pt]current page.south west) rectangle ([xshift=-24pt,yshift=-24pt]current page.north east);
+% xdvipdfmx nhân mọi kích thước với 0,998792 nên đơn vị được bù 1/0,998792;
+% gốc trang của tikz lệch 0,553 bp theo chiều dọc so với mép giấy nên dịch xuống bù lại
+\begin{tikzpicture}[remember picture, overlay, x=1.0012095bp, y=1.0012095bp,
+  shift={([yshift=-0.553bp]current page.south west)}]
+  \draw[line width=2.59032bp] (92.016,88.324) rectangle (545.016,767.824);
+  \draw[line width=0.79701bp] (96.828,93.136) rectangle (540.203,763.011);
 \end{tikzpicture}\par
 \centering
 {\large TRƯỜNG ĐẠI HỌC CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG\par}
