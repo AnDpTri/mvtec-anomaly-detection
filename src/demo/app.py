@@ -5,7 +5,7 @@ Yêu cầu (thẻ Trello "Làm demo Gradio"):
 - Hiển thị điểm bất thường, heatmap chồng lên ảnh, kết luận lỗi / không lỗi.
 - Ngưỡng chọn riêng cho từng loại; ghi rõ cách chọn trong README.
 
-Mô hình: 9 loại của thí nghiệm TN1–TN5 (MVTec AD, MVTec AD 2, VisA), tạo bằng tools/build_tn_models.py.
+Mô hình: 9 loại của thí nghiệm TN1–TN5 (MVTec AD, MVTec AD 2, VisA), tạo bằng tools/build_inference.py.
 Ngưỡng = trung bình + 3 độ lệch chuẩn của điểm trên ảnh good validation (không dùng ảnh train, không dùng ảnh test).
 
 Chạy từ thư mục gốc dự án: python -m src.demo.app
@@ -14,7 +14,7 @@ Chạy từ thư mục gốc dự án: python -m src.demo.app
 import argparse
 import numpy as np
 from PIL import Image
-from src.demo import tn_models
+from src.demo import inference
 
 METHOD_NAME = {"ae": "Autoencoder", "padim": "PaDiM", "patchcore": "PatchCore"}
 
@@ -23,7 +23,7 @@ def predict(image, category, method):
     """Trả về (heatmap chồng ảnh, điểm bất thường, kết luận)."""
     if image is None:
         raise ValueError("Chọn ảnh sản phẩm trước khi chạy.")
-    img, anomaly, score, meta = tn_models.predict(image, category, method)
+    img, anomaly, score, meta = inference.predict(image, category, method)
     from matplotlib import colormaps
 
     thr = meta["thr"][method]
@@ -50,9 +50,9 @@ def main():
     parser.add_argument("--port", type=int, default=7864)
     args = parser.parse_args()
 
-    cats = tn_models.categories()
+    cats = inference.categories()
     if not cats:
-        raise SystemExit(f"Chưa có mô hình trong {tn_models.MODEL_ROOT}. Chạy tools/build_tn_models.py trước.")
+        raise SystemExit(f"Chưa có mô hình trong {inference.MODEL_ROOT}. Chạy tools/build_inference.py trước.")
 
     def run(image, category, method):
         try:
@@ -77,7 +77,7 @@ def main():
                 overlay = gr.Image(type="pil", label="Vùng nghi ngờ · sáng = vượt ngưỡng pixel")
                 score = gr.Number(label="Điểm bất thường · không phải xác suất", precision=6)
                 conclusion = gr.Textbox(label="Kết luận", interactive=False, lines=4)
-        ex = tn_models.examples()
+        ex = inference.examples()
         if ex:
             gr.Examples(ex, [image, category], label="Ảnh mẫu từ tập test (mỗi loại 1 tốt, 1 lỗi)")
         gr.Markdown(

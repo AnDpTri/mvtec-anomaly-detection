@@ -12,16 +12,16 @@ class ToInput(unittest.TestCase):
     """Ảnh người dùng tải lên được đưa về đúng kích thước mô hình (không cần mô hình thật)."""
 
     def test_resizes_pil_and_numpy_and_gray(self):
-        from src.demo import tn_models
+        from src.demo import inference
         rgb = Image.fromarray(np.random.default_rng(0).integers(0, 255, (50, 70, 3), dtype=np.uint8))
-        self.assertEqual(tn_models.to_input(rgb, (32, 48)).shape, (1, 32, 48, 3))
-        self.assertEqual(tn_models.to_input(np.zeros((20, 20), np.uint8), (16, 16)).shape, (1, 16, 16, 3))
-        self.assertEqual(tn_models.to_input(np.zeros((20, 20, 4), np.uint8), (16, 16)).shape, (1, 16, 16, 3))
+        self.assertEqual(inference.to_input(rgb, (32, 48)).shape, (1, 32, 48, 3))
+        self.assertEqual(inference.to_input(np.zeros((20, 20), np.uint8), (16, 16)).shape, (1, 16, 16, 3))
+        self.assertEqual(inference.to_input(np.zeros((20, 20, 4), np.uint8), (16, 16)).shape, (1, 16, 16, 3))
 
     def test_missing_model_message(self):
-        from src.demo import tn_models
+        from src.demo import inference
         with self.assertRaises(FileNotFoundError):
-            tn_models.load_meta("loai_khong_ton_tai")
+            inference.load_meta("loai_khong_ton_tai")
 
 
 class DemoWithSavedModels(unittest.TestCase):
@@ -29,14 +29,14 @@ class DemoWithSavedModels(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from src.demo import tn_models
-        cls.T = tn_models
-        cats = [c for _, c in tn_models.categories()]
+        from src.demo import inference
+        cls.T = inference
+        cats = [c for _, c in inference.categories()]
         if not cats:
             raise unittest.SkipTest("chưa có mô hình trong results/checkpoints_tn")
         cls.cat = "grid" if "grid" in cats else cats[0]
-        df = pd.read_csv(tn_models.MODEL_ROOT / cls.cat / "test_scores.csv")
-        df = df[[(tn_models.DATA_ROOT / p).exists() for p in df.path]]
+        df = pd.read_csv(inference.MODEL_ROOT / cls.cat / "test_scores.csv")
+        df = df[[(inference.DATA_ROOT / p).exists() for p in df.path]]
         if df.empty:
             raise unittest.SkipTest("chưa có ảnh test trong datasets/")
         cls.row = df.iloc[0]

@@ -1,4 +1,4 @@
-"""Nạp mô hình của tools/build_tn_models.py (results/checkpoints_tn/<loại>/) và chấm một ảnh.
+"""Suy luận cho demo: nạp mô hình của tools/build_tn_models.py (results/checkpoints_tn/<loại>/) và chấm một ảnh.
 
 Mỗi loại có ae.pt, padim.pt, patchcore_bank.pt và meta.json (kích thước ảnh, ngưỡng mean + 3σ trên ảnh good
 validation, chỉ số trên tập test). Suy luận dùng lại đúng lớp Detector của src/tn nên kết quả trùng với lúc fit.
