@@ -141,7 +141,7 @@ Bảng~\ref{tab:tools} liệt kê các thư viện được dùng và vai trò c
     \toprule
     Thư viện & Vai trò trong đề tài \\
     \midrule
-    PyTorch, torchvision~\cite{pytorchOptimizingModelParameters} & Cài đặt cả ba phương pháp; huấn luyện Autoencoder; nạp
+    PyTorch, torchvision~\cite{paszkePyTorchImperativeStyle2019} & Cài đặt cả ba phương pháp; huấn luyện Autoencoder; nạp
       Wide-ResNet-50-2 học trước; làm mượt bản đồ \\
     OpenCV & Đọc và thu nhỏ ảnh, mặt nạ \\
     scikit-learn~\cite{scikit-learnMachineLearning} & Tính image-AUROC và pixel-AUROC \\
@@ -528,9 +528,11 @@ screw, loại khó nhất của MVTec AD với hầu hết phương pháp, nên 
 nhóm khác bài gốc ở hai điểm: không cắt vùng giữa ảnh và không dùng bước hiệu chỉnh trọng số khi tính điểm ảnh.
 
 PaDiM được báo cáo đạt pixel-AUROC 0,975 với Wide-ResNet-50-2 trên MVTec AD~\cite{defardPaDiMPatchDistribution2021};
-nhóm đạt 0,962 trên ba loại. Kết quả của PaDiM và PatchCore cũng khớp với các thí nghiệm riêng của nhóm chạy bằng cùng
-mã nguồn trước đó: chênh lệch image-AUROC tối đa 0,001, cho thấy quy trình lặp lại được; Autoencoder dao động hơn vì
-được huấn luyện từ khởi tạo ngẫu nhiên (Mục~\ref{sec:han-che}).
+nhóm đạt 0,962 trên ba loại. Kết quả ở Bảng~\ref{tab:per-category} cũng khớp với những lần chạy cùng cấu hình
+trong các thí nghiệm chuyên sâu, chạy riêng trước đó trên cùng loại GPU: đường chéo của ma trận nguồn và đích ở Thí
+nghiệm 3 (pcb1--pcb4) và mốc không thay đổi ở Thí nghiệm 4 (screw, transistor) chênh image-AUROC tối đa 0,001 với cả
+ba phương pháp, cho thấy quy trình lặp lại được. Khi đổi sang GPU khác, Autoencoder dao động hơn vì được huấn luyện từ
+khởi tạo ngẫu nhiên (Mục~\ref{sec:han-che}).
 
 \section{Ứng dụng minh họa}
 \label{sec:demo}
@@ -549,6 +551,11 @@ nên các khác biệt dưới khoảng 0,02 AUROC không nên coi là có ý ng
 Autoencoder thì dao động: cùng mã nguồn, grid đạt image-AUROC 0,836 trên T4 và 0,804 trên RTX 3050. Autoencoder
 cũng chỉ được thử một cấu hình (sai số bình phương, cổ chai 256, 1500 bước); hàm mất mát SSIM và các kích thước cổ
 chai khác chưa được thử; các biến thể mạnh hơn có thể thay đổi kết luận về độ nhạy với độ sáng và lỗi nhỏ.
+Autoencoder còn nhận mọi ảnh ở kích thước 256 $\times$ 256, nên ảnh không vuông bị ép tỷ lệ trước khi vào mạng:
+sheet\_metal (256 $\times$ 1024) bị nén 4 lần theo chiều ngang, làm vết xước vốn đã mảnh càng mảnh hơn. Đây có thể là
+một phần lý do Autoencoder chỉ đạt 0,601 ở loại này, và so sánh với PaDiM, PatchCore trên sheet\_metal vì vậy chưa
+hoàn toàn công bằng. Với PaDiM và PatchCore, ảnh VisA được đưa về cùng 256 $\times$ 320, nên pcb3 (tỷ lệ gốc khoảng
+1,63) cũng bị ép khoảng 23\% theo chiều ngang.
 
 Kết quả trên 9 loại chưa đại diện cho toàn bộ ba bộ dữ liệu. Tập test của MVTec AD 2 theo từng điều kiện chụp chỉ có
 4--5 ảnh tốt, nên FPR theo điều kiện có sai số lớn. Grid chỉ có 57 ảnh lỗi nên Thí nghiệm 1 trên grid dừng ở 10\%.

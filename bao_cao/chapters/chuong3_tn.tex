@@ -49,7 +49,10 @@ patch lỗi vào bộ nhớ, nên lỗi cùng kiểu ở tập test tìm đượ
 
 Nhóm trộn 0\%, 5\%, 10\% và 20\% ảnh lỗi vào tập huấn luyện của screw và grid; ảnh lỗi lấy từ tập test rồi bị loại
 khỏi tập đánh giá, mỗi mức lặp 5 seed. Grid chỉ có 57 ảnh lỗi nên dừng ở 10\% (29 ảnh); số ảnh lỗi trộn vào screw ở
-ba mức là 17, 36 và 80.
+ba mức là 17, 36 và 80. Để các mức so sánh được với nhau, toàn bộ kho ảnh lỗi dành cho mức cao nhất bị bỏ khỏi tập
+đánh giá ở mọi mức, kể cả mức 0\%. Vì vậy mức 0\% ở Bảng~\ref{tab:tn1} là trung bình 5 seed trên một tập test nhỏ hơn,
+và lệch nhẹ so với mốc chạy một lần trên toàn bộ tập test ở Bảng~\ref{tab:tn-moc} (ví dụ PaDiM trên screw 0,737 so
+với 0,722).
 
 \begin{table}[htbp]
   \centering

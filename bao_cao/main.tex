@@ -15,6 +15,10 @@
 \usetikzlibrary{calc}
 \usepackage[backend=biber,style=ieee,sorting=none,language=american]{biblatex}
 \addbibresource{references.bib}
+% chuỗi mặc định của biblatex là "visited on", "address"; đổi về cách ghi chuẩn IEEE
+% babel tiếng Việt làm biblatex nạp ngôn ngữ 'vietnamese' (dùng english.lbx), nên chuỗi của style ieee không áp vào
+\DeclareFieldFormat{url}{[Online]\adddot\addspace Available\addcolon\space\url{#1}\nopunct}
+\DeclareFieldFormat{urldate}{Accessed\addcolon\space#1}
 % Cho phép ngắt URL dài trong tài liệu tham khảo ở chữ thường, chữ hoa và chữ số
 \setcounter{biburllcpenalty}{7000}
 \setcounter{biburlucpenalty}{8000}
@@ -65,6 +69,11 @@
 \renewcommand{\cftchapleader}{\bfseries\cftdotfill{\cftdotsep}}
 \renewcommand{\cftchappagefont}{\bfseries}
 
+% cho hình lớn nằm chung trang với chữ thay vì đứng một mình giữa trang trống
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.8}
 \begin{document}
 
 \input{chapters/bia}
